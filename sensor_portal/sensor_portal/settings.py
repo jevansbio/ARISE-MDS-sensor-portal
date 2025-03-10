@@ -64,7 +64,9 @@ INSTALLED_APPS = [
     # my apps
     'data_models',
     'user_management',
-    'utils'
+    'utils',
+    # API documentation
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
