@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import *
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from .models import User, DeviceUser
+from django.contrib.auth.admin import UserAdmin
 from rest_framework.authtoken.models import Token, TokenProxy
 from rest_framework.authtoken.admin import TokenAdmin
 
 TokenAdmin.raw_id_fields = ['user']
+
 
 class TokenInline(admin.StackedInline):
     model = Token
@@ -14,7 +15,8 @@ admin.site.unregister(TokenProxy)
 
 
 class InlineUserAdmin(UserAdmin):
-    list_display = ('email', 'username', 'first_name', 'last_name', 'is_active', 'date_joined')
+    list_display = ('email', 'username', 'first_name',
+                    'last_name', 'is_active', 'date_joined')
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'groups')
     search_fields = ('username', 'first_name', 'last_name')
 
@@ -38,11 +40,12 @@ class InlineUserAdmin(UserAdmin):
 
 
 admin.site.register(User, InlineUserAdmin)
+
+
 class DeviceUserAdmin(UserAdmin):
     list_display = ('username',)
-    list_filter =()
+    list_filter = ()
     search_fields = ('username',)
-
 
     inlines = [
         TokenInline,
@@ -62,19 +65,19 @@ class DeviceUserAdmin(UserAdmin):
 admin.site.register(DeviceUser, DeviceUserAdmin)
 
 
-class GroupProfileInline(admin.StackedInline):
-    model = GroupProfile
+# class GroupProfileInline(admin.StackedInline):
+#     model = GroupProfile
 
 
-class GroupAdmin(GroupAdmin):
-    inlines = [
-        GroupProfileInline,
-    ]
+# class GroupAdmin(GroupAdmin):
+#     inlines = [
+#         GroupProfileInline,
+#     ]
 
-    def save_model(self, request, obj, form, change):
-        obj.from_admin_site = True
-        super().save_model(request, obj, form, change)
+#     def save_model(self, request, obj, form, change):
+#         obj.from_admin_site = True
+#         super().save_model(request, obj, form, change)
 
 
-admin.site.unregister(Group)
-admin.site.register(Group, GroupAdmin)
+# admin.site.unregister(Group)
+# admin.site.register(Group, GroupAdmin)

@@ -1,6 +1,7 @@
 *.bak
 secrets/
 file_storage/
+scratch/
 sensor_portal_database/
 .idea
 .idea/*
@@ -8,3 +9,28 @@ sensor_portal_database/
 .idea/workspace.xml
 .idea/workspace.xml
 *.code-workspace
+.vscode/
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+sensor_portal/observation_editor/permissions.py
+db_struct.erd

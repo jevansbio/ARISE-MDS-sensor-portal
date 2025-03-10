@@ -1,78 +1,76 @@
-from django.conf import settings
-import pytz
-import dateutil.parser
-import os
-import datetime
-
-from django.core.exceptions import ObjectDoesNotExist
-import traceback
+import hashlib
+import subprocess
 
 
+def convert_unit(size_in_bytes: int, unit: str) -> float:
+    """
+    Convert the size from bytes to 
+    other units like KB, MB or GB
 
-def get_global_project():
-    from data_models.models import Project
-    try:
-        global_project = Project.objects.get(projectID=settings.GLOBAL_PROJECT_ID)
-        return global_project
-    except ObjectDoesNotExist:
-        global_project = Project(projectID=settings.GLOBAL_PROJECT_ID,
-                                 projectName=settings.GLOBAL_PROJECT_ID,
-                                 projectObjectives="Global project for all deployments")
-        global_project.save()
-        return global_project
-    except:
-        print(" Error: " + traceback.format_exc())
-        pass
+    Args:
+        size_in_bytes (int): Size of file in bytes
+        unit (str): Unit to convert to (kb, mb, gb)
 
-def check_dt(dt, device_timezone = None):
-    if dt is None:
-        return dt
+    Returns:
+        float: Size of file in chosen unit.
+    """
+    unit = unit.lower()
 
-    if device_timezone is None:
-        device_timezone = settings.TIME_ZONE
-    if type(dt) is str:
-        dt = dateutil.parser.parse(dt)
-
-    if dt.tzinfo is None:
-        mytz = pytz.timezone(device_timezone)
-        dt = mytz.localize(dt)
-
-    return dt
-
-def get_new_name(deployment, recording_dt, file_local_path, file_path, file_n=None):
-    if file_n is None:
-        file_n = get_n_files(os.path.join(file_local_path, file_path)) + 1
-    newname = f"{deployment.deployment_deviceID}_{datetime.strftime(recording_dt, '%Y-%m-%d_%H-%M-%S')}_" \
-              f"({file_n})"
-    return newname
-
-
-def get_n_files(dir_path):
-    if os.path.exists(dir_path):
-        all_files = os.listdir(dir_path)
-        # only with extension
-        all_files = [x for x in all_files if '.' in x]
-        n_files = len(all_files)
+    if unit == 'kb':
+        return size_in_bytes/1024
+    elif unit == 'mb':
+        return size_in_bytes/(1024*1024)
+    elif unit == 'gb':
+        return size_in_bytes/(1024*1024*1024)
     else:
-        n_files = 0
-    return n_files
+        return size_in_bytes
 
 
-def handle_uploaded_file(file, filepath, multipart=False):
-    os.makedirs(os.path.split(filepath)[0], exist_ok=True)
-    if multipart and os.path.exists(filepath):
-        print("append to file")
-        with open(filepath, 'ab+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
-    else:
-        with open(filepath, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+def call_with_output(command: str | list[str], cwd: str = '/', verbose=False) -> tuple[bool, str]:
+    """
+    Calls a shell command and returns its output.
 
-
-def clear_uploaded_file(filepath):
+    Args:
+        command (str | list[str]): Command to run, either a string or a list of strings (reccomended)
+        cwd (str, optional): Working directory in which to run the command. Defaults to '/'.
+        verbose (bool, optional): Print command and output to console. Defaults to False.
+    Returns:
+        tuple[bool, str]: success, shell output of command
+    """
+    success = False
+    if verbose:
+        print(command)
     try:
-        os.remove(filepath)
-    except OSError:
-        pass
+        output = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, cwd=cwd).decode()
+        success = True
+    except subprocess.CalledProcessError as e:
+        output = e.output.decode()
+    except Exception as e:
+        # check_call can raise other exceptions, such as FileNotFoundError
+        output = str(e)
+    if verbose:
+        print(output)
+    return (success, output)
+
+
+def get_md5(file_path: str) -> str:
+    """
+    Get md5 hash of file at file path.
+
+    Args:
+        file_path (str): Path to file to be hashed.
+
+    Returns:
+        str: md5 hash of file.
+    """
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+def divide_chunks(list_to_chunk, chunk_size):
+    for i in range(0, len(list_to_chunk), chunk_size):
+        yield list_to_chunk[i:i + chunk_size]

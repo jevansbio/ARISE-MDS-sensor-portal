@@ -1,146 +1,224 @@
-from django.db import models
-from django.urls import reverse
-from django.conf import settings
-from django.dispatch import receiver
-from django.contrib.auth.models import Group
-from django.db.models.signals import post_save, pre_delete, m2m_changed, post_delete
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
-from django.db.models import Sum, F, Q, BooleanField, ExpressionWrapper, Case, When, DateTimeField
-from django.utils import timezone as djtimezone
-from sizefield.models import FileSizeField
-from django.contrib.gis.geos import Point
-from django.contrib.gis.db import models as gis_models
-
-import traceback
-from datetime import datetime, timedelta, timezone, time
 import os
+import traceback
+from datetime import datetime, time, timedelta, timezone
+from threading import local
+from unittest import TextTestRunner
+
+from archiving.models import Archive, TarFile
 from bridgekeeper import perms
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.geos import Point
+from django.core.exceptions import (MultipleObjectsReturned,
+                                    ObjectDoesNotExist, ValidationError)
+from django.db import models
+from django.db.models import (BooleanField, Case, DateTimeField,
+                              ExpressionWrapper, F, Max, Min, Q, Sum, Value,
+                              When)
+from django.db.models.signals import (m2m_changed, post_delete, post_save,
+                                      pre_delete)
+from django.dispatch import receiver
+from django.urls import reverse
+from django.utils import timezone as djtimezone
+from encrypted_model_fields.fields import EncryptedCharField
+from external_storage_import.models import DataStorageInput
+from sizefield.models import FileSizeField
+from timezone_field import TimeZoneField
+from utils.general import convert_unit
+from utils.models import BaseModel
 
 from . import validators
-from utils.general import check_dt, get_global_project
+from .general_functions import check_dt
 
 
-class Basemodel(models.Model):
-    created_on = models.DateTimeField(auto_now_add=True)
-    modified_on = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-    def model_name(self):
-        return self._meta.model_name
-
-
-class Site(Basemodel):
+class Site(BaseModel):
     name = models.CharField(max_length=50)
-    short_name = models.CharField(max_length=10)
+    short_name = models.CharField(max_length=10, blank=True)
 
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if self.short_name == "":
+            self.short_name = self.name[0:10]
+        return super().save(*args, **kwargs)
 
-class DataType(Basemodel):
+
+class DataType(BaseModel):
     name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
 
 
-class Project(Basemodel):
+class Project(BaseModel):
     # Metadata
-    projectID = models.CharField(max_length=10, unique=True)
-    projectName = models.CharField(max_length=50)
-    projectObjectives = models.CharField(max_length=500, blank=True)
-    countryCode = models.CharField(max_length=10, blank=True)
-    principalInvestigator = models.CharField(max_length=50, blank=True)
-    principalInvestigatorEmail = models.CharField(max_length=100, blank=True)
-    projectContact = models.CharField(max_length=50, blank=True)
-    projectContactEmail = models.CharField(max_length=100, blank=True)
-    organizationName = models.CharField(max_length=100, blank=True)
+    project_ID = models.CharField(max_length=10, unique=True, blank=True)
+    name = models.CharField(max_length=50)
+
+    objectives = models.CharField(max_length=500, blank=True)
+    principal_investigator = models.CharField(max_length=50, blank=True)
+    principal_investigator_email = models.CharField(max_length=100, blank=True)
+    contact = models.CharField(max_length=50, blank=True)
+    contact_email = models.CharField(max_length=100, blank=True)
+    organisation = models.CharField(max_length=100, blank=True)
+    data_storages = models.ManyToManyField(
+        DataStorageInput, related_name="linked_projects", blank=True)
+    archive = models.ForeignKey(
+        Archive, related_name="linked_projects", null=True, on_delete=models.SET_NULL)
+
+    def is_active(self):
+        if self.id:
+            return self.deployments.filter(is_active=True).exists()
+        else:
+            return False
 
     # User ownership
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_projects",
                               on_delete=models.SET_NULL, null=True)
     managers = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="managed_projects")
+    viewers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_projects")
+    annotators = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_projects")
 
-    # Archiving
-    archive_files = models.BooleanField(default=True)
     clean_time = models.IntegerField(default=90)
 
     def __str__(self):
-        return self.projectID
+        return self.project_ID
 
     def get_absolute_url(self):
         return reverse('project-detail', kwargs={'pk': self.pk})
 
+    def save(self, *args, **kwargs):
+        if self.project_ID == "" or self.project_ID is None:
+            self.project_ID = self.name[0:10]
+        return super().save(*args, **kwargs)
 
-@receiver(post_save, sender=Project)
-def post_save_project(sender, instance, created, **kwargs):
-    if created:
-        groupname = f"{instance.projectID}_project_group"
-        try:
-            usergroup = Group.objects.get(name=groupname)
-        except ObjectDoesNotExist:
-            usergroup = Group(name=groupname)
-            usergroup.save()
-        usergroup_profile = usergroup.profile
-        usergroup_profile.project.add(instance)
-        usergroup_profile.save()
+# @receiver(post_save, sender=Project)
+# def post_save_project(sender, instance, created, **kwargs):
+#     if created:
+#         if instance.short_name == "":
+#             instance.short_name = instance.name[:10]
+#             instance.save()
+
+        # viewer_groupname = f"{instance.projectID}_project_viewers"
+        # viewer_usergroup = create_user_group(viewer_groupname)
+        # viewer_usergroup_profile = viewer_usergroup.profile
+        # viewer_usergroup_profile.project.add(instance)
+        # viewer_usergroup_profile.save()
+
+        # annotator_groupname = f"{instance.projectID}_project_annotators"
+        # annotator_usergroup = create_user_group(annotator_groupname)
+        # annotator_usergroup_profile = annotator_usergroup.profile
+        # annotator_usergroup_profile.project.add(instance)
+        # annotator_usergroup_profile.save()
 
 
-class Device(Basemodel):
-    deviceID = models.CharField(max_length=20, unique=True)
+class DeviceModel(BaseModel):
+    name = models.CharField(max_length=50, blank=True, unique=True)
+    manufacturer = models.CharField(max_length=50, blank=True)
+    type = models.ForeignKey(DataType, models.PROTECT,
+                             related_name="device_models")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_device_models",
+                              on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Device(BaseModel):
+    device_ID = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=50, blank=True)
-    model = models.CharField(max_length=50, blank=True)
-    make = models.CharField(max_length=200, blank=True)
-    type = models.ForeignKey(DataType, models.PROTECT, related_name="devices")
+    model = models.ForeignKey(
+        DeviceModel, models.PROTECT, related_name="registered_devices")
+
+    type = models.ForeignKey(DataType, models.PROTECT,
+                             related_name="devices", null=True)
 
     # User ownership
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_devices",
                               on_delete=models.SET_NULL, null=True)
     managers = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="managed_devices")
+    viewers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_devices")
+    annotators = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_devices")
 
     autoupdate = models.BooleanField(default=False)
     update_time = models.IntegerField(default=48)
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
-    authentication = models.CharField(max_length=100, blank=True, null=True)
-    extra_info = models.JSONField(default=dict, blank=True)
+    password = EncryptedCharField(max_length=100, blank=True, null=True)
+    input_storage = models.ForeignKey(
+        DataStorageInput, null=True, blank=True, related_name="linked_devices", on_delete=models.SET_NULL)
+
+    extra_data = models.JSONField(default=dict, blank=True)
+
+    def is_active(self):
+        if self.id:
+            return self.deployments.filter(is_active=True).exists()
+        else:
+            return False
 
     def __str__(self):
-        return self.deviceID
+        return self.device_ID
 
     def get_absolute_url(self):
-        return reverse('device-detail', kwargs={'pk': self.pk})
+        return f"/api/device/{self.pk}"
 
-    def deployment_from_date(self, dt, user=None):
-        dt = check_dt(dt)
+    def save(self, *args, **kwargs):
+        if not self.type:
+            self.type = self.model.type
+        super().save(*args, **kwargs)
 
+    def clean(self):
+        result, message = validators.device_check_type(
+            self.type, self.model)
+        print(result, message)
+        if not result:
+            raise ValidationError(message)
+        super(Device, self).clean()
+
+    def deployment_from_date(self, dt):
+
+        # print(dt)
         all_deploys = self.deployments.all()
-        if user is not None:
-            all_deploys = perms['data_models.change_deployment'].filter(
-                user, all_deploys)
+
+        all_tz = all_deploys.values('time_zone', 'pk')
+
+        all_tz = [{'time_zone': x.get(
+            'time_zone', settings.TIME_ZONE), 'pk': x['pk']} for x in all_tz]
+
+        all_dt = {x['pk']: check_dt(dt, x['time_zone']) for x in all_tz}
+
+        whens = [When(pk=k, then=Value(v)) for k, v in all_dt.items()]
+
+        all_deploys = all_deploys.annotate(
+            dt=Case(*whens, output_field=DateTimeField(), default=Value(None)))
 
         # For deployments that have not ended - end date is shifted 100 years
 
-        all_deploys = all_deploys.annotate(deploymentEnd_indefinite=Case(
-            When(deploymentEnd__isnull=True,
+        all_deploys = all_deploys.annotate(deployment_end_indefinite=Case(
+            When(deployment_end__isnull=True,
                  then=ExpressionWrapper(
-                     F('deploymentStart') + timedelta(days=365 * 100),
+                     F('deployment_start') + timedelta(days=365 * 100),
                      output_field=DateTimeField()
                  )
                  ),
-            default=F('deploymentEnd')
+            default=F('deployment_end')
         )
         )
 
         # Annotate by whether the datetime lies in the deployment range
 
         all_deploys = all_deploys.annotate(in_deployment=ExpressionWrapper(
-            Q(Q(deploymentStart__lte=dt) & Q(deploymentEnd_indefinite__gte=dt)),
+            Q(Q(deployment_start__lte=F('dt')) & Q(
+                deployment_end_indefinite__gte=F('dt'))),
             output_field=BooleanField()
         )
         )
@@ -162,54 +240,56 @@ class Device(Basemodel):
         else:
             new_end = check_dt(new_end)
 
-        print(deployment_pk)
+        # print(deployment_pk)
         all_deploys = self.deployments.all().exclude(pk=deployment_pk)
-        all_deploys = all_deploys.annotate(deploymentEnd_indefinite=Case(
-            When(deploymentEnd__isnull=True,
+        all_deploys = all_deploys.annotate(deployment_end_indefinite=Case(
+            When(deployment_end__isnull=True,
                  then=ExpressionWrapper(
-                     F('deploymentStart') + timedelta(days=365 * 100),
+                     F('deployment_start') + timedelta(days=365 * 100),
                      output_field=DateTimeField()
                  )
                  ),
-            default=F('deploymentEnd')
+            default=F('deployment_end')
         )
         )
-        print(all_deploys.values('deploymentEnd', 'deploymentEnd_indefinite'))
+        # print(all_deploys.values('deployment_end', 'deployment_end_indefinite'))
         all_deploys = all_deploys.annotate(in_deployment=ExpressionWrapper(
-            Q(Q(deploymentEnd_indefinite__gte=new_start)
-              & Q(deploymentStart__lte=new_end)),
+            Q(Q(deployment_end_indefinite__gte=new_start)
+              & Q(deployment_start__lte=new_end)),
             output_field=BooleanField()
         )
         )
 
         overlapping_deploys = all_deploys.filter(in_deployment=True)
-        return list(overlapping_deploys.values_list('deployment_deviceID', flat=True))
+        return list(overlapping_deploys.values_list('deployment_device_ID', flat=True))
 
 
-@receiver(post_save, sender=Device)
-def post_save_device(sender, instance, created, **kwargs):
-    if created:
-        groupname = f"{instance.deviceID}_device_group"
-        try:
-            usergroup = Group.objects.get(name=groupname)
-        except ObjectDoesNotExist:
-            usergroup = Group(name=groupname)
-            usergroup.save()
-        usergroup_profile = usergroup.profile
-        usergroup_profile.device.add(instance)
-        usergroup_profile.save()
+# @receiver(post_save, sender=Device)
+# def post_save_device(sender, instance, created, **kwargs):
+#     if created:
+#         viewer_groupname = f"{instance.projectID}_device_viewers"
+#         viewer_usergroup = create_user_group(viewer_groupname)
+#         viewer_usergroup_profile = viewer_usergroup.profile
+#         viewer_usergroup_profile.project.add(instance)
+#         viewer_usergroup_profile.save()
+
+#         annotator_groupname = f"{instance.projectID}_device_annotators"
+#         annotator_usergroup = create_user_group(annotator_groupname)
+#         annotator_usergroup_profile = annotator_usergroup.profile
+#         annotator_usergroup_profile.project.add(instance)
+#         annotator_usergroup_profile.save()
 
 
-class Deployment(Basemodel):
-    deployment_deviceID = models.CharField(
+class Deployment(BaseModel):
+    deployment_device_ID = models.CharField(
         max_length=100, blank=True, editable=False, unique=True)
-    deploymentID = models.CharField(max_length=50)
+    deployment_ID = models.CharField(max_length=50)
     device_type = models.ForeignKey(
         DataType, models.PROTECT, related_name="deployments", null=True)
     device_n = models.IntegerField(default=1)
 
-    deploymentStart = models.DateTimeField(default=djtimezone.now)
-    deploymentEnd = models.DateTimeField(blank=True, null=True)
+    deployment_start = models.DateTimeField(default=djtimezone.now)
+    deployment_end = models.DateTimeField(blank=True, null=True)
 
     device = models.ForeignKey(
         Device, on_delete=models.PROTECT, related_name="deployments")
@@ -217,9 +297,9 @@ class Deployment(Basemodel):
     project = models.ManyToManyField(
         Project, related_name="deployments", blank=True)
 
-    Latitude = models.DecimalField(
+    latitude = models.DecimalField(
         max_digits=8, decimal_places=6, blank=True, null=True)
-    Longitude = models.DecimalField(
+    longitude = models.DecimalField(
         max_digits=8, decimal_places=6, blank=True, null=True)
     point = gis_models.PointField(
         blank=True,
@@ -227,77 +307,90 @@ class Deployment(Basemodel):
         spatial_index=True
     )
 
-    extra_info = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
+
+    time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE)
 
     # User ownership
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_deployments",
                               on_delete=models.SET_NULL, null=True)
     managers = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="managed_deployments")
+    viewers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_deployments")
+    annotators = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_deployments")
 
     combo_project = models.CharField(
         max_length=100, blank=True, null=True, editable=False)
     last_image = models.ForeignKey("DataFile", blank=True, on_delete=models.SET_NULL, null=True, editable=False,
                                    related_name="deployment_last_image")
-    last_file = models.ForeignKey("DataFile", blank=True, on_delete=models.SET_NULL, null=True, editable=False,
-                                  related_name="deployment_last_file")
-    last_imageURL = models.CharField(
+
+    thumb_url = models.CharField(
         max_length=500, null=True, blank=True, editable=False)
 
     def get_absolute_url(self):
         return reverse('deployment-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.deployment_deviceID
+        return self.deployment_device_ID
 
     def clean(self):
-        result, message = validators.deployment_check_type(
-            self.device_type, self.device)
-        if not result:
-            raise ValidationError(message)
+        # result, message = validators.deployment_check_type(
+        #     self.device_type, self.device)
+        # if not result:
+        #     raise ValidationError(message)
+
         result, message = validators.deployment_start_time_after_end_time(
-            self.deploymentStart, self.deploymentEnd)
+            self.deployment_start, self.deployment_end)
         if not result:
             raise ValidationError(message)
         result, message = validators.deployment_check_overlap(
-            self.deploymentStart, self.deploymentEnd, self.device, self.pk)
+            self.deployment_start, self.deployment_end, self.device, self.pk)
         if not result:
             raise ValidationError(message)
         super(Deployment, self).clean()
 
     def save(self, *args, **kwargs):
-        self.deployment_deviceID = f"{self.deploymentID}_{self.device.type.name}_{self.device_n}"
+        self.deployment_device_ID = f"{self.deployment_ID}_{self.device.type.name}_{self.device_n}"
+
         self.is_active = self.check_active()
 
-        if not self.device_type:
+        if self.device_type is None:
             self.device_type = self.device.type
 
-        if self.Longitude and self.Latitude:
+        if self.longitude and self.latitude:
             self.point = Point(
-                float(self.Longitude),
-                float(self.Latitude),
+                float(self.longitude),
+                float(self.latitude),
                 srid=4326
             )
-        elif (not self.Longitude and not self.Latitude) and self.point:
-            self.Longitude, self.Latitude = self.point.coords
+        elif (self.longitude is None and self.latitude is None) and self.point is not None:
+            self.longitude, self.latitude = self.point.coords
         else:
             self.point = None
+
+        if self.id:
+            self.combo_project = self.get_combo_project()
 
         super().save(*args, **kwargs)
 
     def get_combo_project(self):
-        if self.project.all().exists:
+        if self.project.all().exists():
             all_proj_id = list(
-                self.project.all().values_list("projectID", flat=True))
+                self.project.all().values_list("project_ID", flat=True))
             all_proj_id.sort()
             return " ".join(all_proj_id)
         else:
             return ""
 
     def check_active(self):
-        if self.deploymentStart <= djtimezone.now():
-            if self.deploymentEnd is None or self.deploymentEnd >= djtimezone.now():
+        self.deployment_start = check_dt(self.deployment_start)
+        if self.deployment_end:
+            self.deployment_end = check_dt(self.deployment_end)
+        if self.deployment_start <= djtimezone.now():
+            if self.deployment_end is None or self.deployment_end >= djtimezone.now():
                 return True
 
         return False
@@ -307,56 +400,46 @@ class Deployment(Basemodel):
         result_list = []
 
         for dt in dt_list:
-            dt = check_dt(dt)
-
-            result_list.append(dt >= self.deploymentStart & (
-                dt <= self.deploymentEnd | self.deploymentEnd is None))
+            # if no TZ, localise to the device's timezone
+            dt = check_dt(dt, self.time_zone)
+            # print(dt)
+            result_list.append((dt >= self.deployment_start) and (
+                (self.deployment_end is None) or (dt <= self.deployment_end)))
 
         return result_list
 
-    def set_last_file(self, newfile=None):
-        try:
-            if self.files.exists():
-                file_object = self.files.all().latest('recording_dt')
-            elif newfile is not None:
-                if self.last_file is None:
-                    file_object = newfile
-            else:
-                file_object = None
-            if file_object is not None:
-                self.last_file = file_object
-                self.set_last_image()
-                self.save()
+    def set_thumb_url(self):
 
-        except:
-            print(traceback.format_exc())
-            pass
-
-    def set_last_image(self):
-        if self.last_file:
-            # check for thumbnail first
-            if self.last_file.file_format.lower() in [".jpg", ".jpeg"]:
-                self.last_image = self.last_file
-                self.last_imageURL = self.last_file.file_url
+        last_file = self.files.filter(thumb_url__isnull=False).order_by(
+            'recording_dt').last()
+        if last_file is not None:
+            self.last_image = last_file
+            self.thumb_url = last_file.thumb_url
+        else:
+            self.last_image = None
+            self.thumb_url = None
 
 
 @receiver(post_save, sender=Deployment)
 def post_save_deploy(sender, instance, created, **kwargs):
-    if created:
-        print("doing created stuff")
-        groupname = f"{instance.deployment_deviceID}_deployment_group"
-        try:
-            usergroup = Group.objects.get(name=groupname)
-        except ObjectDoesNotExist:
-            usergroup = Group(name=groupname)
-            usergroup.save()
-        usergroup_profile = usergroup.profile
-        usergroup_profile.deployment.add(instance)
-        usergroup_profile.save()
+    # if created:
+    #     print("doing created stuff")
+    #     viewer_groupname = f"{instance.projectID}_deployment_viewers"
+    #     viewer_usergroup = create_user_group(viewer_groupname)
+    #     viewer_usergroup_profile = viewer_usergroup.profile
+    #     viewer_usergroup_profile.project.add(instance)
+    #     viewer_usergroup_profile.save()
 
-    global_project = get_global_project()
-    print(global_project)
-    print(instance.project.all())
+    #     annotator_groupname = f"{instance.projectID}_deployment_annotators"
+    #     annotator_usergroup = create_user_group(annotator_groupname)
+    #     annotator_usergroup_profile = annotator_usergroup.profile
+    #     annotator_usergroup_profile.project.add(instance)
+    #     annotator_usergroup_profile.save()
+
+    global_project, added = Project.objects.get_or_create(
+        name=settings.GLOBAL_PROJECT_ID)
+    # print(global_project)
+    # print(instance.project.all())
     if global_project not in instance.project.all():
         instance.project.add(global_project)
         print("add global project")
@@ -367,64 +450,102 @@ def post_save_deploy(sender, instance, created, **kwargs):
 
 @receiver(m2m_changed, sender=Deployment.project.through)
 def update_project(sender, instance, action, reverse, *args, **kwargs):
+
     if (action == 'post_add' or action == 'post_remove') and not reverse:
-        print(f"project {action}")
-        combo_project = instance.get_combo_project()
-        Deployment.objects.filter(pk=instance.pk).update(
-            combo_project=combo_project)
+        instance.save()
 
 
-@receiver(post_delete, sender=Device)
-@receiver(post_delete, sender=Deployment)
-@receiver(post_delete, sender=Project)
-def clear_user_groups(sender, instance, **kwargs):
-    all_groups = Group.objects.all()
-    all_groups = all_groups.annotate(
-        all_is_null=ExpressionWrapper(
-            (Q(Q(profile__project=None) & Q(profile__device=None)
-             & Q(profile__deployment=None))),
-            output_field=BooleanField()
-        )
-    )
-    all_groups.filter(all_is_null=True).delete()
+# @receiver(post_delete, sender=Device)
+# @receiver(post_delete, sender=Deployment)
+# @receiver(post_delete, sender=Project)
+# def clear_user_groups(sender, instance, **kwargs):
+#     all_groups = Group.objects.all()
+#     all_groups = all_groups.annotate(
+#         all_is_null=ExpressionWrapper(
+#             (Q(Q(profile__project=None) & Q(profile__device=None)
+#              & Q(profile__deployment=None))),
+#             output_field=BooleanField()
+#         )
+#     )
+#     all_groups.filter(all_is_null=True).delete()
+
+class DataFileQuerySet(models.QuerySet):
+    def full_paths(self):
+        file_path_components = self.values(
+            "local_path", "path", "file_name", "file_format")
+        all_full_paths = [os.path.join(
+            x["local_path"], x["path"], x["file_name"]+x["file_format"]) for x in file_path_components]
+        return all_full_paths
+
+    def relative_paths(self):
+        file_path_components = self.values(
+            "path", "file_name", "file_format")
+        all_relative_paths = [os.path.join(
+            x["path"], x["file_name"]+x["file_format"]) for x in file_path_components]
+        return all_relative_paths
+
+    def full_names(self):
+        file_name_components = self.values(
+            "file_name", "file_format")
+        all_names = [x["file_name"]+x["file_format"]
+                     for x in file_name_components]
+        return all_names
+
+    def file_size(self, unit=""):
+        total_file_size = self.aggregate(total_file_size=Sum("file_size"))[
+            "total_file_size"]
+        converted_file_size = convert_unit(total_file_size, unit)
+        return converted_file_size
+
+    def min_date(self):
+        return self.aggregate(min_date=Min("recording_dt"))["min_date"]
+
+    def max_date(self):
+        return self.aggregate(max_date=Max("recording_dt"))["max_date"]
+
+    def device_type(self):
+        return self.annotate(device_type=F('deployment__device__type__name'))
 
 
-class DataFile(Basemodel):
+class DataFile(BaseModel):
     deployment = models.ForeignKey(
         Deployment, on_delete=models.CASCADE, related_name="files")
 
     file_type = models.ForeignKey(
-        DataType, models.PROTECT, related_name="files")
-    file_name = models.CharField(max_length=100)
+        DataType, models.PROTECT, related_name="files", null=True, default=None)
+    file_name = models.CharField(max_length=100, unique=True)
     file_size = FileSizeField()
-    file_format = models.CharField(max_length=100)
+    file_format = models.CharField(max_length=10)
 
-    upload_date = models.DateField(auto_now_add=True)
+    upload_dt = models.DateTimeField(default=djtimezone.now)
     recording_dt = models.DateTimeField(null=True, db_index=True)
     path = models.CharField(max_length=500)
     local_path = models.CharField(max_length=500, blank=True)
 
-    extra_info = models.JSONField(default=dict, blank=True)
-    extra_reps = models.JSONField(default=dict, blank=True)
-    thumb_path = models.JSONField(default=None, blank=True, null=True)
+    extra_data = models.JSONField(default=dict, blank=True)
+    linked_files = models.JSONField(default=dict, blank=True)
 
-    localstorage = models.BooleanField(default=True)
+    thumb_url = models.CharField(max_length=500, null=True, blank=True)
+
+    local_storage = models.BooleanField(default=True)
     archived = models.BooleanField(default=False)
-    # tarfile = models.ForeignKey(TarFile, on_delete=models.SET_NULL, blank=True, null=True, related_name="Files")
+    tar_file = models.ForeignKey(
+        TarFile, on_delete=models.SET_NULL, blank=True, null=True, related_name="files")
     favourite_of = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="favourites")
 
     do_not_remove = models.BooleanField(default=False)
     original_name = models.CharField(max_length=100, blank=True, null=True)
-
     file_url = models.CharField(max_length=500, null=True, blank=True)
     tag = models.CharField(max_length=250, null=True, blank=True)
+
+    objects = DataFileQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.file_name}{self.file_format}"
 
     def get_absolute_url(self):
-        return reverse('file-detail', kwargs={'pk': self.pk})
+        return reverse('datafile-detail', kwargs={'pk': self.pk})
 
     def add_favourite(self, user):
         self.favourite_of.add(user)
@@ -437,56 +558,68 @@ class DataFile(Basemodel):
     def full_path(self):
         return os.path.join(self.local_path, self.path, f"{self.file_name}{self.file_format}")
 
-    def set_file_url(self):
-        if self.localstorage:
+    def thumb_path(self):
+        return os.path.join(
+            self.local_path, self.path, self.file_name+"_THUMB.jpg")
 
+    def set_file_url(self):
+        if self.local_storage:
+            # is some of this normpath and replace stuff really needed?
             self.file_url = os.path.normpath(
                 os.path.join(settings.FILE_STORAGE_URL,
                              self.path,
                              (self.file_name + self.file_format))
             ).replace("\\", "/")
-            # if not self.thumbpath:
-            # last_images = self.DeployLastIm.all()
-            # if lastim.exists() and self.deployment:
-            #    self.deployment.GetLastImageURL()
-            #    self.deployment.save()
         else:
             self.file_url = None
 
+    def set_thumb_url(self, has_thumb=True):
+        if has_thumb:
+            self.thumb_url = os.path.normpath(os.path.join(settings.FILE_STORAGE_URL,
+                                                           self.path, self.file_name+"_THUMB.jpg"))
+        else:
+            self.thumb_url = None
+
     def clean_file(self, delete_obj=False):
         print(f"clean {delete_obj}")
-        if (
-                self.do_not_remove or self.deployment_last_image.exists or self.deployment_last_file.exists) and not delete_obj:
+        if (self.do_not_remove or self.deployment_last_image.exists()) and not delete_obj:
             return
-        if self.localstorage:
+        if self.local_storage:
             try:
                 os.remove(self.full_path())
+                os.removedirs(os.path.join(self.local_path, self.path))
             except OSError:
                 pass
 
         try:
-            os.remove(self.thumb_path["filepath"])
+            thumb_path = self.thumb_path()
+            os.remove(thumb_path)
+            os.removedirs(os.path.split(thumb_path)[0])
         except TypeError:
             pass
         except OSError:
             pass
 
-        for v in self.extra_reps.values():
+        for v in self.linked_files.values():
             try:
-                os.remove(v["filepath"])
+                extra_version_path = v["filepath"]
+                os.remove(extra_version_path)
+                os.removedirs(extra_version_path)
             except TypeError:
                 pass
             except OSError:
                 pass
 
         if not delete_obj:
-            self.localstorage = False
+            self.local_storage = False
             self.local_path = ""
-            self.extra_reps = {}
-            self.thumb_path = None
+            self.linked_files = {}
+            self.set_thumb_url(False)
             self.save()
 
     def save(self, *args, **kwargs):
+        if self.file_type is None:
+            self.file_type = self.deployment.device.type
         self.set_file_url()
         super().save(*args, **kwargs)
 
@@ -500,14 +633,8 @@ class DataFile(Basemodel):
 
 @receiver(post_save, sender=DataFile)
 def post_save_file(sender, instance, created, **kwargs):
-    # if created:
-    # print("Refresh file cache")
-    # RefreshFileCache()
-
-    # cache.delete_many(["allowed_files_{0}".format(x) for x in User.objects.all().values_list("username",flat=True)])
-    instance.deployment.set_last_file(instance)
-    # if instance.format.lower() in [".jpg",".jpeg",".png",".dat"]:
-    #    instance.deployment.SetLastImage(instance)
+    instance.deployment.set_thumb_url()
+    instance.deployment.save()
 
 
 @receiver(pre_delete, sender=DataFile)
@@ -518,4 +645,5 @@ def pre_remove_file(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=DataFile)
 def post_remove_file(sender, instance, **kwargs):
-    instance.deployment.set_last_file()
+    instance.deployment.set_thumb_url()
+    instance.deployment.save()

@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
+
+from data_handlers.base_data_handler_class import DataTypeHandlerCollection
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,19 +28,33 @@ FILE_STORAGE_URL = 'storage/'
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c-=p42@cm%8sy6-49_32*1g31eh*_w^nj)is51-%$m49zwkvm7'
 
-if os.environ.get('DEV') is not None or platform.system() == "Windows":
+DEVMODE = os.environ.get('DEV') is not None
+
+if DEVMODE:
+    SECRET_KEY = 'django-insecure-c-=p42@cm%8sy6-49_32*1g31eh*_w^nj)is51-%$m49zwkvm7'
+else:
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', None)
+
+
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY', '')
+
+STATIC_URL = 'staticfiles/'
+if DEVMODE:
     print("Running in dev mode")
     DEBUG = True
-    STATIC_URL = 'static/'
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'static_files'),
     ]
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    CORS_ALLOW_ALL_ORIGINS = True
+    CSRF_COOKIE_DOMAIN = '127.0.0.1'
 
-ALLOWED_HOSTS = []
-
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:8080',
+                            'https://localhost:8080']
+    ALLOWED_HOSTS = ['localhost']
+    CORS_ORIGINS_WHITELIST = [
+        'http://localhost:8080', 'https://localhost:8080']
 print("Reading settings!")
 
 # Application definition
@@ -61,23 +78,30 @@ INSTALLED_APPS = [
     # additional extensions
     'bridgekeeper',
     'debug_toolbar',
+    'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
+    'encrypted_model_fields',
     # my apps
     'data_models',
     'user_management',
+    'external_storage_import',
     'utils',
-    # API documentation
-    'drf_yasg',
+    'archiving',
+    'observation_editor'
+
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+
 ]
 
 ROOT_URLCONF = 'sensor_portal.urls'
@@ -171,21 +195,30 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['bridgekeeper.rest_framework.RuleFilter',
                                 'django_filters.rest_framework.DjangoFilterBackend',
-                                'rest_framework.filters.SearchFilter'],
+                                'rest_framework.filters.SearchFilter', 'rest_framework.filters.OrderingFilter'],
     'DEFAULT_PERMISSION_CLASSES': (
         'bridgekeeper.rest_framework.RulePermissions',
     ),
     'DEFAULT_PAGINATION_CLASS': 'utils.paginators.VariablePagePaginator',
-    'PAGE_SIZE': 1,
+    'PAGE_SIZE': 50,
+    'MAX_PAGE_SIZE': 100,
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         # 'rest_framework.renderers.BrowsableAPIRenderer'
         'utils.api.BrowsableAPIRendererWithoutForms',
     ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True
 }
 
 CACHES = {
@@ -212,3 +245,14 @@ CELERY_BEAT_SCHEDULE = {}
 # SENSOR-PORTAL SETTINGS
 # name of the global project all deployments will be added to
 GLOBAL_PROJECT_ID = "GLOBAL"
+
+DATA_HANDLERS = DataTypeHandlerCollection()
+
+MIN_ARCHIVE_SIZE_GB = 1
+MAX_ARCHIVE_SIZE_GB = 10
+
+if DEVMODE:
+    MIN_ARCHIVE_SIZE_GB = 0.01
+    MAX_ARCHIVE_SIZE_GB = 0.025
+
+HUMAN_TAXON_CODE = 2436436

@@ -1,34 +1,35 @@
+import os
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from django.utils import timezone as djtimezone
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework_gis import filters as filters_gis
-from utils.general import get_new_name, handle_uploaded_file
-from utils.viewsets import OptionalPaginationViewSet
+from utils.viewsets import (AddOwnerViewSetMixIn, CheckAttachmentViewSetMixIn,
+                            CheckFormViewSetMixIn,
+                            OptionalPaginationViewSetMixIn)
 
+from .file_handling_functions import create_file_objects
 from .filtersets import *
-from .models import *
-from .serializers import *
+from .models import DataFile, DataType, Deployment, Device, Project, Site
+from .permissions import perms
+from .plotting_functions import get_all_file_metric_dicts
+from .serializers import (DataFileSerializer, DataFileUploadSerializer,
+                          DataTypeSerializer, DeploymentSerializer,
+                          DeploymentSerializer_GeoJSON, DeviceSerializer,
+                          ProjectSerializer, SiteSerializer)
 
 
-class AddOwnerViewSet(viewsets.ModelViewSet):
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-
-class CheckFormViewSet(viewsets.ModelViewSet):
-    def get_serializer_context(self):
-        context = super(CheckFormViewSet, self).get_serializer_context()
-
-        context.update(
-            {'form': 'multipart/form-data' in self.request.content_type})
-        return context
-
-
-class DeploymentViewSet(AddOwnerViewSet, CheckFormViewSet, OptionalPaginationViewSet):
-    search_fields = ['deployment_deviceID', 'device__name', 'device__deviceID']
-    queryset = Deployment.objects.all()
+class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
+    search_fields = ['deployment_device_ID',
+                     'device__name', 'device__device_ID']
+    ordering_fields = ordering = [
+        'deployment_device_ID', 'created_on', 'device_type']
+    queryset = Deployment.objects.all().distinct()
     filterset_class = DeploymentFilter
     filter_backends = viewsets.ModelViewSet.filter_backends + \
         [filters_gis.InBBoxFilter]
@@ -40,60 +41,105 @@ class DeploymentViewSet(AddOwnerViewSet, CheckFormViewSet, OptionalPaginationVie
         else:
             return DeploymentSerializer
 
-    def perform_create(self, serializer):
-        self.check_attachment(serializer)
-        super(DeploymentViewSet, self).perform_create(serializer)
-
-    def perform_update(self, serializer):
-        self.check_attachment(serializer)
-        super(DeploymentViewSet, self).perform_update(serializer)
+    @action(detail=True, methods=['get'])
+    def metrics(self, request, pk=None):
+        deployment = self.get_object()
+        user = request.user
+        data_files = perms['data_models.view_datafile'].filter(
+            user, deployment.files.all())
+        if not data_files.exists():
+            return Response({}, status=status.HTTP_200_OK)
+        file_metric_dicts = get_all_file_metric_dicts(data_files)
+        return Response(file_metric_dicts, status=status.HTTP_200_OK)
 
     def check_attachment(self, serializer):
         project_objects = serializer.validated_data.get('project')
         if project_objects is not None:
             for project_object in project_objects:
-                if not self.request.user.has_perm('data_models.change_project', project_object):
+                if (not self.request.user.has_perm('data_models.change_project', project_object)) and\
+                        (project_object.name != settings.GLOBAL_PROJECT_ID):
                     raise PermissionDenied(
-                        f"You don't have permission to add a deployment to {project_object.projectID}")
+                        f"You don't have permission to add a deployment to {project_object.project_ID}")
         device_object = serializer.validated_data.get('device')
         if device_object is not None:
             if not self.request.user.has_perm('data_models.change_device', device_object):
                 raise PermissionDenied(
-                    f"You don't have permission to deploy {device_object.deviceID}")
+                    f"You don't have permission to deploy {device_object.device_ID}")
 
 
-class ProjectViewSet(AddOwnerViewSet, OptionalPaginationViewSet):
+class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+    queryset = Project.objects.all().distinct()
     filterset_class = ProjectFilter
-    search_fields = ['projectID', 'projectName', 'organizationName']
+    search_fields = ['project_ID', 'name', 'organization']
+
+    @action(detail=True, methods=['get'])
+    def metrics(self, request, pk=None):
+        project = self.get_object()
+        user = request.user
+        data_files = perms['data_models.view_datafile'].filter(
+            user, DataFile.objects.filter(deployment__project=project))
+        if not data_files.exists():
+            return Response({}, status=status.HTTP_200_OK)
+        file_metric_dicts = get_all_file_metric_dicts(data_files, False)
+        return Response(file_metric_dicts, status=status.HTTP_200_OK)
 
 
-class DeviceViewSet(AddOwnerViewSet, OptionalPaginationViewSet):
+class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     serializer_class = DeviceSerializer
-    queryset = Device.objects.all()
+    queryset = Device.objects.all().distinct()
     filterset_class = DeviceFilter
-    search_fields = ['deviceID', 'name', 'model', 'make']
+    search_fields = ['device_ID', 'name', 'model__name']
+
+    @action(detail=True, methods=['get'])
+    def metrics(self, request, pk=None):
+        device = self.get_object()
+        user = request.user
+        data_files = perms['data_models.view_datafile'].filter(
+            user, DataFile.objects.filter(deployment__device=device))
+        if not data_files.exists():
+            return Response({}, status=status.HTTP_200_OK)
+        file_metric_dicts = get_all_file_metric_dicts(data_files)
+        return Response(file_metric_dicts, status=status.HTTP_200_OK)
 
 
-class DataFileViewSet(OptionalPaginationViewSet):
-    serializer_class = DataFileSerializer
-    queryset = DataFile.objects.all()
+class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixIn):
+
+    queryset = DataFile.objects.all().distinct()
     filterset_class = DataFileFilter
     search_fields = ['file_name',
-                     'deployment__deployment_deviceID',
+                     'deployment__deployment_device_ID',
                      'deployment__device__name',
-                     'deployment__device__deviceID']
+                     'deployment__device__device_ID',
+                     '=tag']
 
-    def perform_update(self, serializer):
-        self.check_attachment(serializer)
-        super(DataFileViewSet, self).perform_update(serializer)
+    @action(detail=False, methods=['get'])
+    def test(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        # is this also filtering by permissions?
+        print(self.filterset_class)
+        print(queryset.count())
+        return Response({queryset.count()}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=['data_models.view_datafile'])
+    def favourite_file(self, request):
+        data_file = self.get_object()
+        user = request.user
+        if user:
+            if data_file.favourite_of.all().filter(pk=user.pk).exists():
+                data_file.favourite_of.remove(user)
+            else:
+                data_file.favourite_of.add(user)
+            return Response({}, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
     def check_attachment(self, serializer):
-        deployment_object = serializer.validated_data.get('deployment')
+        deployment_object = serializer.validated_data.get(
+            'deployment', serializer.instance.deployment)
         if not self.request.user.has_perm('data_models.change_deployment', deployment_object):
             raise PermissionDenied(f"You don't have permission to add a datafile"
-                                   f" to {deployment_object.deployment_deviceID}")
+                                   f" to {deployment_object.deployment_device_ID}")
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -105,167 +151,39 @@ class DataFileViewSet(OptionalPaginationViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         headers = self.get_success_headers(serializer.validated_data)
-        upload_date = str(djtimezone.now().date())
+
         instance = serializer.validated_data
 
         files = instance.get('files')
         recording_dt = instance.get('recording_dt')
-        extra_info = instance.get('extra_info', [{}])
-        deployment = instance.get('deployment')
-        device = instance.get('device')
+        extra_data = instance.get('extra_data')
+        deployment_object = instance.get('deployment_object')
+        device_object = instance.get('device_object')
         data_types = instance.get('data_types')
+        check_filename = instance.get('check_filename')
 
-        invalid_files = []
+        uploaded_files, invalid_files, existing_files, status_code = create_file_objects(
+            files, check_filename, recording_dt, extra_data, deployment_object, device_object, data_types, self.request.user)
 
-        if instance.get('check_filename'):
-            #  check if the original name already exists in the database
-            filenames = [x.name for x in files]
-            db_filenames = list(
-                DataFile.objects.filter(original_name__in=filenames).values_list('original_name', flat=True))
-            not_duplicated = [x not in db_filenames for x in filenames]
-            files = [x for x, y in zip(files, not_duplicated) if y]
-            invalid_files += [f"{x} - already in database" for x,
-                              y in zip(filenames, not_duplicated) if not y]
-            if len(files) == 0:
-                return Response({"uploaded_files": [], "invalid_files": invalid_files},
-                                status=status.HTTP_201_CREATED, headers=headers)
-            if len(recording_dt) > 1:
-                recording_dt = [x for x, y in zip(
-                    recording_dt, not_duplicated) if y]
-            if len(extra_info) > 1:
-                extra_info = [x for x, y in zip(
-                    extra_info, not_duplicated) if y]
-            if data_types is not None:
-                if len(data_types) > 1:
-                    data_types = [x for x, y in zip(
-                        data_types, not_duplicated) if y]
+        print([x.pk for x in uploaded_files])
 
-        if deployment:
-            deployment_pk = None
-            if deployment.isnumeric():
-                deployment_pk = int(deployment)
-            try:
-                deployment_object = Deployment.objects.filter(Q(Q(deployment_deviceID=deployment) |
-                                                                Q(pk=deployment_pk)))
-            except ObjectDoesNotExist:
-                raise serializers.ValidationError("Incorrect deployment")
+        if status_code == status.HTTP_201_CREATED:
+            returned_data = DataFileSerializer(data=uploaded_files, many=True)
+            returned_data.is_valid()
+            uploaded_files = returned_data.data
 
-            self.check_attachment(serializer)
-
-            valid_files = deployment_object.check_dates(recording_dt)
-            if all([not x for x in valid_files]):
-                serializers.ValidationError(
-                    f"deployment {deployment} is invalid for all files")
-            deployment_objects = list(deployment_object)
-        else:
-
-            device_pk = None
-            if device.isnumeric():
-                device_pk = int(device)
-            try:
-                device_object = Device.objects.get(
-                    Q(Q(deviceID=device) | Q(pk=device_pk)))
-            except ObjectDoesNotExist:
-                raise serializers.ValidationError("Incorrect device")
-
-            deployment_objects = [device_object.deployment_from_date(
-                x, request.user) for x in recording_dt]
-            print(deployment_objects)
-            valid_files = [x is not None for x in deployment_objects]
-            print(valid_files)
-            if all([not x for x in valid_files]):
-                raise serializers.ValidationError(
-                    f"No deployments found in device {device_object.deviceID}")
-            # Filter to only valids
-            deployment_objects = [
-                x for x in deployment_objects if x is not None]
-
-        #  split off invalid  files
-        invalid_files += [f"{x.name} - no suitable deployment found" for x,
-                          y in zip(files, valid_files) if not y]
-        files = [x for x, y in zip(files, valid_files) if y]
-        if len(recording_dt) > 1:
-            recording_dt = [x for x, y in zip(recording_dt, valid_files) if y]
-        if len(extra_info) > 1:
-            extra_info = [x for x, y in zip(extra_info, valid_files) if y]
-        if data_types is not None:
-            if len(data_types) > 1:
-                data_types = [x for x, y in zip(data_types, valid_files) if y]
-
-        all_new_objects = []
-        for i in range(len(files)):
-            file = files[i]
-            if len(deployment_objects) > 1:
-                file_deployment = deployment_objects[i]
-            else:
-                file_deployment = deployment_objects[0]
-
-            if len(recording_dt) > 1:
-                file_recording_dt = recording_dt[i]
-            else:
-                file_recording_dt = recording_dt[0]
-
-            if len(extra_info) > 1:
-                file_extra_info = extra_info[i]
-            else:
-                file_extra_info = extra_info[0]
-
-            if data_types is None:
-                file_data_type = file_deployment.device_type
-            else:
-                if len(data_types) > 1:
-                    file_data_type = data_types[i]
-                else:
-                    file_data_type = data_types[0]
-
-            file_local_path = os.path.join(
-                settings.FILE_STORAGE_ROOT, file_data_type.name)
-            file_path = os.path.join(
-                file_deployment.deployment_deviceID, upload_date)
-            filename = file.name
-            file_extension = os.path.splitext(filename)[1]
-            new_file_name = get_new_name(file_deployment,
-                                         file_recording_dt,
-                                         file_local_path,
-                                         file_path
-                                         )
-            file_size = os.fstat(file.fileno()).st_size
-            file_fullpath = os.path.join(
-                file_local_path, file_path, f"{new_file_name}{file_extension}")
-            handle_uploaded_file(file, file_fullpath)
-            new_datafile_obj = DataFile(
-                deployment=file_deployment,
-                file_type=file_data_type,
-                file_name=new_file_name,
-                original_name=filename,
-                file_format=file_extension,
-                upload_date=upload_date,
-                recording_dt=file_recording_dt,
-                path=file_path,
-                local_path=file_local_path,
-                file_size=file_size,
-                extra_info=file_extra_info
-            )
-            new_datafile_obj.set_file_url()
-            all_new_objects.append(new_datafile_obj)
-
-        # probably shift all this to an async job
-        DataFile.objects.bulk_create(all_new_objects)
-        returned_data = DataFileSerializer(data=all_new_objects, many=True)
-        returned_data.is_valid()
-        for deployment in deployment_objects:
-            deployment.set_last_file()
-        return Response({"uploaded_files": returned_data.data, "invalid_files": invalid_files},
-                        status=status.HTTP_201_CREATED, headers=headers)
+        return Response({"uploaded_files": uploaded_files, "invalid_files": invalid_files, "existing_files": existing_files},
+                        status=status_code, headers=headers)
 
 
-class SiteViewSet(viewsets.ReadOnlyModelViewSet, OptionalPaginationViewSet):
+class SiteViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SiteSerializer
-    queryset = Site.objects.all()
+    queryset = Site.objects.all().distinct()
     search_fields = ['name', 'short_name']
 
 
-class DataTypeViewset(viewsets.ReadOnlyModelViewSet, OptionalPaginationViewSet):
+class DataTypeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = DataTypeSerializer
-    queryset = DataType.objects.all()
+    queryset = DataType.objects.all().distinct()
     search_fields = ['name']
+    filterset_class = DataTypeFilter

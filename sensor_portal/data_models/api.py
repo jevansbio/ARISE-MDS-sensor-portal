@@ -8,4 +8,3 @@ router.register(r"device", DeviceViewSet, basename='device')
 router.register(r"datafile", DataFileViewSet, basename='datafile')
 router.register(r"site", SiteViewSet, basename='site')
 router.register(r"datatype", DataTypeViewset, basename='datatype')
-urlpatterns = router.urls

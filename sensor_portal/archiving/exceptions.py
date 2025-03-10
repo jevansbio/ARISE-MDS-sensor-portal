@@ -1,0 +1,2 @@
+class TAROffline(Exception):
+    pass

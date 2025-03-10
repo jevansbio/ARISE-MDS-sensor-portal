@@ -1,5 +1,24 @@
-version: "3"
 services:
+  sensor_portal_frontend:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/sensor_portal_frontend.dockerfile
+    image: sensor_portal_frontend_image
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/public:/app/frontend/public
+    command: npm start
+    depends_on:
+      sensor_portal_django:
+        condition: service_healthy
+        restart: true
+    restart: always
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - REACT_APP_API_BASE_URL=http://localhost:8000/api
   sensor_portal_django:
     build:
       context: .
@@ -19,12 +38,22 @@ services:
       - CELERY_BROKER=redis://sensor_portal_redis:6379/0
       - CELERY_BACKEND=redis://sensor_portal_redis:6379/0
       - DEV=True
+      - FIELD_ENCRYPTION_KEY=FrMHRMwLSdQytSjWRAIwaFPzzWC1R5XIPaH6HQbcryA=
     depends_on:
-      - sensor_portal_db
-      - sensor_portal_redis
+      sensor_portal_db:
+        condition: service_healthy
+        restart: true
+      sensor_portal_redis:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8000/api || exit 1"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
     restart: always
   sensor_portal_worker:
-    image: web_service_image
+    image: sensor_portal_django_image
     command: bash -c "celery -A sensor_portal worker --autoscale 10,1 --loglevel=INFO -Q main_worker"
     volumes:
       - ./file_storage:/media/file_storage
@@ -38,12 +67,21 @@ services:
       - CELERY_BACKEND=redis://sensor_portal_redis:6379/0
       - DEV=True
     depends_on:
-      - sensor_portal_db
-      - sensor_portal_redis
-      - sensor_portal_django
+      sensor_portal_db:
+        condition: service_healthy
+        restart: true
+      sensor_portal_redis:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD-SHELL", "celery inspect ping --destination celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s 
     restart: always
   sensor_portal_single_worker:
-    image: web_service_image
+    image: sensor_portal_django_image
     command: bash -c "celery -A sensor_portal worker -c 1 --loglevel=INFO -Q single_worker"
     volumes:
       - ./file_storage:/media/file_storage
@@ -57,12 +95,21 @@ services:
       - CELERY_BACKEND=redis://sensor_portal_redis:6379/0
       - DEV=True
     depends_on:
-      - sensor_portal_db
-      - sensor_portal_redis
-      - sensor_portal_django
+      sensor_portal_db:
+        condition: service_healthy
+        restart: true
+      sensor_portal_redis:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD-SHELL", "celery inspect ping --destination celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s    
     restart: always
   sensor_portal_beat:
-    image: web_service_image
+    image: sensor_portal_django_image
     command: bash -c "celery -A sensor_portal beat --loglevel=INFO"
     environment:
       - POSTGRES_NAME=postgres
@@ -73,9 +120,12 @@ services:
       - CELERY_BACKEND=redis://sensor_portal_redis:6379/0
       - DEV=True
     depends_on:
-      - sensor_portal_db
-      - sensor_portal_redis
-      - sensor_portal_django
+      sensor_portal_db:
+        condition: service_healthy
+        restart: true
+      sensor_portal_redis:
+        condition: service_healthy
+        restart: true
     volumes:
       - ./sensor_portal:/usr/src/sensor_portal
     restart: always
@@ -87,9 +137,21 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL",  "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 60s
+      retries: 100
+      start_period: 80s 
     restart: always
   sensor_portal_redis:
       image: "redis:alpine"
+      healthcheck:
+        test: [ "CMD", "redis-cli", "ping"]
+        interval: 30s
+        timeout: 60s
+        retries: 100
+        start_period: 80s    
       restart: always
 volumes:
   file_storage:
