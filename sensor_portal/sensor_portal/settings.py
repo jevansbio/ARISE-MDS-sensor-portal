@@ -87,7 +87,8 @@ INSTALLED_APPS = [
     'external_storage_import',
     'utils',
     'archiving',
-    'observation_editor'
+    'observation_editor',
+    'drf_yasg',
 
 ]
 
