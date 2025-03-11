@@ -4,7 +4,7 @@ upstream backend_upstream
 }
 upstream frontend_upstream
 {
-	server sensor_portal_frontend:3000;
+	server sensor_portal_frontend_pam:3001;
 }
 
 
