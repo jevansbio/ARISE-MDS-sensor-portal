@@ -22,8 +22,8 @@ server
 		alias /file_storage;
 	}
 
-	# location ~ ^/(api|admin|staticfiles|storage)/
-	location ~ ^/(api|admin)
+	# location ~ ^/(api|admin|swagger|staticfiles|storage)/
+	location ~ ^/(api|admin|swagger)
 	{
 		proxy_pass http://backend_upstream;
 		proxy_http_version 1.1;
