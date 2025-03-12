@@ -1,28 +1,29 @@
 services:
   sensor_portal_nginx:
-      build: 
-          context: .
-          dockerfile: ./dockerfiles/sensor_portal_nginx.dockerfile
-      ports:
-          - "8080:80"
-      depends_on:
-        sensor_portal_django:
-          condition: service_healthy
-          restart: true
-        sensor_portal_frontend:
-          condition: service_started
-          restart: true
-      restart: unless-stopped
-      volumes:      
-        - ./file_storage:/file_storage
-        - ./sensor_portal/static:/backend_static  
+    build:
+      context: .
+      dockerfile: ./dockerfiles/sensor_portal_nginx.dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      sensor_portal_django:
+        condition: service_healthy
+        restart: true
+      sensor_portal_frontend:
+        condition: service_started
+        restart: true
+    restart: unless-stopped
+    volumes:
+      - ./file_storage:/file_storage
+      - ./sensor_portal/static:/backend_static
+      - ./sensor_portal/static:/app/sensor_portal/static
   sensor_portal_frontend:
     build:
       context: .
       dockerfile: ./dockerfiles/sensor_portal_frontend.dockerfile
     image: sensor_portal_frontend_image
     ports:
-      - '3000'
+      - "3000"
     volumes:
       - ./frontend/src:/app/frontend/src
       - ./frontend/public:/app/frontend/public
@@ -92,7 +93,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s 
+      start_period: 5s
     restart: always
   sensor_portal_single_worker:
     image: sensor_portal_django_image
@@ -121,7 +122,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s    
+      start_period: 5s
     restart: always
   sensor_portal_beat:
     image: sensor_portal_django_image
@@ -156,21 +157,21 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: ["CMD-SHELL",  "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 30s
       timeout: 60s
       retries: 100
-      start_period: 80s 
+      start_period: 80s
     restart: always
   sensor_portal_redis:
-      image: "redis:alpine"
-      healthcheck:
-        test: [ "CMD", "redis-cli", "ping"]
-        interval: 30s
-        timeout: 60s
-        retries: 100
-        start_period: 80s    
-      restart: always
+    image: "redis:alpine"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 60s
+      retries: 100
+      start_period: 80s
+    restart: always
 volumes:
   file_storage:
   sensor_portal_database:
