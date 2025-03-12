@@ -43,7 +43,7 @@ services:
       - ./file_storage:/media/file_storage
       - ./sensor_portal:/usr/src/sensor_portal
     ports:
-      - "8000"
+      - "5050:8000"
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
