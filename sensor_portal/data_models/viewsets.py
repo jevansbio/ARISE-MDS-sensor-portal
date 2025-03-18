@@ -515,3 +515,4 @@ class DataTypeViewset(viewsets.ReadOnlyModelViewSet):
     queryset = DataType.objects.all().distinct()
     search_fields = ['name']
     filterset_class = DataTypeFilter
+
