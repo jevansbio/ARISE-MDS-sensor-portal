@@ -38,7 +38,6 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
 
     def get_serializer_class(self):
         if 'geoJSON' in self.request.GET.keys():
-
             return DeploymentSerializer_GeoJSON
         else:
             return DeploymentSerializer
@@ -83,6 +82,58 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             
         deployment.save()
         return Response(DeploymentSerializer(deployment).data, status=status.HTTP_200_OK)
+        
+    @action(detail=False, methods=['post'])
+    def create_from_form(self, request):
+        user = request.user
+        
+        data = request.data
+        
+        # Map form field names to model field names
+        field_mapping = {
+            'DeploymentID': 'deployment_ID',
+            'Country': 'country',
+            'Site': 'site_name',
+            'StartDate': 'deployment_start',
+            'EndDate': 'deployment_end',
+            'Latitude': 'latitude',
+            'Longitude': 'longitude',
+            'Coordinate Uncertainty': 'coordinate_uncertainty',
+            'GPS device': 'gps_device',
+            'Microphone Height': 'mic_height',
+            'Microphone Direction': 'mic_direction',
+            'Habitat': 'habitat',
+            'Score': 'score',
+            'Protocol Checklist': 'protocol_checklist',
+            'Adresse e-mail': 'user_email',
+            'Comment/remark': 'comment'
+        }
+        
+        # Create deployment data dictionary
+        deployment_data = {}
+        
+        # Map form fields to model fields
+        for form_field, model_field in field_mapping.items():
+            if form_field in data:
+                deployment_data[model_field] = data[form_field]
+        
+        # Handle active data if present
+        if 'ActiveData' in data and isinstance(data['ActiveData'], dict):
+            active_data = data['ActiveData']
+            if 'lastUpload' in active_data:
+                deployment_data['last_upload'] = active_data['lastUpload']
+            if 'batteryLevel' in active_data:
+                deployment_data['battery_level'] = active_data['batteryLevel']
+            if 'folderSize' in active_data:
+                deployment_data['folder_size'] = active_data['folderSize']
+        
+        # Create serializer with the formatted data
+        serializer = self.get_serializer(data=deployment_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def check_attachment(self, serializer):
         project_objects = serializer.validated_data.get('project')
@@ -185,6 +236,33 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
             
         device.save()
         return Response(DeviceSerializer(device).data, status=status.HTTP_200_OK)
+        
+    @action(detail=False, methods=['post'])
+    def create_from_json(self, request):
+        user = request.user
+        
+        data = request.data
+        
+        # Map field names if needed
+        device_data = {
+            'device_ID': data.get('device_ID'),
+            'name': data.get('name'),
+            'comment': data.get('extra_data', {}).get('comment')
+        }
+        
+        # Add model if provided
+        if 'model_id' in data:
+            device_data['model'] = data['model_id']
+            
+        # Handle any other mappings needed for your specific JSON format
+        
+        # Create serializer with the formatted data
+        serializer = self.get_serializer(data=device_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixIn):
@@ -240,6 +318,68 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
             
         data_file.save()
         return Response(DataFileSerializer(data_file).data, status=status.HTTP_200_OK)
+        
+    @action(detail=False, methods=['post'])
+    def register_audio_files(self, request):
+        """
+        Register audio files for a device or deployment
+        """
+        user = request.user
+        
+        # Get deployment or device
+        deployment_id = request.data.get('deployment_id')
+        device_id = request.data.get('device_id')
+        
+        try:
+            if deployment_id:
+                deployment = Deployment.objects.get(pk=deployment_id)
+                if not user.has_perm('data_models.change_deployment', deployment):
+                    raise PermissionDenied("You don't have permission to add files to this deployment")
+            elif device_id:
+                device = Device.objects.get(pk=device_id)
+                if not user.has_perm('data_models.change_device', device):
+                    raise PermissionDenied("You don't have permission to add files to this device")
+                # Get active deployment for device
+                deployment = device.deployments.filter(is_active=True).first()
+                if not deployment:
+                    return Response({"error": "No active deployment found for this device"}, 
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Must provide either deployment_id or device_id"}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+        except (Deployment.DoesNotExist, Device.DoesNotExist):
+            return Response({"error": "Invalid deployment or device ID"}, 
+                            status=status.HTTP_404_NOT_FOUND)
+                
+        # Get audio files from request
+        audio_files = request.data.get('audioFiles', [])
+        if not audio_files:
+            return Response({"error": "No audio files provided"}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # Process each audio file
+        created_files = []
+        for audio_file in audio_files:
+            file_data = {
+                'deployment': deployment.id,
+                'file_name': audio_file.get('id'),
+                'config': audio_file.get('config'),
+                'sample_rate': audio_file.get('samplerate'),
+                'file_length': audio_file.get('fileLength'),
+                'file_size': audio_file.get('fileSize'),
+                'file_format': '.wav'  # Default format - adjust as needed
+            }
+            
+            serializer = DataFileSerializer(data=file_data)
+            if serializer.is_valid():
+                serializer.save()
+                created_files.append(serializer.data)
+            else:
+                # Return errors for this file
+                return Response({"error": f"Invalid file data: {serializer.errors}"}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"created_files": created_files}, status=status.HTTP_201_CREATED)
 
     def check_attachment(self, serializer):
         deployment_object = serializer.validated_data.get(

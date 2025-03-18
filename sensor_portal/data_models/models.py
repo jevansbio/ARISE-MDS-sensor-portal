@@ -156,7 +156,7 @@ class Device(BaseModel):
     mic_height = models.FloatField(null=True, blank=True)
     mic_direction = models.CharField(max_length=100, blank=True, null=True)
     habitat = models.CharField(max_length=100, blank=True, null=True)
-    score = models.IntegerField(null=True, blank=True)
+    score = models.FloatField(null=True, blank=True)
     protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
     user_email = models.EmailField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
@@ -334,8 +334,25 @@ class Deployment(BaseModel):
     mic_direction = models.CharField(max_length=100, blank=True, null=True)
     habitat = models.CharField(max_length=100, blank=True, null=True)
     protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
-    score = models.IntegerField(null=True, blank=True)
+    score = models.FloatField(null=True, blank=True)
     comment = models.TextField(blank=True, null=True)
+    user_email = models.EmailField(blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    site_name = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Device status fields for latest status in this deployment
+    last_upload = models.DateTimeField(null=True, blank=True)
+    battery_level = models.FloatField(null=True, blank=True)
+    folder_size = models.CharField(max_length=50, blank=True, null=True)
+
+    autoupdate = models.BooleanField(default=False)
+    update_time = models.IntegerField(default=48)
+
+    username = models.CharField(
+        max_length=100, unique=True, null=True, blank=True, default=None)
+    password = EncryptedCharField(max_length=100, blank=True, null=True)
+    input_storage = models.ForeignKey(
+        DataStorageInput, null=True, blank=True, related_name="linked_devices", on_delete=models.SET_NULL)
 
     extra_data = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
