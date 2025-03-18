@@ -36,6 +36,17 @@ python-magic==0.4.27
 numpy==1.26.4
 pandas==1.4.2
 plotly==5.9.0
+django-crispy-forms==1.14.0
+django-autocomplete-light==3.9.4
+crispy-bootstrap5==0.7
+drf-yasg==1.21.10
+#django-recaptcha==3.0.0
+#bagit==1.8.1
+#scikit-image==0.19.3
+#git+https://github.com/neutronX/django-markdownx@master
+#pygments==2.12.0
+#django-dbbackup==4.0.2
+#thefuzz==0.20.0
 thefuzz==0.20.0
 requests==2.32.3
 
@@ -50,5 +61,5 @@ Pillow==9.1.1
 
 # archiving
 bagit==1.8.1
-
+drf-yasg==1.21.10
 

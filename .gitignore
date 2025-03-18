@@ -34,3 +34,6 @@ yarn-debug.log*
 yarn-error.log*
 sensor_portal/observation_editor/permissions.py
 db_struct.erd
+
+venv
+myenv
