@@ -240,33 +240,34 @@ class DeviceSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckForm
         return data
 
 
-class DataFileSerializer(CreatedModifiedMixIn, serializers.ModelSerializer):
-    deployment = serializers.SlugRelatedField(
-        slug_field='deployment_device_ID', queryset=Deployment.objects.all(), required=False)
-    deployment_ID = serializers.PrimaryKeyRelatedField(source="deployment", queryset=Device.objects.all(),
-                                                       required=False)
-    file_type = serializers.StringRelatedField()
-    recording_dt = serializers.DateTimeField(default_timezone=djtimezone.utc)
-
-    def to_representation(self, instance):
-        initial_rep = super(DataFileSerializer,
-                            self).to_representation(instance)
-        if self.context.get('request'):
-            request_user = self.context['request'].user
-            initial_rep["favourite"] = instance.favourite_of.all().filter(
-                pk=request_user.pk).exists()
-            initial_rep.pop('path')
-            initial_rep["can_annotate"] = perms['data_models.annotate_datafile'].check(
-                request_user, instance)
-        else:
-            to_exclude = ["file_url", "thumb_url"]
-            [initial_rep.pop(x) for x in to_exclude]
-        return initial_rep
+class DataFileSerializer(serializers.ModelSerializer):
+    deployment_device_ID = serializers.CharField(
+        source='deployment.deployment_device_ID', read_only=True)
+    recording_datetime = serializers.DateTimeField(
+        source='recording_dt', read_only=True)
+    is_favourite = serializers.SerializerMethodField()
+    
+    # Audio-specific fields
+    config = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    sample_rate = serializers.IntegerField(required=False, allow_null=True)
+    file_length = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = DataFile
-        exclude = ["do_not_remove", "local_path", "favourite_of",
-                   "tar_file", "archived", "local_storage"]
+        fields = ('id', 'deployment_device_ID', 'deployment', 'file_name', 'file_format',
+                  'file_size', 'recording_datetime', 'file_type', 'path', 'file_url',
+                  'thumb_url', 'is_favourite', 'tag', 'upload_dt', 'extra_data',
+                  'config', 'sample_rate', 'file_length')
+        read_only_fields = ('id', 'deployment_device_ID', 'upload_dt', 'file_url', 'thumb_url')
+
+    def get_is_favourite(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        if user:
+            return obj.favourite_of.filter(pk=user.pk).exists()
+        return False
 
     def validate(self, data):
         data = super().validate(data)

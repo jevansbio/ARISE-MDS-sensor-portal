@@ -148,6 +148,24 @@ class Device(BaseModel):
     annotators = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_devices")
 
+    # Form information fields
+    country = models.CharField(max_length=100, blank=True, null=True)
+    site_name = models.CharField(max_length=100, blank=True, null=True)
+    coordinate_uncertainty = models.CharField(max_length=100, blank=True, null=True)
+    gps_device = models.CharField(max_length=100, blank=True, null=True)
+    mic_height = models.FloatField(null=True, blank=True)
+    mic_direction = models.CharField(max_length=100, blank=True, null=True)
+    habitat = models.CharField(max_length=100, blank=True, null=True)
+    score = models.FloatField(null=True, blank=True)
+    protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
+    user_email = models.EmailField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    
+    # Device status fields
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    battery_level = models.FloatField(null=True, blank=True)
+
     autoupdate = models.BooleanField(default=False)
     update_time = models.IntegerField(default=48)
 
@@ -170,6 +188,18 @@ class Device(BaseModel):
 
     def get_absolute_url(self):
         return f"/api/device/{self.pk}"
+
+    def get_folder_size(self, unit="MB"):
+        """Calculate the total size of all files associated with this device"""
+        all_files = DataFile.objects.filter(deployment__device=self)
+        return all_files.file_size(unit) if all_files.exists() else 0
+        
+    def get_last_upload(self):
+        """Get the datetime of the most recent file upload for this device"""
+        all_files = DataFile.objects.filter(deployment__device=self)
+        if all_files.exists():
+            return all_files.aggregate(last_upload=models.Max('upload_dt'))['last_upload']
+        return None
 
     def save(self, *args, **kwargs):
         if not self.type:
@@ -306,6 +336,31 @@ class Deployment(BaseModel):
         null=True,
         spatial_index=True
     )
+    
+    # Geo-related fields from form
+    coordinate_uncertainty = models.CharField(max_length=100, blank=True, null=True)
+    gps_device = models.CharField(max_length=100, blank=True, null=True)
+    mic_height = models.FloatField(null=True, blank=True)
+    mic_direction = models.CharField(max_length=100, blank=True, null=True)
+    habitat = models.CharField(max_length=100, blank=True, null=True)
+    protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
+    score = models.FloatField(null=True, blank=True)
+    comment = models.TextField(blank=True, null=True)
+    user_email = models.EmailField(blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    site_name = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Device status fields for latest status in this deployment
+    battery_level = models.FloatField(null=True, blank=True)
+
+    autoupdate = models.BooleanField(default=False)
+    update_time = models.IntegerField(default=48)
+
+    username = models.CharField(
+        max_length=100, unique=True, null=True, blank=True, default=None)
+    password = EncryptedCharField(max_length=100, blank=True, null=True)
+    input_storage = models.ForeignKey(
+        DataStorageInput, null=True, blank=True, related_name="linked_devices", on_delete=models.SET_NULL)
 
     extra_data = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
@@ -419,6 +474,16 @@ class Deployment(BaseModel):
             self.last_image = None
             self.thumb_url = None
 
+    def get_folder_size(self, unit="MB"):
+        """Calculate the total size of all files in this deployment"""
+        return self.files.file_size(unit) if self.files.exists() else 0
+        
+    def get_last_upload(self):
+        """Get the datetime of the most recent file upload for this deployment"""
+        if self.files.exists():
+            return self.files.aggregate(last_upload=models.Max('upload_dt'))['last_upload']
+        return None
+
 
 @receiver(post_save, sender=Deployment)
 def post_save_deploy(sender, instance, created, **kwargs):
@@ -516,6 +581,11 @@ class DataFile(BaseModel):
     file_name = models.CharField(max_length=100, unique=True)
     file_size = FileSizeField()
     file_format = models.CharField(max_length=10)
+
+    # Audio file specific fields
+    config = models.CharField(max_length=100, blank=True, null=True)
+    sample_rate = models.IntegerField(null=True, blank=True)
+    file_length = models.CharField(max_length=50, blank=True, null=True)
 
     upload_dt = models.DateTimeField(default=djtimezone.now)
     recording_dt = models.DateTimeField(null=True, db_index=True)
