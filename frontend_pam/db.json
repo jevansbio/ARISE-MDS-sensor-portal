@@ -1,0 +1,208 @@
+{
+  "devices": [
+    {
+      "id": "DEV001",
+      "project": "Project Alpha",
+      "startDate": "2024-01-01",
+      "endDate": "2024-06-30",
+      "lastUpload": "2024-02-10 14:23:00",
+      "batteryLevel": 87,
+      "folderSize": "2.5GB",
+      "action": "Active",
+      "audioFiles": [
+        {
+          "id": "AUDIO001",
+          "config": "Stereo",
+          "samplerate": 44100,
+          "fileLength": "00:30:00",
+          "fileSize": 50
+        },
+        {
+          "id": "AUDIO002",
+          "config": "Mono",
+          "samplerate": 48000,
+          "fileLength": "00:15:00",
+          "fileSize": 25
+        }
+      ]
+    },
+    {
+      "id": "DEV002",
+      "project": "Project Beta",
+      "startDate": "2024-02-15",
+      "endDate": "2024-07-15",
+      "lastUpload": "2024-02-09 09:45:30",
+      "batteryLevel": 65,
+      "folderSize": "1.8GB",
+      "action": "Inactive",
+      "audioFiles": [
+        {
+          "id": "AUDIO003",
+          "config": "Stereo",
+          "samplerate": 48000,
+          "fileLength": "01:00:00",
+          "fileSize": 100
+        }
+      ]
+    },
+    {
+      "id": "DEV003",
+      "project": "Project Gamma",
+      "startDate": "2023-12-10",
+      "endDate": "2024-05-20",
+      "lastUpload": "2024-02-07 16:00:45",
+      "batteryLevel": 92,
+      "folderSize": "3.1GB",
+      "action": "Active",
+      "audioFiles": [
+        {
+          "id": "AUDIO004",
+          "config": "Mono",
+          "samplerate": 22050,
+          "fileLength": "00:10:00",
+          "fileSize": 10
+        }
+      ]
+    },
+    {
+      "id": "DEV004",
+      "project": "Project Delta",
+      "startDate": "2024-01-20",
+      "endDate": "2024-08-10",
+      "lastUpload": "2024-02-08 11:20:15",
+      "batteryLevel": 48,
+      "folderSize": "2.9GB",
+      "action": "Active",
+      "audioFiles": [
+        {
+          "id": "AUDIO005",
+          "config": "Stereo",
+          "samplerate": 44100,
+          "fileLength": "00:45:00",
+          "fileSize": 75
+        },
+        {
+          "id": "AUDIO006",
+          "config": "Mono",
+          "samplerate": 32000,
+          "fileLength": "00:20:00",
+          "fileSize": 30
+        }
+      ]
+    },
+    {
+      "id": "DEV005",
+      "project": "Project Epsilon",
+      "startDate": "2023-11-05",
+      "endDate": "2024-04-30",
+      "lastUpload": "2024-02-06 13:50:10",
+      "batteryLevel": 30,
+      "folderSize": "4.2GB",
+      "action": "Inactive",
+      "audioFiles": [
+        {
+          "id": "AUDIO007",
+          "config": "Mono",
+          "samplerate": 44100,
+          "fileLength": "00:12:00",
+          "fileSize": 20
+        }
+      ]
+    },
+    {
+      "id": "DEV006",
+      "project": "Project Zeta",
+      "startDate": "2024-01-10",
+      "endDate": "2024-06-25",
+      "lastUpload": "2024-02-10 08:10:25",
+      "batteryLevel": 77,
+      "folderSize": "2.3GB",
+      "action": "Active",
+      "audioFiles": [
+        {
+          "id": "AUDIO008",
+          "config": "Stereo",
+          "samplerate": 48000,
+          "fileLength": "01:30:00",
+          "fileSize": 150
+        }
+      ]
+    },
+    {
+      "id": "DEV007",
+      "project": "Project Eta",
+      "startDate": "2023-10-15",
+      "endDate": "2024-03-15",
+      "lastUpload": "2024-02-05 17:30:40",
+      "batteryLevel": 50,
+      "folderSize": "5.0GB",
+      "action": "Inactive",
+      "audioFiles": [
+        {
+          "id": "AUDIO009",
+          "config": "Mono",
+          "samplerate": 22050,
+          "fileLength": "00:25:00",
+          "fileSize": 40
+        }
+      ]
+    },
+    {
+      "id": "DEV008",
+      "project": "Project Theta",
+      "startDate": "2024-02-01",
+      "endDate": "2024-07-10",
+      "lastUpload": "2024-02-10 10:15:05",
+      "batteryLevel": 90,
+      "folderSize": "1.5GB",
+      "action": "Active",
+      "audioFiles": [
+        {
+          "id": "AUDIO010",
+          "config": "Stereo",
+          "samplerate": 44100,
+          "fileLength": "00:50:00",
+          "fileSize": 85
+        }
+      ]
+    },
+    {
+      "id": "DEV009",
+      "project": "Project Iota",
+      "startDate": "2023-12-20",
+      "endDate": "2024-05-05",
+      "lastUpload": "2024-02-09 14:45:30",
+      "batteryLevel": 39,
+      "folderSize": "3.7GB",
+      "action": "Inactive",
+      "audioFiles": [
+        {
+          "id": "AUDIO011",
+          "config": "Mono",
+          "samplerate": 32000,
+          "fileLength": "00:40:00",
+          "fileSize": 60
+        }
+      ]
+    },
+    {
+      "id": "DEV010",
+      "project": "Project Kappa",
+      "startDate": "2024-01-25",
+      "endDate": "2024-08-20",
+      "lastUpload": "2024-02-10 12:30:20",
+      "batteryLevel": 82,
+      "folderSize": "2.0GB",
+      "action": "Active",
+      "audioFiles": [
+        {
+          "id": "AUDIO012",
+          "config": "Stereo",
+          "samplerate": 44100,
+          "fileLength": "01:10:00",
+          "fileSize": 110
+        }
+      ]
+    }
+  ]
+}
