@@ -164,9 +164,7 @@ class Device(BaseModel):
     # Device status fields
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    last_upload = models.DateTimeField(null=True, blank=True)
     battery_level = models.FloatField(null=True, blank=True)
-    folder_size = models.CharField(max_length=50, blank=True, null=True)
 
     autoupdate = models.BooleanField(default=False)
     update_time = models.IntegerField(default=48)
@@ -190,6 +188,18 @@ class Device(BaseModel):
 
     def get_absolute_url(self):
         return f"/api/device/{self.pk}"
+
+    def get_folder_size(self, unit="MB"):
+        """Calculate the total size of all files associated with this device"""
+        all_files = DataFile.objects.filter(deployment__device=self)
+        return all_files.file_size(unit) if all_files.exists() else 0
+        
+    def get_last_upload(self):
+        """Get the datetime of the most recent file upload for this device"""
+        all_files = DataFile.objects.filter(deployment__device=self)
+        if all_files.exists():
+            return all_files.aggregate(last_upload=models.Max('upload_dt'))['last_upload']
+        return None
 
     def save(self, *args, **kwargs):
         if not self.type:
@@ -341,9 +351,7 @@ class Deployment(BaseModel):
     site_name = models.CharField(max_length=100, blank=True, null=True)
     
     # Device status fields for latest status in this deployment
-    last_upload = models.DateTimeField(null=True, blank=True)
     battery_level = models.FloatField(null=True, blank=True)
-    folder_size = models.CharField(max_length=50, blank=True, null=True)
 
     autoupdate = models.BooleanField(default=False)
     update_time = models.IntegerField(default=48)
@@ -465,6 +473,16 @@ class Deployment(BaseModel):
         else:
             self.last_image = None
             self.thumb_url = None
+
+    def get_folder_size(self, unit="MB"):
+        """Calculate the total size of all files in this deployment"""
+        return self.files.file_size(unit) if self.files.exists() else 0
+        
+    def get_last_upload(self):
+        """Get the datetime of the most recent file upload for this deployment"""
+        if self.files.exists():
+            return self.files.aggregate(last_upload=models.Max('upload_dt'))['last_upload']
+        return None
 
 
 @receiver(post_save, sender=Deployment)

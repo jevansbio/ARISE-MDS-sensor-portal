@@ -51,6 +51,15 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         if not data_files.exists():
             return Response({}, status=status.HTTP_200_OK)
         file_metric_dicts = get_all_file_metric_dicts(data_files)
+        
+        # Add folder size information
+        file_metric_dicts['folder_size'] = deployment.get_folder_size()
+        
+        # Add last upload information
+        last_upload = deployment.get_last_upload()
+        if last_upload:
+            file_metric_dicts['last_upload'] = last_upload
+        
         return Response(file_metric_dicts, status=status.HTTP_200_OK)
         
     @action(detail=True, methods=['post'])
@@ -120,12 +129,9 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         # Handle active data if present
         if 'ActiveData' in data and isinstance(data['ActiveData'], dict):
             active_data = data['ActiveData']
-            if 'lastUpload' in active_data:
-                deployment_data['last_upload'] = active_data['lastUpload']
             if 'batteryLevel' in active_data:
                 deployment_data['battery_level'] = active_data['batteryLevel']
-            if 'folderSize' in active_data:
-                deployment_data['folder_size'] = active_data['folderSize']
+            # We no longer store last_upload or folder_size as they're calculated on-demand
         
         # Create serializer with the formatted data
         serializer = self.get_serializer(data=deployment_data)
@@ -148,6 +154,34 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             if not self.request.user.has_perm('data_models.change_device', device_object):
                 raise PermissionDenied(
                     f"You don't have permission to deploy {device_object.device_ID}")
+
+    @action(detail=True, methods=['get'])
+    def folder_size(self, request, pk=None):
+        """
+        Get the total size of all files in this deployment
+        """
+        deployment = self.get_object()
+        
+        # Get the unit if specified
+        unit = request.query_params.get('unit', 'MB')
+        
+        folder_size = deployment.get_folder_size(unit)
+        
+        return Response({'folder_size': folder_size, 'unit': unit}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def last_upload(self, request, pk=None):
+        """
+        Get the datetime of the most recent file upload for this deployment
+        """
+        deployment = self.get_object()
+        
+        last_upload = deployment.get_last_upload()
+        
+        if last_upload:
+            return Response({'last_upload': last_upload}, status=status.HTTP_200_OK)
+        else:
+            return Response({'last_upload': None}, status=status.HTTP_200_OK)
 
 
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
@@ -183,6 +217,15 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         if not data_files.exists():
             return Response({}, status=status.HTTP_200_OK)
         file_metric_dicts = get_all_file_metric_dicts(data_files)
+        
+        # Add folder size information
+        file_metric_dicts['folder_size'] = device.get_folder_size()
+        
+        # Add last upload information
+        last_upload = device.get_last_upload()
+        if last_upload:
+            file_metric_dicts['last_upload'] = last_upload
+        
         return Response(file_metric_dicts, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
@@ -193,7 +236,7 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         if not user.has_perm('data_models.change_device', device):
             raise PermissionDenied("You don't have permission to update this device status")
             
-        status_fields = ['battery_level', 'last_upload', 'folder_size']
+        status_fields = ['battery_level']  # Removed last_upload and folder_size
         updates = {}
         
         for field in status_fields:
@@ -210,7 +253,17 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
             setattr(device, key, value)
             
         device.save()
-        return Response(DeviceSerializer(device).data, status=status.HTTP_200_OK)
+        
+        # Get response data with calculated fields
+        response_data = DeviceSerializer(device).data
+        response_data['folder_size'] = device.get_folder_size()
+        
+        # Add last upload information
+        last_upload = device.get_last_upload()
+        if last_upload:
+            response_data['last_upload'] = last_upload
+        
+        return Response(response_data, status=status.HTTP_200_OK)
         
     @action(detail=True, methods=['post'])
     def update_form_info(self, request, pk=None):
@@ -263,6 +316,34 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(detail=True, methods=['get'])
+    def folder_size(self, request, pk=None):
+        """
+        Get the total size of all files associated with this device
+        """
+        device = self.get_object()
+        
+        # Get the unit if specified
+        unit = request.query_params.get('unit', 'MB')
+        
+        folder_size = device.get_folder_size(unit)
+        
+        return Response({'folder_size': folder_size, 'unit': unit}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def last_upload(self, request, pk=None):
+        """
+        Get the datetime of the most recent file upload for this device
+        """
+        device = self.get_object()
+        
+        last_upload = device.get_last_upload()
+        
+        if last_upload:
+            return Response({'last_upload': last_upload}, status=status.HTTP_200_OK)
+        else:
+            return Response({'last_upload': None}, status=status.HTTP_200_OK)
 
 
 class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixIn):
