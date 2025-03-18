@@ -26,7 +26,9 @@ from .serializers import (DataFileSerializer, DataFileUploadSerializer,
 
 class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
     search_fields = ['deployment_device_ID',
-                     'device__name', 'device__device_ID']
+                     'device__name', 'device__device_ID',
+                     'coordinate_uncertainty', 'gps_device',
+                     'habitat', 'protocol_checklist']
     ordering_fields = ordering = [
         'deployment_device_ID', 'created_on', 'device_type']
     queryset = Deployment.objects.all().distinct()
@@ -51,6 +53,36 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             return Response({}, status=status.HTTP_200_OK)
         file_metric_dicts = get_all_file_metric_dicts(data_files)
         return Response(file_metric_dicts, status=status.HTTP_200_OK)
+        
+    @action(detail=True, methods=['post'])
+    def update_geo_info(self, request, pk=None):
+        deployment = self.get_object()
+        user = request.user
+        
+        if not user.has_perm('data_models.change_deployment', deployment):
+            raise PermissionDenied("You don't have permission to update this deployment geo information")
+            
+        geo_fields = [
+            'coordinate_uncertainty', 'gps_device', 'mic_height', 
+            'mic_direction', 'habitat', 'protocol_checklist', 
+            'score', 'comment'
+        ]
+        
+        updates = {}
+        for field in geo_fields:
+            if field in request.data:
+                updates[field] = request.data[field]
+                
+        # Update lat/long if provided
+        if 'latitude' in request.data and 'longitude' in request.data:
+            updates['latitude'] = request.data['latitude']
+            updates['longitude'] = request.data['longitude']
+                
+        for key, value in updates.items():
+            setattr(deployment, key, value)
+            
+        deployment.save()
+        return Response(DeploymentSerializer(deployment).data, status=status.HTTP_200_OK)
 
     def check_attachment(self, serializer):
         project_objects = serializer.validated_data.get('project')
@@ -89,7 +121,7 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     serializer_class = DeviceSerializer
     queryset = Device.objects.all().distinct()
     filterset_class = DeviceFilter
-    search_fields = ['device_ID', 'name', 'model__name']
+    search_fields = ['device_ID', 'name', 'model__name', 'country', 'site_name', 'habitat']
 
     @action(detail=True, methods=['get'])
     def metrics(self, request, pk=None):
@@ -102,6 +134,58 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         file_metric_dicts = get_all_file_metric_dicts(data_files)
         return Response(file_metric_dicts, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['post'])
+    def update_status(self, request, pk=None):
+        device = self.get_object()
+        user = request.user
+        
+        if not user.has_perm('data_models.change_device', device):
+            raise PermissionDenied("You don't have permission to update this device status")
+            
+        status_fields = ['battery_level', 'last_upload', 'folder_size']
+        updates = {}
+        
+        for field in status_fields:
+            if field in request.data:
+                updates[field] = request.data[field]
+                
+        if 'start_date' in request.data:
+            updates['start_date'] = request.data['start_date']
+            
+        if 'end_date' in request.data:
+            updates['end_date'] = request.data['end_date']
+        
+        for key, value in updates.items():
+            setattr(device, key, value)
+            
+        device.save()
+        return Response(DeviceSerializer(device).data, status=status.HTTP_200_OK)
+        
+    @action(detail=True, methods=['post'])
+    def update_form_info(self, request, pk=None):
+        device = self.get_object()
+        user = request.user
+        
+        if not user.has_perm('data_models.change_device', device):
+            raise PermissionDenied("You don't have permission to update this device information")
+            
+        form_fields = [
+            'country', 'site_name', 'coordinate_uncertainty', 'gps_device',
+            'mic_height', 'mic_direction', 'habitat', 'score',
+            'protocol_checklist', 'user_email', 'comment'
+        ]
+        
+        updates = {}
+        for field in form_fields:
+            if field in request.data:
+                updates[field] = request.data[field]
+                
+        for key, value in updates.items():
+            setattr(device, key, value)
+            
+        device.save()
+        return Response(DeviceSerializer(device).data, status=status.HTTP_200_OK)
+
 
 class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixIn):
 
@@ -111,7 +195,9 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
                      'deployment__deployment_device_ID',
                      'deployment__device__name',
                      'deployment__device__device_ID',
-                     '=tag']
+                     '=tag',
+                     'config',
+                     'sample_rate']
 
     @action(detail=False, methods=['get'])
     def test(self, request, *args, **kwargs):
@@ -133,6 +219,27 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
             return Response({}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
+
+    @action(detail=True, methods=['post'])
+    def update_audio_info(self, request, pk=None):
+        data_file = self.get_object()
+        user = request.user
+        
+        if not user.has_perm('data_models.change_datafile', data_file):
+            raise PermissionDenied("You don't have permission to update this file information")
+            
+        audio_fields = ['config', 'sample_rate', 'file_length']
+        
+        updates = {}
+        for field in audio_fields:
+            if field in request.data:
+                updates[field] = request.data[field]
+                
+        for key, value in updates.items():
+            setattr(data_file, key, value)
+            
+        data_file.save()
+        return Response(DataFileSerializer(data_file).data, status=status.HTTP_200_OK)
 
     def check_attachment(self, serializer):
         deployment_object = serializer.validated_data.get(

@@ -148,6 +148,26 @@ class Device(BaseModel):
     annotators = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_devices")
 
+    # Form information fields
+    country = models.CharField(max_length=100, blank=True, null=True)
+    site_name = models.CharField(max_length=100, blank=True, null=True)
+    coordinate_uncertainty = models.CharField(max_length=100, blank=True, null=True)
+    gps_device = models.CharField(max_length=100, blank=True, null=True)
+    mic_height = models.FloatField(null=True, blank=True)
+    mic_direction = models.CharField(max_length=100, blank=True, null=True)
+    habitat = models.CharField(max_length=100, blank=True, null=True)
+    score = models.IntegerField(null=True, blank=True)
+    protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
+    user_email = models.EmailField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    
+    # Device status fields
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    last_upload = models.DateTimeField(null=True, blank=True)
+    battery_level = models.FloatField(null=True, blank=True)
+    folder_size = models.CharField(max_length=50, blank=True, null=True)
+
     autoupdate = models.BooleanField(default=False)
     update_time = models.IntegerField(default=48)
 
@@ -306,6 +326,16 @@ class Deployment(BaseModel):
         null=True,
         spatial_index=True
     )
+    
+    # Geo-related fields from form
+    coordinate_uncertainty = models.CharField(max_length=100, blank=True, null=True)
+    gps_device = models.CharField(max_length=100, blank=True, null=True)
+    mic_height = models.FloatField(null=True, blank=True)
+    mic_direction = models.CharField(max_length=100, blank=True, null=True)
+    habitat = models.CharField(max_length=100, blank=True, null=True)
+    protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
+    score = models.IntegerField(null=True, blank=True)
+    comment = models.TextField(blank=True, null=True)
 
     extra_data = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
@@ -516,6 +546,11 @@ class DataFile(BaseModel):
     file_name = models.CharField(max_length=100, unique=True)
     file_size = FileSizeField()
     file_format = models.CharField(max_length=10)
+
+    # Audio file specific fields
+    config = models.CharField(max_length=100, blank=True, null=True)
+    sample_rate = models.IntegerField(null=True, blank=True)
+    file_length = models.CharField(max_length=50, blank=True, null=True)
 
     upload_dt = models.DateTimeField(default=djtimezone.now)
     recording_dt = models.DateTimeField(null=True, db_index=True)
