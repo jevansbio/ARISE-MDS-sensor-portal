@@ -25,29 +25,44 @@ export const AuthProvider = ({ children }) => {
 
   const loginUserFunction = async (username, password) => {
     console.log("bar");
-    const response = await fetch(
-      `/${process.env.REACT_APP_API_BASE_URL}/token/`,
-      {
+    console.log("Inside loginUserFunction, trying:", username, password);
+  
+    try {
+      console.log("API URL:", `/${import.meta.env.VITE_API_BASE_URL}/token/`);
+      
+      const response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/token/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: username, password: password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username, password: password}),
+      });
+  
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server returned error:", errorText);
+        alert(`Login failed: ${errorText}`);
+        return;
       }
-    );
-    let data = await response.json();
-    if (data) {
+  
+      let data = await response.json();
+      console.log("Received data:", data);
+  
       localStorage.setItem("authTokens", JSON.stringify(data));
+      console.log("Saved tokens:", JSON.parse(localStorage.getItem("authTokens")));
+  
       setAuthTokens(data);
       setUser(jwtDecode(data.access));
-      // Use TanStack Router's navigate – ensure "/" exists in your route tree
       navigate({ to: "/" });
-    } else {
-      alert("Something went wrong while logging in the user!");
+  
+      return data;
+  
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Network error: Unable to reach API.");
     }
-    return data;
   };
-
   const doLogIn = useMutation({
     mutationFn: ({ username, password }) =>
       loginUserFunction(username, password),
@@ -56,6 +71,7 @@ export const AuthProvider = ({ children }) => {
   let loginUser = async (e) => {
     e.preventDefault();
     console.log("foo");
+    console.log("Trying to log in with:", e.target.username.value, e.target.password.value);
     doLogIn.mutate({
       username: e.target.username.value,
       password: e.target.password.value,
@@ -64,7 +80,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateToken = async () => {
     const response = await fetch(
-      `/${process.env.REACT_APP_API_BASE_URL}/token/refresh/`,
+      `/${import.meta.env.VITE_API_BASE_URL}/token/refresh/`,
       {
         method: "POST",
         headers: {

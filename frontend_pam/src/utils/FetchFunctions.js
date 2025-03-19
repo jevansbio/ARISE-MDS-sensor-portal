@@ -1,6 +1,6 @@
 // Get data from API
 export async function getData(url, token) {
-	let response = await fetch(`/${process.env.REACT_APP_API_BASE_URL}/${url}`, {
+	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		headers: {
 			Authorization: "Bearer " + String(token),
 			"Content-Type": "application/json",
@@ -13,7 +13,7 @@ export async function getData(url, token) {
 }
 
 export async function postData(url, token, data) {
-	let response = await fetch(`/${process.env.REACT_APP_API_BASE_URL}/${url}`, {
+	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		method: "POST",
 		headers: {
 			Authorization: "Bearer " + String(token),
@@ -31,7 +31,7 @@ export async function postData(url, token, data) {
 }
 
 export async function patchData(url, token, data) {
-	let response = await fetch(`/${process.env.REACT_APP_API_BASE_URL}/${url}`, {
+	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		method: "PATCH",
 		headers: {
 			Authorization: "Bearer " + String(token),
@@ -53,7 +53,7 @@ export async function patchData(url, token, data) {
 }
 
 export async function deleteData(url, token) {
-	let response = await fetch(`/${process.env.REACT_APP_API_BASE_URL}/${url}`, {
+	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		method: "DELETE",
 		headers: {
 			Authorization: "Bearer " + String(token),
