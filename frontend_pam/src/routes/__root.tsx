@@ -3,14 +3,13 @@ import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import {
   createRootRouteWithContext,
+  Outlet,
   useLocation,
 } from "@tanstack/react-router";
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { useContext } from "react";
-import AuthContext from "@/auth/AuthContext";
+import AuthContext, { AuthProvider } from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
-import { AuthProvider } from "@/auth/AuthContext";
-import Login from "@/components/Login/Login";
+import { useContext } from "react";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -61,6 +60,7 @@ function RootComponent() {
   console.log("Query error:", error);
   console.log("Query data:", data);
 
+
   return (
     <div className="flex flex-col">
       <Navbar />
@@ -68,7 +68,7 @@ function RootComponent() {
         <Sidebar />
         <div className="flex-1">
           {showBreadcrumbs && <Breadcrumbs />}
-          <Login />
+          <Outlet />
         </div>
       </div>
     </div>
