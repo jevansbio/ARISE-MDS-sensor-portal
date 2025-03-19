@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import * as jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 // Use TanStack Router's useNavigate instead of react-router-dom
 import { useNavigate } from "@tanstack/react-router";
@@ -12,7 +12,7 @@ export default AuthContext;
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() =>
     localStorage.getItem("authTokens")
-      ? jwtDecode.default(localStorage.getItem("authTokens"))
+      ? jwtDecode(localStorage.getItem("authTokens"))
       : null
   );
   const [authTokens, setAuthTokens] = useState(() =>
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     if (data) {
       localStorage.setItem("authTokens", JSON.stringify(data));
       setAuthTokens(data);
-      setUser(jwtDecode.default(data.access));
+      setUser(jwtDecode(data.access));
       // Use TanStack Router's navigate – ensure "/" exists in your route tree
       navigate({ to: "/" });
     } else {
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     const data = await response.json();
     if (response.status === 200) {
       setAuthTokens(data);
-      setUser(jwtDecode.default(data.access));
+      setUser(jwtDecode(data.access));
       localStorage.setItem("authTokens", JSON.stringify(data));
     } else {
       logoutUser();
