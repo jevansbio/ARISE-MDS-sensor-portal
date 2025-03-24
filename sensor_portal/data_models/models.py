@@ -166,8 +166,9 @@ class Device(BaseModel):
     end_date = models.DateTimeField(null=True, blank=True)
     battery_level = models.FloatField(null=True, blank=True)
 
-    autoupdate = models.BooleanField(default=False)
-    update_time = models.IntegerField(default=48)
+    # Making autoupdate optional to match the database schema
+    autoupdate = models.BooleanField(default=False, null=True, blank=True)
+    update_time = models.IntegerField(default=48, null=True, blank=True)
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
@@ -175,7 +176,7 @@ class Device(BaseModel):
     input_storage = models.ForeignKey(
         DataStorageInput, null=True, blank=True, related_name="linked_devices", on_delete=models.SET_NULL)
 
-    extra_data = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True, null=True)
 
     def is_active(self):
         if self.id:
@@ -353,8 +354,11 @@ class Deployment(BaseModel):
     # Device status fields for latest status in this deployment
     battery_level = models.FloatField(null=True, blank=True)
 
-    autoupdate = models.BooleanField(default=False)
-    update_time = models.IntegerField(default=48)
+    # Making autoupdate optional to match the database schema
+    # This field won't be queried if it doesn't exist in the database
+    # Set both null and default to make it completely optional
+    autoupdate = models.BooleanField(default=False, null=True, blank=True)
+    update_time = models.IntegerField(default=48, null=True, blank=True)
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
@@ -362,7 +366,7 @@ class Deployment(BaseModel):
     input_storage = models.ForeignKey(
         DataStorageInput, null=True, blank=True, related_name="linked_deployments", on_delete=models.SET_NULL)
 
-    extra_data = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE)
@@ -592,8 +596,8 @@ class DataFile(BaseModel):
     path = models.CharField(max_length=500)
     local_path = models.CharField(max_length=500, blank=True)
 
-    extra_data = models.JSONField(default=dict, blank=True)
-    linked_files = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True, null=True)
+    linked_files = models.JSONField(default=dict, blank=True, null=True)
 
     thumb_url = models.CharField(max_length=500, null=True, blank=True)
 

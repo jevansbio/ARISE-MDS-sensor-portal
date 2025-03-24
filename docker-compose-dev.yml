@@ -57,6 +57,7 @@ services:
     volumes:
       - ./file_storage:/media/file_storage
       - ./sensor_portal:/usr/src/sensor_portal
+      - ./proj_tabmon_NINA:/usr/src/proj_tabmon_NINA
     ports:
       - "8000"
     environment:
@@ -87,6 +88,7 @@ services:
     volumes:
       - ./file_storage:/media/file_storage
       - ./sensor_portal:/usr/src/sensor_portal
+      - ./proj_tabmon_NINA:/usr/src/proj_tabmon_NINA
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -116,6 +118,7 @@ services:
     volumes:
       - ./file_storage:/media/file_storage
       - ./sensor_portal:/usr/src/sensor_portal
+      - ./proj_tabmon_NINA:/usr/src/proj_tabmon_NINA
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
