@@ -8,6 +8,8 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient } from "@tanstack/react-query";
 import { AuthProvider } from "@/auth/AuthContext";
+import { useContext } from "react";
+import AuthContext from "@/auth/AuthContext";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -24,8 +26,16 @@ function AuthWrapper() {
 }
 
 function RootComponent() {
+  //to get around typescript error, we are mixing javascript and typescript to keep original functionality
+  const { user } = useContext(AuthContext) as { user: any };
   const { pathname } = useLocation();
-  // Hide breadcrumbs on the root path "/"
+
+  // If there is no authenticated user, only render the Outlet.
+  if (!user) {
+    return <Outlet />;
+  }
+
+  // Optionally hide breadcrumbs on the root path "/"
   const showBreadcrumbs = pathname !== "/";
 
   return (

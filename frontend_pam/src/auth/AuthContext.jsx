@@ -1,11 +1,13 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
 // Use TanStack Router's useNavigate instead of react-router-dom
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const AuthContext = createContext();
+
+
 
 export default AuthContext;
 
@@ -22,6 +24,13 @@ export const AuthProvider = ({ children }) => {
   );
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!user && location.pathname !== "/login") {
+      navigate({ to: "/login" });
+    }
+  }, [user, location.pathname, navigate]);
 
   const loginUserFunction = async (username, password) => {
     console.log("bar");
