@@ -12,6 +12,8 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as MapImport } from './routes/map'
+import { Route as LoginImport } from './routes/login'
+import { Route as CallImport } from './routes/call'
 import { Route as IndexImport } from './routes/index'
 import { Route as DevicesIndexImport } from './routes/devices/index'
 import { Route as DevicesDeviceIdIndexImport } from './routes/devices/$deviceId/index'
@@ -22,6 +24,18 @@ import { Route as DevicesDeviceIdAudioFileIdImport } from './routes/devices/$dev
 const MapRoute = MapImport.update({
   id: '/map',
   path: '/map',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CallRoute = CallImport.update({
+  id: '/call',
+  path: '/call',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -62,6 +76,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/call': {
+      id: '/call'
+      path: '/call'
+      fullPath: '/call'
+      preLoaderRoute: typeof CallImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
     '/map': {
       id: '/map'
       path: '/map'
@@ -97,6 +125,8 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/call': typeof CallRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices': typeof DevicesIndexRoute
   '/devices/$deviceId/$audioFileId': typeof DevicesDeviceIdAudioFileIdRoute
@@ -105,6 +135,8 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/call': typeof CallRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices': typeof DevicesIndexRoute
   '/devices/$deviceId/$audioFileId': typeof DevicesDeviceIdAudioFileIdRoute
@@ -114,6 +146,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/call': typeof CallRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices/': typeof DevicesIndexRoute
   '/devices/$deviceId/$audioFileId': typeof DevicesDeviceIdAudioFileIdRoute
@@ -124,6 +158,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/call'
+    | '/login'
     | '/map'
     | '/devices'
     | '/devices/$deviceId/$audioFileId'
@@ -131,6 +167,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/call'
+    | '/login'
     | '/map'
     | '/devices'
     | '/devices/$deviceId/$audioFileId'
@@ -138,6 +176,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/call'
+    | '/login'
     | '/map'
     | '/devices/'
     | '/devices/$deviceId/$audioFileId'
@@ -147,6 +187,8 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CallRoute: typeof CallRoute
+  LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   DevicesIndexRoute: typeof DevicesIndexRoute
   DevicesDeviceIdAudioFileIdRoute: typeof DevicesDeviceIdAudioFileIdRoute
@@ -155,6 +197,8 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CallRoute: CallRoute,
+  LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   DevicesIndexRoute: DevicesIndexRoute,
   DevicesDeviceIdAudioFileIdRoute: DevicesDeviceIdAudioFileIdRoute,
@@ -172,6 +216,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/call",
+        "/login",
         "/map",
         "/devices/",
         "/devices/$deviceId/$audioFileId",
@@ -180,6 +226,12 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/call": {
+      "filePath": "call.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
     },
     "/map": {
       "filePath": "map.tsx"
