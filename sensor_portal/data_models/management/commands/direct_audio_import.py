@@ -74,33 +74,78 @@ class Command(BaseCommand):
             conn.autocommit = False  # Start a transaction
             cursor = conn.cursor()
             
-            # First, fix JSON constraints if needed
+            # First, drop ALL NOT NULL constraints on the datafile table
             cursor.execute("""
             DO $$
+            DECLARE
+                col_name text;
             BEGIN
-                -- Drop NOT NULL constraints if they exist
+                -- Explicitly drop NOT NULL constraints on common problematic columns
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN local_storage DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from local_storage: %', SQLERRM;
+                END;
+                
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN archived DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from archived: %', SQLERRM;
+                END;
+                
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN do_not_remove DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from do_not_remove: %', SQLERRM;
+                END;
+                
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN upload_dt DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from upload_dt: %', SQLERRM;
+                END;
+                
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN file_name DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from file_name: %', SQLERRM;
+                END;
+                
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN file_format DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from file_format: %', SQLERRM;
+                END;
+                
+                BEGIN
+                    ALTER TABLE data_models_datafile ALTER COLUMN path DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from path: %', SQLERRM;
+                END;
+                
+                -- Drop NOT NULL on JSON fields too
                 BEGIN
                     ALTER TABLE data_models_device ALTER COLUMN extra_data DROP NOT NULL;
                 EXCEPTION WHEN OTHERS THEN
-                    -- Column might not exist or already be nullable
+                    RAISE NOTICE 'Could not drop NOT NULL from device.extra_data: %', SQLERRM;
                 END;
                 
                 BEGIN
                     ALTER TABLE data_models_deployment ALTER COLUMN extra_data DROP NOT NULL;
                 EXCEPTION WHEN OTHERS THEN
-                    -- Column might not exist or already be nullable
+                    RAISE NOTICE 'Could not drop NOT NULL from deployment.extra_data: %', SQLERRM;
                 END;
                 
                 BEGIN
                     ALTER TABLE data_models_datafile ALTER COLUMN extra_data DROP NOT NULL;
                 EXCEPTION WHEN OTHERS THEN
-                    -- Column might not exist or already be nullable
+                    RAISE NOTICE 'Could not drop NOT NULL from datafile.extra_data: %', SQLERRM;
                 END;
                 
                 BEGIN
                     ALTER TABLE data_models_datafile ALTER COLUMN linked_files DROP NOT NULL;
                 EXCEPTION WHEN OTHERS THEN
-                    -- Column might not exist or already be nullable
+                    RAISE NOTICE 'Could not drop NOT NULL from linked_files: %', SQLERRM;
                 END;
             END;
             $$;
@@ -224,16 +269,21 @@ class Command(BaseCommand):
                     stats['deployments'] += 1
                     
                     # Process audio files in dry run mode
-                    audio_dir = os.path.join(device_dir, 'audio_files')
+                    audio_dir = os.path.join(device_dir, 'conf_20240314_TABMON')
                     if not os.path.exists(audio_dir):
                         audio_dir = device_dir
                         
-                    for audio_file in os.listdir(audio_dir):
-                        if audio_file.endswith(('.wav', '.WAV')):
-                            file_name = os.path.splitext(audio_file)[0]
-                            self.stdout.write(f"  Would import file {file_name}")
-                            stats['files'] += 1
-                            
+                    audio_count = 0
+                    for root, dirs, files in os.walk(audio_dir):
+                        for file in files:
+                            if file.lower().endswith(('.wav', '.mp3', '.m4a')):
+                                file_name = os.path.splitext(file)[0]
+                                self.stdout.write(f"  Would import file {file_name}")
+                                audio_count += 1
+                    
+                    stats['files'] += audio_count
+                    self.stdout.write(f"  Found {audio_count} audio files to import")
+                    
                     continue  # Skip actual processing in dry run mode
                 
                 try:
@@ -309,94 +359,134 @@ class Command(BaseCommand):
                         self.stdout.write(f"  Created deployment {deployment_id}")
                     
                     # 3. Process audio files
-                    audio_dir = os.path.join(device_dir, 'audio_files')
+                    audio_dir = os.path.join(device_dir, 'conf_20240314_TABMON')
                     if not os.path.exists(audio_dir):
-                        audio_dir = device_dir
+                        audio_dir = device_dir  # Fallback to device directory if conf dir doesn't exist
                     
-                    for audio_file in os.listdir(audio_dir):
-                        if not audio_file.endswith(('.wav', '.WAV')):
-                            continue
+                    # Check if directory exists and has files
+                    if os.path.exists(audio_dir):
+                        self.stdout.write(f"  Found audio directory at {audio_dir}")
+                        
+                        # Find all audio files in this directory (including subdirectories)
+                        audio_files = []
+                        for root, dirs, files in os.walk(audio_dir):
+                            for file in files:
+                                if file.lower().endswith(('.wav', '.mp3', '.m4a')):
+                                    audio_files.append(os.path.join(root, file))
+                        
+                        self.stdout.write(f"  Found {len(audio_files)} audio files")
+                        
+                        for file_path in audio_files:
+                            file_size = os.path.getsize(file_path)
+                            file_name = os.path.splitext(os.path.basename(file_path))[0]
+                            file_ext = os.path.splitext(file_path)[1]
                             
-                        file_path = os.path.join(audio_dir, audio_file)
-                        file_size = os.path.getsize(file_path)
-                        file_name = os.path.splitext(audio_file)[0]
-                        file_ext = os.path.splitext(audio_file)[1]
-                        
-                        # Skip if already exists
-                        cursor.execute('SELECT id FROM data_models_datafile WHERE file_name = %s', [file_name])
-                        if cursor.fetchone():
-                            self.stdout.write(f"  File {file_name} already exists, skipping.")
-                            continue
-                        
-                        # Extract metadata from filename
-                        recording_dt = None
-                        
-                        try:
-                            parts = file_name.split('_')
-                            if len(parts) >= 3:
-                                date_part = parts[-2]  # YYYYMMDD
-                                time_part = parts[-1].split('_')[0]  # HHMMSS
+                            # Skip if already exists
+                            cursor.execute('SELECT id FROM data_models_datafile WHERE file_name = %s', [file_name])
+                            if cursor.fetchone():
+                                self.stdout.write(f"  File {file_name} already exists, skipping.")
+                                continue
+                            
+                            # Extract metadata from filename
+                            recording_dt = None
+                            
+                            try:
+                                # Our files follow the format: 2024-05-16T17_49_40.549Z.m4a
+                                # Extract the date and time from this format
+                                dt_part = file_name
                                 
-                                if len(date_part) == 8 and len(time_part) >= 6:
-                                    year = int(date_part[0:4])
-                                    month = int(date_part[4:6])
-                                    day = int(date_part[6:8])
+                                # Remove the .m4a if it's somehow in the filename
+                                if dt_part.endswith('.m4a'):
+                                    dt_part = dt_part[:-4]
                                     
-                                    hour = int(time_part[0:2])
-                                    minute = int(time_part[2:4])
-                                    second = int(time_part[4:6])
+                                # Convert from ISO-like format
+                                if 'T' in dt_part and 'Z' in dt_part:
+                                    # Split date and time
+                                    date_part, time_part = dt_part.split('T')
                                     
-                                    recording_dt = datetime.datetime(
-                                        year, month, day, hour, minute, second,
-                                        tzinfo=timezone.get_current_timezone()
-                                    )
-                        except (ValueError, IndexError):
-                            pass  # Use defaults if parsing fails
-                        
-                        # Create the DataFile with minimal fields
-                        try:
-                            if recording_dt:
-                                cursor.execute("""
-                                    INSERT INTO data_models_datafile 
-                                    (deployment_id, file_name, file_size, file_format, 
-                                     path, local_path, created_on, modified_on, recording_dt, file_type_id)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                                """, [
-                                    deployment_id_pk, 
-                                    file_name,
-                                    file_size,
-                                    file_ext,
-                                    '/usr/src/proj_tabmon_NINA',
-                                    os.path.dirname(os.path.relpath(file_path, base_dir)),
-                                    timezone.now(),
-                                    timezone.now(),
-                                    recording_dt,
-                                    audio_type_id
-                                ])
-                            else:
-                                cursor.execute("""
-                                    INSERT INTO data_models_datafile 
-                                    (deployment_id, file_name, file_size, file_format, 
-                                     path, local_path, created_on, modified_on, file_type_id)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                                """, [
-                                    deployment_id_pk, 
-                                    file_name,
-                                    file_size,
-                                    file_ext,
-                                    '/usr/src/proj_tabmon_NINA',
-                                    os.path.dirname(os.path.relpath(file_path, base_dir)),
-                                    timezone.now(),
-                                    timezone.now(),
-                                    audio_type_id
-                                ])
-                                
-                            stats['files'] += 1
-                            self.stdout.write(f"  Imported file {file_name}")
-                        except Exception as e:
-                            self.stdout.write(self.style.ERROR(f"  Error creating data file {file_name}: {e}"))
-                            stats['errors'] += 1
-                                
+                                    # Remove Z and milliseconds if present
+                                    if 'Z' in time_part:
+                                        time_part = time_part.split('Z')[0]
+                                        
+                                    # Handle milliseconds
+                                    if '.' in time_part:
+                                        time_part = time_part.split('.')[0]
+                                    
+                                    # Format time part - replace underscores with colons
+                                    time_part = time_part.replace('_', ':')
+                                    
+                                    # Format date part - replace hyphens with hyphens (already correct)
+                                    date_part = date_part.replace('-', '-')
+                                    
+                                    # Create datetime object
+                                    iso_dt = f"{date_part}T{time_part}"
+                                    recording_dt = datetime.datetime.fromisoformat(iso_dt)
+                                    recording_dt = recording_dt.replace(tzinfo=timezone.get_current_timezone())
+                            except (ValueError, IndexError) as e:
+                                self.stdout.write(f"  Warning: Could not parse date from {file_name}: {e}")
+                                recording_dt = None
+                            
+                            # Get the relative path for storage
+                            rel_path = os.path.relpath(file_path, base_dir)
+                            dir_path = os.path.dirname(rel_path)
+                            
+                            # Create the DataFile with minimal fields
+                            try:
+                                now = timezone.now()
+                                if recording_dt:
+                                    cursor.execute("""
+                                        INSERT INTO data_models_datafile 
+                                        (deployment_id, file_name, file_size, file_format, 
+                                         path, local_path, created_on, modified_on, recording_dt, file_type_id,
+                                         local_storage, archived, do_not_remove, upload_dt)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    """, [
+                                        deployment_id_pk, 
+                                        file_name,
+                                        file_size,
+                                        file_ext,
+                                        '/usr/src/proj_tabmon_NINA',
+                                        dir_path,
+                                        now,
+                                        now,
+                                        recording_dt,
+                                        audio_type_id,
+                                        True,  # local_storage
+                                        False, # archived
+                                        False, # do_not_remove
+                                        now    # upload_dt
+                                    ])
+                                else:
+                                    cursor.execute("""
+                                        INSERT INTO data_models_datafile 
+                                        (deployment_id, file_name, file_size, file_format, 
+                                         path, local_path, created_on, modified_on, file_type_id,
+                                         local_storage, archived, do_not_remove, upload_dt)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    """, [
+                                        deployment_id_pk, 
+                                        file_name,
+                                        file_size,
+                                        file_ext,
+                                        '/usr/src/proj_tabmon_NINA',
+                                        dir_path,
+                                        now,
+                                        now,
+                                        audio_type_id,
+                                        True,  # local_storage
+                                        False, # archived
+                                        False, # do_not_remove
+                                        now    # upload_dt
+                                    ])
+                                    
+                                stats['files'] += 1
+                                self.stdout.write(f"  Imported file {file_name}")
+                            except Exception as e:
+                                self.stdout.write(self.style.ERROR(f"  Error creating data file {file_name}: {e}"))
+                                stats['errors'] += 1
+                    else:
+                        self.stdout.write(self.style.WARNING(f"  No audio directory found at {audio_dir}"))
+                    
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f"Error processing device {device_id}: {e}"))
                     stats['errors'] += 1
