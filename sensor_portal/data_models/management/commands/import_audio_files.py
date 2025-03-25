@@ -141,16 +141,15 @@ class Command(BaseCommand):
             
             # Create deployment if it doesn't exist
             if not options['dry_run']:
-                # Only use the minimal fields needed to avoid database schema issues
+                # Use the full device_id to ensure uniqueness - matching direct_audio_import
                 deployment, created = Deployment.objects.get_or_create(
-                    deployment_ID=f'NINA_{device_id[:5]}',
+                    deployment_ID=f'NINA_{device_id}',  # Use full device_id instead of just the first 5 chars
                     device=device,
                     defaults={
                         'site': site,
                         'device_type': audio_type,
                         'deployment_start': timezone.now() - datetime.timedelta(days=30),
                         'time_zone': 'UTC',
-                        # Remove password field and any other fields that might not exist
                     }
                 )
                 
@@ -159,7 +158,7 @@ class Command(BaseCommand):
                     stats['deployments'] += 1
             else:
                 deployment = None
-                self.stdout.write(f"  Would create deployment NINA_{device_id[:5]}")
+                self.stdout.write(f"  Would create deployment NINA_{device_id}")  # Update log message too
                 stats['deployments'] += 1
             
             # Check for audio_files directory

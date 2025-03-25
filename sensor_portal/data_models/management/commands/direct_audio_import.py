@@ -42,6 +42,8 @@ class Command(BaseCommand):
             'port': settings.DATABASES['default']['PORT'] or '5432'
         }
         
+        verbosity = options['verbosity']
+        
         # Set base directory - check both Docker and local paths
         base_dir = options['base_dir']
         if base_dir is None:
@@ -68,7 +70,7 @@ class Command(BaseCommand):
         # Get project ID
         project_id = options['project_id']
         
-        # Connect to the database
+        # Connect to the database for schema changes and global data
         try:
             conn = psycopg2.connect(**db_params)
             conn.autocommit = False  # Start a transaction
@@ -137,6 +139,12 @@ class Command(BaseCommand):
                 END;
                 
                 BEGIN
+                    ALTER TABLE data_models_deployment ALTER COLUMN time_zone DROP NOT NULL;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE NOTICE 'Could not drop NOT NULL from deployment.time_zone: %', SQLERRM;
+                END;
+                
+                BEGIN
                     ALTER TABLE data_models_datafile ALTER COLUMN extra_data DROP NOT NULL;
                 EXCEPTION WHEN OTHERS THEN
                     RAISE NOTICE 'Could not drop NOT NULL from datafile.extra_data: %', SQLERRM;
@@ -154,6 +162,8 @@ class Command(BaseCommand):
             # Clean existing data if requested
             if options['clean'] and not options['dry_run']:
                 self.stdout.write("Cleaning existing data...")
+                
+                # Delete all data files related to the project
                 cursor.execute("""
                     DELETE FROM data_models_datafile 
                     WHERE deployment_id IN (
@@ -163,15 +173,39 @@ class Command(BaseCommand):
                         WHERE p."project_ID" = %s
                     )
                 """, [project_id])
+                self.stdout.write("  Deleted data files")
                 
+                # First, get the deployments we want to delete
                 cursor.execute("""
-                    DELETE FROM data_models_deployment_project
-                    WHERE project_id IN (
-                        SELECT id FROM data_models_project
-                        WHERE "project_ID" = %s
-                    )
+                    SELECT d.id 
+                    FROM data_models_deployment d
+                    JOIN data_models_deployment_project dp ON d.id = dp.deployment_id
+                    JOIN data_models_project p ON dp.project_id = p.id
+                    WHERE p."project_ID" = %s
+                    UNION
+                    SELECT id FROM data_models_deployment WHERE "deployment_ID" LIKE 'NINA_%%'
                 """, [project_id])
+                deployment_ids = [row[0] for row in cursor.fetchall()]
                 
+                if deployment_ids:
+                    # Delete deployment-project relationships first
+                    id_placeholders = ','.join(['%s'] * len(deployment_ids))
+                    cursor.execute(f"""
+                        DELETE FROM data_models_deployment_project
+                        WHERE deployment_id IN ({id_placeholders})
+                    """, deployment_ids)
+                    self.stdout.write(f"  Deleted {len(deployment_ids)} deployment-project relationships")
+                    
+                    # Now we can safely delete the deployments
+                    cursor.execute(f"""
+                        DELETE FROM data_models_deployment
+                        WHERE id IN ({id_placeholders})
+                    """, deployment_ids)
+                    self.stdout.write(f"  Deleted {len(deployment_ids)} deployments")
+                else:
+                    self.stdout.write("  No deployments found to delete")
+                    
+                # Also clean up any orphaned deployments
                 cursor.execute("""
                     DELETE FROM data_models_deployment
                     WHERE id IN (
@@ -180,6 +214,8 @@ class Command(BaseCommand):
                         WHERE dp.deployment_id IS NULL
                     )
                 """)
+                
+                self.stdout.write("Existing data cleaned.")
             
             # Get or create necessary records
             
@@ -237,6 +273,9 @@ class Command(BaseCommand):
                     VALUES (%s, %s, %s, %s, %s) RETURNING id
                 """, ['AudioMoth', 'Open Acoustic Devices', audio_type_id, timezone.now(), timezone.now()])
                 device_model_id = cursor.fetchone()[0]
+                
+            # Commit these global changes
+            conn.commit()
             
             # Track stats
             stats = {
@@ -264,7 +303,7 @@ class Command(BaseCommand):
                 
                 if options['dry_run']:
                     self.stdout.write(f"  Would create device {device_id}")
-                    self.stdout.write(f"  Would create deployment NINA_{device_id[:5]}")
+                    self.stdout.write(f"  Would create deployment NINA_{device_id}")
                     stats['devices'] += 1
                     stats['deployments'] += 1
                     
@@ -286,21 +325,26 @@ class Command(BaseCommand):
                     
                     continue  # Skip actual processing in dry run mode
                 
+                # Open a new connection for each device to ensure isolated transactions
+                device_conn = psycopg2.connect(**db_params)
+                device_conn.autocommit = False
+                device_cursor = device_conn.cursor()
+                
                 try:
                     # 1. Create device
-                    cursor.execute('SELECT id FROM data_models_device WHERE "device_ID" = %s', [device_id])
-                    result = cursor.fetchone()
+                    device_cursor.execute('SELECT id FROM data_models_device WHERE "device_ID" = %s', [device_id])
+                    result = device_cursor.fetchone()
                     
                     if result:
                         device_id_pk = result[0]
                         self.stdout.write(f"  Device {device_id} already exists.")
                     else:
                         # Insert with explicit defaults for problematic fields
-                        cursor.execute("""
+                        device_cursor.execute("""
                             INSERT INTO data_models_device 
                             ("device_ID", name, model_id, type_id, created_on, modified_on, 
-                             autoupdate, update_time)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                             autoupdate, update_time, extra_data)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                             RETURNING id
                         """, [
                             device_id, 
@@ -310,33 +354,43 @@ class Command(BaseCommand):
                             timezone.now(),
                             timezone.now(),
                             False,  # autoupdate
-                            48      # update_time
+                            48,     # update_time
+                            '{}'    # empty JSON object for extra_data
                         ])
-                        device_id_pk = cursor.fetchone()[0]
+                        device_id_pk = device_cursor.fetchone()[0]
                         stats['devices'] += 1
                         self.stdout.write(f"  Created device {device_id}")
                     
-                    # 2. Create deployment
+                    # 2. Create deployment with a unique deployment_ID for each device
                     # Use the full device_id to ensure uniqueness
                     deployment_id = f'NINA_{device_id}'
-                    cursor.execute('SELECT id FROM data_models_deployment WHERE "deployment_ID" = %s', [deployment_id])
-                    result = cursor.fetchone()
+                    
+                    if verbosity > 1:
+                        self.stdout.write(f"  Checking for existing deployment with ID: {deployment_id}")
+                        
+                    device_cursor.execute('SELECT id FROM data_models_deployment WHERE "deployment_ID" = %s', [deployment_id])
+                    result = device_cursor.fetchone()
                     
                     if result:
                         deployment_id_pk = result[0]
                         self.stdout.write(f"  Deployment {deployment_id} already exists.")
                     else:
+                        deployment_device_id = f"{deployment_id}-Audio-1"
+                        
+                        if verbosity > 1:
+                            self.stdout.write(f"  Creating new deployment with device ID: {deployment_device_id}")
+                            
                         # Create deployment with minimal fields and explicit defaults
-                        cursor.execute("""
+                        device_cursor.execute("""
                             INSERT INTO data_models_deployment 
                             ("deployment_ID", "deployment_device_ID", device_id, site_id, 
                              device_type_id, device_n, deployment_start, is_active, 
-                             created_on, modified_on, time_zone)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             created_on, modified_on, time_zone, extra_data)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                             RETURNING id
                         """, [
                             deployment_id,
-                            f"{device_id}-{deployment_id}",
+                            deployment_device_id,
                             device_id_pk,
                             site_id, 
                             audio_type_id,
@@ -345,12 +399,13 @@ class Command(BaseCommand):
                             True,  # is_active
                             timezone.now(),
                             timezone.now(),
-                            'UTC'  # Add default time_zone
+                            'UTC',  # Add default time_zone
+                            '{}'    # empty JSON object for extra_data
                         ])
-                        deployment_id_pk = cursor.fetchone()[0]
+                        deployment_id_pk = device_cursor.fetchone()[0]
                         
                         # Add project relationship
-                        cursor.execute("""
+                        device_cursor.execute("""
                             INSERT INTO data_models_deployment_project
                                 (deployment_id, project_id)
                             VALUES (%s, %s)
@@ -383,8 +438,8 @@ class Command(BaseCommand):
                             file_ext = os.path.splitext(file_path)[1]
                             
                             # Skip if already exists
-                            cursor.execute('SELECT id FROM data_models_datafile WHERE file_name = %s', [file_name])
-                            if cursor.fetchone():
+                            device_cursor.execute('SELECT id FROM data_models_datafile WHERE file_name = %s', [file_name])
+                            if device_cursor.fetchone():
                                 self.stdout.write(f"  File {file_name} already exists, skipping.")
                                 continue
                             
@@ -435,12 +490,12 @@ class Command(BaseCommand):
                             try:
                                 now = timezone.now()
                                 if recording_dt:
-                                    cursor.execute("""
+                                    device_cursor.execute("""
                                         INSERT INTO data_models_datafile 
                                         (deployment_id, file_name, file_size, file_format, 
                                          path, local_path, created_on, modified_on, recording_dt, file_type_id,
-                                         local_storage, archived, do_not_remove, upload_dt)
-                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         local_storage, archived, do_not_remove, upload_dt, extra_data, linked_files)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                     """, [
                                         deployment_id_pk, 
                                         file_name,
@@ -455,15 +510,17 @@ class Command(BaseCommand):
                                         True,  # local_storage
                                         False, # archived
                                         False, # do_not_remove
-                                        now    # upload_dt
+                                        now,   # upload_dt
+                                        '{}',  # empty JSON for extra_data
+                                        '{}'   # empty JSON for linked_files
                                     ])
                                 else:
-                                    cursor.execute("""
+                                    device_cursor.execute("""
                                         INSERT INTO data_models_datafile 
                                         (deployment_id, file_name, file_size, file_format, 
                                          path, local_path, created_on, modified_on, file_type_id,
-                                         local_storage, archived, do_not_remove, upload_dt)
-                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         local_storage, archived, do_not_remove, upload_dt, extra_data, linked_files)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                     """, [
                                         deployment_id_pk, 
                                         file_name,
@@ -477,11 +534,14 @@ class Command(BaseCommand):
                                         True,  # local_storage
                                         False, # archived
                                         False, # do_not_remove
-                                        now    # upload_dt
+                                        now,   # upload_dt
+                                        '{}',  # empty JSON for extra_data
+                                        '{}'   # empty JSON for linked_files
                                     ])
                                     
                                 stats['files'] += 1
-                                self.stdout.write(f"  Imported file {file_name}")
+                                if verbosity > 1:
+                                    self.stdout.write(f"  Imported file {file_name}")
                             except Exception as e:
                                 self.stdout.write(self.style.ERROR(f"  Error creating data file {file_name}: {e}"))
                                 stats['errors'] += 1
@@ -490,13 +550,15 @@ class Command(BaseCommand):
                     
                     # Commit after processing each device to ensure changes are saved
                     # even if a later device fails
-                    conn.commit()
+                    device_conn.commit()
                     self.stdout.write(f"  Committed changes for device {device_id}")
                     
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f"Error processing device {device_id}: {e}"))
                     stats['errors'] += 1
-                    conn.rollback()  # Rollback the transaction for this device only
+                    device_conn.rollback()  # Rollback the transaction for this device only
+                finally:
+                    device_conn.close()  # Make sure we close this connection
             
             # Print summary
             self.stdout.write(self.style.SUCCESS(f"Import summary:"))
