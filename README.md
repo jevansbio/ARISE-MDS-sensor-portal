@@ -15,6 +15,14 @@ docker compose -f docker-compose-dev.yml up
 
 ```bash
 docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py migrate
+
+
+## if you have changes which have not yet been applied. 
+# Step 1: Create a new migration file
+docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py makemigrations data_models
+
+# Step 2: Apply the migration
+docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py migrate
 ```
 
 ```bash
