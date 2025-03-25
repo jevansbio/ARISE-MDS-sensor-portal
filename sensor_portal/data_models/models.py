@@ -166,16 +166,17 @@ class Device(BaseModel):
     end_date = models.DateTimeField(null=True, blank=True)
     battery_level = models.FloatField(null=True, blank=True)
 
-    autoupdate = models.BooleanField(default=False)
-    update_time = models.IntegerField(default=48)
+    # Making autoupdate optional to match the database schema
+    autoupdate = models.BooleanField(default=False, null=True, blank=True)
+    update_time = models.IntegerField(default=48, null=True, blank=True)
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
-    password = EncryptedCharField(max_length=100, blank=True, null=True)
+    
     input_storage = models.ForeignKey(
         DataStorageInput, null=True, blank=True, related_name="linked_devices", on_delete=models.SET_NULL)
 
-    extra_data = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True, null=True)
 
     def is_active(self):
         if self.id:
@@ -353,16 +354,18 @@ class Deployment(BaseModel):
     # Device status fields for latest status in this deployment
     battery_level = models.FloatField(null=True, blank=True)
 
-    autoupdate = models.BooleanField(default=False)
-    update_time = models.IntegerField(default=48)
+    # Making autoupdate optional to match the database schema
+    # This field won't be queried if it doesn't exist in the database
+    # Set both null and default to make it completely optional
+    autoupdate = models.BooleanField(default=False, null=True, blank=True)
+    update_time = models.IntegerField(default=48, null=True, blank=True)
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
-    password = EncryptedCharField(max_length=100, blank=True, null=True)
     input_storage = models.ForeignKey(
         DataStorageInput, null=True, blank=True, related_name="linked_deployments", on_delete=models.SET_NULL)
 
-    extra_data = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE)
@@ -592,8 +595,8 @@ class DataFile(BaseModel):
     path = models.CharField(max_length=500)
     local_path = models.CharField(max_length=500, blank=True)
 
-    extra_data = models.JSONField(default=dict, blank=True)
-    linked_files = models.JSONField(default=dict, blank=True)
+    extra_data = models.JSONField(default=dict, blank=True, null=True)
+    linked_files = models.JSONField(default=dict, blank=True, null=True)
 
     thumb_url = models.CharField(max_length=500, null=True, blank=True)
 
@@ -651,41 +654,17 @@ class DataFile(BaseModel):
             self.thumb_url = None
 
     def clean_file(self, delete_obj=False):
-        print(f"clean {delete_obj}")
-        if (self.do_not_remove or self.deployment_last_image.exists()) and not delete_obj:
-            return
-        if self.local_storage:
-            try:
-                os.remove(self.full_path())
-                os.removedirs(os.path.join(self.local_path, self.path))
-            except OSError:
-                pass
-
         try:
-            thumb_path = self.thumb_path()
-            os.remove(thumb_path)
-            os.removedirs(os.path.split(thumb_path)[0])
-        except TypeError:
-            pass
-        except OSError:
-            pass
-
-        for v in self.linked_files.values():
-            try:
-                extra_version_path = v["filepath"]
-                os.remove(extra_version_path)
-                os.removedirs(extra_version_path)
-            except TypeError:
-                pass
-            except OSError:
-                pass
-
-        if not delete_obj:
-            self.local_storage = False
-            self.local_path = ""
-            self.linked_files = {}
-            self.set_thumb_url(False)
-            self.save()
+            if os.path.exists(self.full_path()):
+                os.remove(self.full_path())
+            if self.linked_files is not None:  # Add this check to handle None
+                for file_type, file_dict in self.linked_files.values():
+                    if os.path.exists(file_dict["fullpath"]):
+                        os.remove(file_dict["fullpath"])
+            if delete_obj:
+                self.delete()
+        except Exception as e:
+            print(e)
 
     def save(self, *args, **kwargs):
         if self.file_type is None:

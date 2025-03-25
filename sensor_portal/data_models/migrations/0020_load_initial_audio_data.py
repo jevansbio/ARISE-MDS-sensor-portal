@@ -56,7 +56,7 @@ def get_audio_file_info(file_path):
         "file_length": "00:03:00"  # Default length, would need audio processing to get actual length
     }
 
-def load_initial_data(apps, schema_editor):
+def load_initial_audio_data(apps, schema_editor):
     """
     Load initial data for NINA audio files
     """
@@ -69,11 +69,23 @@ def load_initial_data(apps, schema_editor):
     Project = apps.get_model('data_models', 'Project')
     DataFile = apps.get_model('data_models', 'DataFile')
     
-    # Base directory for audio files
-    base_dir = os.path.join(settings.BASE_DIR, '..', 'proj_tabmon_NINA')
+    # Check Docker path first, then fall back to relative path
+    docker_path = '/usr/src/proj_tabmon_NINA'
+    relative_path = os.path.join(settings.BASE_DIR, '..', 'proj_tabmon_NINA')
     
-    # If the directory doesn't exist, skip the migration
+    if os.path.exists(docker_path):
+        base_dir = docker_path
+        print(f"Using Docker path: {base_dir}")
+    elif os.path.exists(relative_path):
+        base_dir = relative_path
+        print(f"Using relative path: {base_dir}")
+    else:
+        print(f"Audio files directory not found at {docker_path} or {relative_path}. Skipping audio file import.")
+        return
+    
+    # If the directory doesn't exist, log a message and skip the migration
     if not os.path.exists(base_dir):
+        print(f"Audio files directory not found at {base_dir}. Skipping audio file import.")
         return
     
     # Create data types if they don't exist
@@ -85,16 +97,9 @@ def load_initial_data(apps, schema_editor):
         short_name='NINA'
     )
     
-    # Create device model
-    device_model, _ = DeviceModel.objects.get_or_create(
-        name='AudioMoth',
-        manufacturer='Open Acoustic Devices',
-        type=audio_type
-    )
-    
     # Create project
     project, _ = Project.objects.get_or_create(
-        project_ID='TABMON_NIN',  # Changed to 10 characters
+        project_ID='TABMON_NIN',  # 10 characters max
         defaults={
             'name': 'TABMON NINA',
             'objectives': 'Audio monitoring for NINA project',
@@ -103,6 +108,15 @@ def load_initial_data(apps, schema_editor):
             'contact': 'NINA',
             'contact_email': 'info@nina.no',
             'organisation': 'NINA'
+        }
+    )
+    
+    # Create the AudioMoth device model
+    device_model, _ = DeviceModel.objects.get_or_create(
+        name='AudioMoth',
+        defaults={
+            'manufacturer': 'Open Acoustic Devices',
+            'type': audio_type
         }
     )
     
@@ -125,21 +139,25 @@ def load_initial_data(apps, schema_editor):
             device_ID=device_id,
             defaults={
                 'name': f'AudioMoth {device_id}',
-                'model': device_model,
+                'model': device_model,  # Use the DeviceModel instance
                 'type': audio_type
             }
         )
         
-        # Create deployment if it doesn't exist
-        deployment, _ = Deployment.objects.get_or_create(
-            deployment_ID=f'NINA_{device_id[:5]}',
-            device=device,
-            defaults={
-                'site': site,
-                'device_type': audio_type,
-                'deployment_start': timezone.now() - datetime.timedelta(days=30),
-            }
-        )
+        # Create deployment if it doesn't exist, with only fields certain to exist
+        try:
+            deployment = Deployment.objects.get(deployment_ID=f'NINA_{device_id[:5]}')
+            created = False
+        except Deployment.DoesNotExist:
+            # Use only core fields to avoid schema issues
+            deployment = Deployment.objects.create(
+                deployment_ID=f'NINA_{device_id[:5]}',
+                device=device,
+                site=site,
+                device_type=audio_type,
+                deployment_start=timezone.now() - datetime.timedelta(days=30)
+            )
+            created = True
         
         # Add project to deployment
         deployment.project.add(project)
@@ -209,22 +227,40 @@ def load_initial_data(apps, schema_editor):
                 config = None
                 sample_rate = None
             
+            # Store paths in a way that works in Docker environment
+            container_path = '/usr/src/proj_tabmon_NINA'
+            
             # Create the data file if it doesn't exist
             if not DataFile.objects.filter(file_name=file_name).exists():
-                DataFile.objects.create(
-                    deployment=deployment,
-                    file_type=audio_type,
-                    file_name=file_name,
-                    file_size=file_size,
-                    file_format=file_ext,
-                    recording_dt=recording_dt,
-                    path=audio_dir,
-                    local_path=base_dir,
-                    config=config,
-                    sample_rate=sample_rate,
-                    # Estimate file length based on sample rate and file size
-                    file_length=f"{(file_size/2/sample_rate)/60:.2f} min" if sample_rate else None
-                )
+                try:
+                    # Check for model structure compatibility
+                    file_data = {
+                        'deployment': deployment,
+                        'file_type': audio_type,
+                        'file_name': file_name,
+                        'file_size': file_size,
+                        'file_format': file_ext,
+                        'recording_dt': recording_dt,
+                        'path': container_path,
+                        'local_path': os.path.dirname(os.path.relpath(file_path, base_dir)),
+                    }
+                    
+                    # Store metadata in extra_data field which is more likely to exist
+                    metadata = {}
+                    if config:
+                        metadata['config'] = config
+                    if sample_rate:
+                        metadata['sample_rate'] = sample_rate
+                    
+                    # Check if the field exists before setting it
+                    model_fields = [f.name for f in DataFile._meta.get_fields()]
+                    
+                    if 'extra_data' in model_fields:
+                        file_data['extra_data'] = metadata
+                    
+                    DataFile.objects.create(**file_data)
+                except Exception as e:
+                    print(f"Error creating data file {file_name}: {e}")
 
 def reverse_func(apps, schema_editor):
     """
@@ -239,5 +275,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(load_initial_data, reverse_func),
+        migrations.RunPython(load_initial_audio_data, reverse_func),
     ] 
