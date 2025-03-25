@@ -63,9 +63,45 @@ class Command(BaseCommand):
         # Clean existing data if requested
         if options['clean'] and not options['dry_run']:
             self.stdout.write("Cleaning existing data...")
-            DataFile.objects.filter(deployment__project__project_ID=project_id).delete()
-            Deployment.objects.filter(project__project_ID=project_id).delete()
-            # Don't delete devices as they might be used by other projects
+            
+            # Use direct SQL rather than ORM to avoid schema issues
+            with connection.cursor() as cursor:
+                # First, find project ID
+                cursor.execute(
+                    'SELECT id FROM data_models_project WHERE "project_ID" = %s', 
+                    [project_id]
+                )
+                result = cursor.fetchone()
+                if result:
+                    project_db_id = result[0]
+                    
+                    # Delete files for deployments related to this project
+                    cursor.execute("""
+                        DELETE FROM data_models_datafile 
+                        WHERE deployment_id IN (
+                            SELECT d.id FROM data_models_deployment d
+                            JOIN data_models_deployment_project dp ON d.id = dp.deployment_id
+                            WHERE dp.project_id = %s
+                        )
+                    """, [project_db_id])
+                    
+                    # Delete deployment-project relationships
+                    cursor.execute("""
+                        DELETE FROM data_models_deployment_project
+                        WHERE project_id = %s
+                    """, [project_db_id])
+                    
+                    # Delete deployments that don't have any projects
+                    cursor.execute("""
+                        DELETE FROM data_models_deployment
+                        WHERE id NOT IN (
+                            SELECT deployment_id FROM data_models_deployment_project
+                        )
+                    """)
+                    
+                    self.stdout.write("Data cleaned successfully using direct SQL")
+                else:
+                    self.stdout.write(f"Project with ID {project_id} not found. Nothing to clean.")
         
         # Create data type
         audio_type, _ = DataType.objects.get_or_create(name='Audio')
@@ -107,6 +143,34 @@ class Command(BaseCommand):
             'errors': 0
         }
         
+        # Get available database columns for each model
+        device_columns = []
+        deployment_columns = []
+        datafile_columns = []
+        
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT column_name FROM information_schema.columns 
+                WHERE table_name='data_models_device'
+            """)
+            device_columns = [row[0] for row in cursor.fetchall()]
+            
+            cursor.execute("""
+                SELECT column_name FROM information_schema.columns 
+                WHERE table_name='data_models_deployment'
+            """)
+            deployment_columns = [row[0] for row in cursor.fetchall()]
+            
+            cursor.execute("""
+                SELECT column_name FROM information_schema.columns 
+                WHERE table_name='data_models_datafile'
+            """)
+            datafile_columns = [row[0] for row in cursor.fetchall()]
+            
+        self.stdout.write(f"Found {len(device_columns)} columns in device table")
+        self.stdout.write(f"Found {len(deployment_columns)} columns in deployment table")
+        self.stdout.write(f"Found {len(datafile_columns)} columns in datafile table")
+        
         # Walk through the directory structure
         for item in os.listdir(base_dir):
             device_dir = os.path.join(base_dir, item)
@@ -125,161 +189,325 @@ class Command(BaseCommand):
             
             # Create device if it doesn't exist
             if not options['dry_run']:
-                # Check which fields are available in the Device model
-                available_fields = {}
                 with connection.cursor() as cursor:
-                    cursor.execute("""
-                        SELECT column_name FROM information_schema.columns 
-                        WHERE table_name='data_models_device'
-                    """)
-                    columns = [row[0] for row in cursor.fetchall()]
+                    # Check if device exists
+                    cursor.execute('SELECT id FROM data_models_device WHERE "device_ID" = %s', [device_id])
+                    device_result = cursor.fetchone()
+                    
+                    if device_result:
+                        device_id_pk = device_result[0]
+                        self.stdout.write(f"  Device {device_id} already exists.")
+                    else:
+                        # Create device using direct SQL without referencing country field
+                        cursor.execute("""
+                            INSERT INTO data_models_device 
+                            ("device_ID", name, model_id, type_id, created_on, modified_on)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                            RETURNING id
+                        """, [
+                            device_id,
+                            f'AudioMoth {device_id}',
+                            device_model.id,
+                            audio_type.id,
+                            timezone.now(),
+                            timezone.now()
+                        ])
+                        device_id_pk = cursor.fetchone()[0]
+                        
+                        # If country column exists, set it (optional)
+                        if 'country' in device_columns:
+                            try:
+                                cursor.execute("""
+                                    UPDATE data_models_device 
+                                    SET country = %s
+                                    WHERE id = %s
+                                """, ['Unknown', device_id_pk])
+                            except Exception as e:
+                                self.stdout.write(f"  Warning: Could not set country: {e}")
+                        
+                        stats['devices'] += 1
+                        self.stdout.write(f"  Created device {device_id}")
+                    
+                    # Create deployment if it doesn't exist
+                    # Use the full device_id to ensure uniqueness
+                    deployment_id = f'NINA_{device_id}'
+                    
+                    cursor.execute('SELECT id FROM data_models_deployment WHERE "deployment_ID" = %s', [deployment_id])
+                    deployment_result = cursor.fetchone()
+                    
+                    if deployment_result:
+                        deployment_id_pk = deployment_result[0]
+                        self.stdout.write(f"  Deployment {deployment_id} already exists.")
+                    else:
+                        # Create basic deployment with minimal fields using direct SQL
+                        now = timezone.now()
+                        start_date = now - datetime.timedelta(days=30)
+                        
+                        # Generate a deployment_device_ID (a mandatory field)
+                        deployment_device_id = f"{deployment_id}-Audio-1"
+                        
+                        cursor.execute("""
+                            INSERT INTO data_models_deployment 
+                            ("deployment_ID", "deployment_device_ID", device_id, site_id, device_type_id, 
+                            deployment_start, is_active, created_on, modified_on, device_n, time_zone)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            RETURNING id
+                        """, [
+                            deployment_id,
+                            deployment_device_id,  # Include deployment_device_ID in the initial insert
+                            device_id_pk,
+                            site.id,
+                            audio_type.id,
+                            start_date,
+                            True,
+                            now,
+                            now,
+                            1,  # Default value for device_n field
+                            'UTC'  # Default value for time_zone field
+                        ])
+                        deployment_id_pk = cursor.fetchone()[0]
+                        
+                        # Link to project
+                        cursor.execute("""
+                            INSERT INTO data_models_deployment_project 
+                            (deployment_id, project_id)
+                            VALUES (%s, %s)
+                        """, [deployment_id_pk, project.id])
+                        
+                        stats['deployments'] += 1
+                        self.stdout.write(f"  Created deployment {deployment_id}")
                 
-                # Build defaults dict with only fields that exist in the database
-                device_defaults = {
-                    'name': f'AudioMoth {device_id}',
-                    'model': device_model,
-                    'type': audio_type
-                }
-                
-                # Only add these fields if they exist in the database
-                if 'country' in columns:
-                    device_defaults['country'] = 'Unknown'  # Safe default
-                
-                # Get or create device with only valid fields
-                device, created = Device.objects.get_or_create(
-                    device_ID=device_id,
-                    defaults=device_defaults
-                )
-                if created:
-                    stats['devices'] += 1
+                # Load Django model instances for use with DataFile creation
+                # (we need these for the foreign key relationships)
+                try:
+                    # We'll just use the IDs directly instead of loading models
+                    # to avoid ORM issues with missing columns
+                    device_id_pk = device_id_pk  # We already have this
+                    deployment_id_pk = deployment_id_pk  # We already have this
+                    self.stdout.write(f"  Using deployment ID {deployment_id_pk} for files")
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(f"  Error accessing IDs: {e}"))
+                    continue
             else:
-                device = None
+                device_id_pk = None
+                deployment_id_pk = None
                 self.stdout.write(f"  Would create device {device_id}")
+                self.stdout.write(f"  Would create deployment NINA_{device_id}")
                 stats['devices'] += 1
-            
-            # Create deployment if it doesn't exist
-            if not options['dry_run']:
-                # Use the full device_id to ensure uniqueness - matching direct_audio_import
-                deployment, created = Deployment.objects.get_or_create(
-                    deployment_ID=f'NINA_{device_id}',  # Use full device_id instead of just the first 5 chars
-                    device=device,
-                    defaults={
-                        'site': site,
-                        'device_type': audio_type,
-                        'deployment_start': timezone.now() - datetime.timedelta(days=30),
-                        'time_zone': 'UTC',
-                    }
-                )
-                
-                if created:
-                    deployment.project.add(project)
-                    stats['deployments'] += 1
-            else:
-                deployment = None
-                self.stdout.write(f"  Would create deployment NINA_{device_id}")  # Update log message too
                 stats['deployments'] += 1
             
-            # Check for audio_files directory
-            audio_dir = os.path.join(device_dir, 'audio_files')
+            # Check for audio files
+            audio_dir = os.path.join(device_dir, 'conf_20240314_TABMON')
             if not os.path.exists(audio_dir):
-                audio_dir = device_dir  # Use the device directory if audio_files doesn't exist
+                audio_dir = device_dir  # Use device directory if conf_20240314_TABMON doesn't exist
+                
+            self.stdout.write(f"  Looking for audio files in: {audio_dir}")
             
             # Process audio files
-            for audio_file in os.listdir(audio_dir):
-                # Skip non-audio files
-                if not audio_file.endswith(('.wav', '.WAV')):
-                    continue
+            if os.path.exists(audio_dir):
+                # Find all audio files (MP3, WAV, or M4A)
+                audio_files = []
+                for root, dirs, files in os.walk(audio_dir):
+                    for file in files:
+                        if file.lower().endswith(('.mp3', '.wav', '.m4a')):
+                            audio_files.append(os.path.join(root, file))
+                
+                if audio_files:
+                    self.stdout.write(f"  Found {len(audio_files)} audio files")
                     
-                file_path = os.path.join(audio_dir, audio_file)
-                file_size = os.path.getsize(file_path)
-                file_name = os.path.splitext(audio_file)[0]
-                file_ext = os.path.splitext(audio_file)[1]
+                    # Show a few examples
+                    for i, file_path in enumerate(audio_files[:3]):
+                        self.stdout.write(f"    Example {i+1}: {os.path.basename(file_path)}")
+                else:
+                    self.stdout.write("  No audio files found")
+                    continue
                 
-                # Try to extract date from filename (format: bugg_RPiID-DEVICEID_YYYYMMDD_HHMMSS)
-                try:
-                    parts = file_name.split('_')
-                    if len(parts) >= 3:
-                        date_part = parts[-2]  # YYYYMMDD
-                        time_part = parts[-1].split('_')[0]  # HHMMSS
+                for file_path in audio_files:
+                    file_size = os.path.getsize(file_path)
+                    file_name = os.path.splitext(os.path.basename(file_path))[0]
+                    file_ext = os.path.splitext(file_path)[1]
+                    
+                    # Skip if file already exists and not in dry run mode
+                    if not options['dry_run']:
+                        # Check if file exists using SQL instead of ORM
+                        with connection.cursor() as cursor:
+                            cursor.execute('SELECT id FROM data_models_datafile WHERE file_name = %s', [file_name])
+                            if cursor.fetchone():
+                                self.stdout.write(f"  File {file_name} already exists, skipping.")
+                                continue
                         
-                        # Handle config part (e.g., 16kHz)
-                        config = None
-                        if len(parts) >= 4:
-                            config = parts[-1]
-                        elif '_' in parts[-1]:
-                            config = parts[-1].split('_')[1]
-                        
-                        # Extract sample rate if available
-                        sample_rate = None
-                        if config and 'kHz' in config:
-                            try:
-                                # Convert something like "16kHz" to 16000
-                                sample_rate = int(float(config.replace('kHz', '')) * 1000)
-                            except (ValueError, TypeError):
-                                pass
-                        
-                        # Parse date and time
-                        if len(date_part) == 8 and len(time_part) >= 6:
-                            year = int(date_part[0:4])
-                            month = int(date_part[4:6])
-                            day = int(date_part[6:8])
-                            
-                            hour = int(time_part[0:2])
-                            minute = int(time_part[2:4])
-                            second = int(time_part[4:6])
-                            
-                            recording_dt = datetime.datetime(
-                                year, month, day, hour, minute, second,
-                                tzinfo=timezone.get_current_timezone()
-                            )
-                        else:
-                            recording_dt = None
-                    else:
+                        # Try to extract date from filename
                         recording_dt = None
-                        config = None
-                        sample_rate = None
-                except (ValueError, IndexError):
-                    recording_dt = None
-                    config = None
-                    sample_rate = None
-                
-                # Store paths in a way that works in Docker environment
-                # Store paths relative to where Django can find them in the container
-                container_path = '/usr/src/proj_tabmon_NINA'
-                
-                # Create the data file if it doesn't exist and not in dry run mode
-                if not options['dry_run']:
-                    if not DataFile.objects.filter(file_name=file_name).exists():
                         try:
-                            # Only include fields that are guaranteed to exist in the database
-                            file_data = {
-                                'deployment': deployment,
-                                'file_type': audio_type,
-                                'file_name': file_name,
-                                'file_size': file_size,
-                                'file_format': file_ext,
-                                'recording_dt': recording_dt,
-                                'path': container_path,
-                                'local_path': os.path.dirname(os.path.relpath(file_path, base_dir)),
-                            }
+                            # Extract date using the patterns established in direct_audio_import.py
+                            dt_part = file_name
                             
-                            # Only add these fields if the model supports them
-                            if hasattr(DataFile, 'config'):
-                                file_data['config'] = config
-                            if hasattr(DataFile, 'sample_rate'):
-                                file_data['sample_rate'] = sample_rate
-                            if hasattr(DataFile, 'file_length') and sample_rate and sample_rate > 0:
-                                file_data['file_length'] = f"{(file_size/2/sample_rate)/60:.2f} min"
+                            # First try ISO format with T separator (2024-05-16T17_49_40)
+                            if 'T' in dt_part:
+                                # Split date and time
+                                date_part, time_part = dt_part.split('T')
+                                
+                                # Remove Z and milliseconds if present
+                                if 'Z' in time_part:
+                                    time_part = time_part.split('Z')[0]
+                                    
+                                # Handle milliseconds
+                                if '.' in time_part:
+                                    time_part = time_part.split('.')[0]
+                                
+                                # Format time part - replace underscores with colons
+                                time_part = time_part.replace('_', ':')
+                                
+                                # Create datetime object
+                                iso_dt = f"{date_part}T{time_part}"
+                                recording_dt = datetime.datetime.fromisoformat(iso_dt)
+                                recording_dt = recording_dt.replace(tzinfo=timezone.get_current_timezone())
                             
-                            # Create the data file
-                            DataFile.objects.create(**file_data)
+                            # Try format with underscores (YYYYMMDD_HHMMSS)
+                            elif '_' in dt_part:
+                                parts = dt_part.split('_')
+                                # Look for a part that matches the date format YYYYMMDD
+                                for part in parts:
+                                    if len(part) == 8 and part.isdigit():
+                                        date_part = part
+                                        # Look for a part that might be the time
+                                        for time_part in parts:
+                                            if len(time_part) >= 6 and time_part.isdigit():
+                                                year = int(date_part[0:4])
+                                                month = int(date_part[4:6])
+                                                day = int(date_part[6:8])
+                                                
+                                                hour = int(time_part[0:2])
+                                                minute = int(time_part[2:4])
+                                                second = int(time_part[4:6])
+                                                
+                                                recording_dt = datetime.datetime(
+                                                    year, month, day, hour, minute, second,
+                                                    tzinfo=timezone.get_current_timezone()
+                                                )
+                                                break
+                                        break
+                        except (ValueError, IndexError) as e:
+                            self.stdout.write(f"  Warning: Could not parse date from {file_name}: {e}")
+                            recording_dt = None
+                        
+                        try:
+                            # Extract config and sample rate from filename
+                            config = None
+                            sample_rate = None
+                            parts = file_name.split('_')
+                            if len(parts) > 3 and 'kHz' in parts[-1]:
+                                config = parts[-1]
+                                try:
+                                    if 'kHz' in config:
+                                        # Convert something like "16kHz" to 16000
+                                        sample_rate = int(float(config.replace('kHz', '')) * 1000)
+                                except (ValueError, TypeError):
+                                    pass
+                            
+                            # Estimate file length if sample rate is available
+                            file_length = None
+                            if sample_rate:
+                                file_length_mins = (file_size/2/sample_rate)/60
+                                file_length = f"{file_length_mins:.2f} min"
+                            
+                            # Get relative path
+                            local_path = os.path.dirname(os.path.relpath(file_path, base_dir))
+                            
+                            # Create DataFile using direct SQL
+                            with connection.cursor() as cursor:
+                                now = timezone.now()
+                                
+                                # Create basic DataFile with required fields
+                                cursor.execute("""
+                                    INSERT INTO data_models_datafile
+                                    (deployment_id, file_type_id, file_name, file_size, file_format,
+                                     path, local_path, created_on, modified_on,
+                                     upload_dt, recording_dt)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                """, [
+                                    deployment_id_pk,
+                                    audio_type.id,
+                                    file_name,
+                                    file_size,
+                                    file_ext,
+                                    '/usr/src/proj_tabmon_NINA',
+                                    local_path,
+                                    now,
+                                    now,
+                                    now,
+                                    recording_dt
+                                ])
+                                
+                                # Add optional fields if they exist
+                                if config and 'config' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET config = %s
+                                        WHERE file_name = %s
+                                    """, [config, file_name])
+                                
+                                if sample_rate and 'sample_rate' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET sample_rate = %s
+                                        WHERE file_name = %s
+                                    """, [sample_rate, file_name])
+                                
+                                if file_length and 'file_length' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET file_length = %s
+                                        WHERE file_name = %s
+                                    """, [file_length, file_name])
+                                
+                                # Set boolean fields
+                                if 'local_storage' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET local_storage = %s
+                                        WHERE file_name = %s
+                                    """, [True, file_name])
+                                
+                                if 'archived' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET archived = %s
+                                        WHERE file_name = %s
+                                    """, [False, file_name])
+                                
+                                if 'do_not_remove' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET do_not_remove = %s
+                                        WHERE file_name = %s
+                                    """, [False, file_name])
+                                
+                                # Set JSON fields if they exist
+                                if 'extra_data' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET extra_data = %s
+                                        WHERE file_name = %s
+                                    """, ['{}', file_name])
+                                
+                                if 'linked_files' in datafile_columns:
+                                    cursor.execute("""
+                                        UPDATE data_models_datafile
+                                        SET linked_files = %s
+                                        WHERE file_name = %s
+                                    """, ['{}', file_name])
+                            
                             stats['files'] += 1
+                            self.stdout.write(f"  Created file record for {file_name}")
                         except Exception as e:
                             self.stdout.write(self.style.ERROR(f"  Error creating data file {file_name}: {e}"))
                             stats['errors'] += 1
-                else:
-                    self.stdout.write(f"  Would import file {file_name}")
-                    stats['files'] += 1
+                    else:
+                        self.stdout.write(f"  Would import file {file_name}")
+                        stats['files'] += 1
+            else:
+                self.stdout.write(self.style.WARNING(f"  No directory found at {audio_dir}"))
         
         # Print summary
         self.stdout.write(self.style.SUCCESS(f"Import summary:"))
