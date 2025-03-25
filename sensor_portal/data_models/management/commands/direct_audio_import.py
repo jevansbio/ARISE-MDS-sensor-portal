@@ -181,6 +181,47 @@ class Command(BaseCommand):
             $$;
             """)
             
+            # Check if country column exists in deployment table and add it if missing
+            self.stdout.write("Checking if country column exists in deployment table...")
+            cursor.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='data_models_deployment' 
+            AND column_name='country';
+            """)
+            
+            if cursor.fetchone() is None:
+                self.stdout.write("Country column doesn't exist in deployment table. Adding it...")
+                cursor.execute("""
+                ALTER TABLE data_models_deployment 
+                ADD COLUMN country varchar(100) NULL;
+                """)
+                self.stdout.write("Country column added successfully.")
+            else:
+                self.stdout.write("Country column already exists in deployment table.")
+                
+            # Check if country column exists in device table and add it if missing
+            self.stdout.write("Checking if country column exists in device table...")
+            cursor.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='data_models_device' 
+            AND column_name='country';
+            """)
+            
+            if cursor.fetchone() is None:
+                self.stdout.write("Country column doesn't exist in device table. Adding it...")
+                cursor.execute("""
+                ALTER TABLE data_models_device 
+                ADD COLUMN country varchar(100) NULL;
+                """)
+                self.stdout.write("Country column added successfully.")
+            else:
+                self.stdout.write("Country column already exists in device table.")
+            
+            # Commit schema changes
+            conn.commit()
+            
             # Clean existing data if requested
             if options['clean'] and not options['dry_run']:
                 self.stdout.write("Cleaning existing data...")
