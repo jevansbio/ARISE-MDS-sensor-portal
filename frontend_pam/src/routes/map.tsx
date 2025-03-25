@@ -17,7 +17,7 @@ function RouteComponent() {
   const { authTokens, user } = useContext(AuthContext) as AuthContextType;
 
 	const getDataFunc = async () => {
-		let apiURL = `${"device"}/`;
+		let apiURL = `${"deployment"}/`;
 		console.log(apiURL);
 		let response_json = await getData(apiURL, authTokens.access);
 		return response_json;
