@@ -423,8 +423,8 @@ class Command(BaseCommand):
                                     INSERT INTO data_models_datafile
                                     (deployment_id, file_type_id, file_name, file_size, file_format,
                                      path, local_path, created_on, modified_on,
-                                     upload_dt, recording_dt)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                     upload_dt, recording_dt, local_storage, archived, do_not_remove)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                 """, [
                                     deployment_id_pk,
                                     audio_type.id,
@@ -436,7 +436,10 @@ class Command(BaseCommand):
                                     now,
                                     now,
                                     now,
-                                    recording_dt
+                                    recording_dt,
+                                    True,  # local_storage
+                                    False,  # archived
+                                    False   # do_not_remove
                                 ])
                                 
                                 # Add optional fields if they exist
@@ -460,28 +463,6 @@ class Command(BaseCommand):
                                         SET file_length = %s
                                         WHERE file_name = %s
                                     """, [file_length, file_name])
-                                
-                                # Set boolean fields
-                                if 'local_storage' in datafile_columns:
-                                    cursor.execute("""
-                                        UPDATE data_models_datafile
-                                        SET local_storage = %s
-                                        WHERE file_name = %s
-                                    """, [True, file_name])
-                                
-                                if 'archived' in datafile_columns:
-                                    cursor.execute("""
-                                        UPDATE data_models_datafile
-                                        SET archived = %s
-                                        WHERE file_name = %s
-                                    """, [False, file_name])
-                                
-                                if 'do_not_remove' in datafile_columns:
-                                    cursor.execute("""
-                                        UPDATE data_models_datafile
-                                        SET do_not_remove = %s
-                                        WHERE file_name = %s
-                                    """, [False, file_name])
                                 
                                 # Set JSON fields if they exist
                                 if 'extra_data' in datafile_columns:
