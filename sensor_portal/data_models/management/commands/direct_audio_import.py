@@ -1,6 +1,7 @@
 import os
 import datetime
 import psycopg2
+import glob
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
@@ -75,6 +76,27 @@ class Command(BaseCommand):
             conn = psycopg2.connect(**db_params)
             conn.autocommit = False  # Start a transaction
             cursor = conn.cursor()
+            
+            # First, list all subdirectories so we can see what's available
+            self.stdout.write("Available device directories:")
+            for item in os.listdir(base_dir):
+                item_path = os.path.join(base_dir, item)
+                if os.path.isdir(item_path):
+                    self.stdout.write(f"  - {item}")
+                    # List contents of each device directory 
+                    for subitem in os.listdir(item_path):
+                        subitem_path = os.path.join(item_path, subitem)
+                        if os.path.isdir(subitem_path):
+                            self.stdout.write(f"    |- {subitem}/")
+                            # Look for audio files in this directory
+                            audio_files = []
+                            for ext in ['.mp3', '.wav', '.m4a']:
+                                audio_files.extend(glob.glob(os.path.join(subitem_path, f"*{ext}")))
+                            if audio_files:
+                                self.stdout.write(f"       Found {len(audio_files)} audio files")
+                                # Print first 3 examples
+                                for i, audio_file in enumerate(audio_files[:3]):
+                                    self.stdout.write(f"       Example {i+1}: {os.path.basename(audio_file)}")
             
             # First, drop ALL NOT NULL constraints on the datafile table
             cursor.execute("""
@@ -415,22 +437,57 @@ class Command(BaseCommand):
                         self.stdout.write(f"  Created deployment {deployment_id}")
                     
                     # 3. Process audio files
+                    # First, look in the conf_20240314_TABMON directory
                     audio_dir = os.path.join(device_dir, 'conf_20240314_TABMON')
+                    
+                    # If that doesn't exist, try the device directory directly
                     if not os.path.exists(audio_dir):
-                        audio_dir = device_dir  # Fallback to device directory if conf dir doesn't exist
+                        audio_dir = device_dir
+                    
+                    # Log which directory we're using
+                    self.stdout.write(f"  Looking for audio files in: {audio_dir}")
                     
                     # Check if directory exists and has files
                     if os.path.exists(audio_dir):
-                        self.stdout.write(f"  Found audio directory at {audio_dir}")
-                        
                         # Find all audio files in this directory (including subdirectories)
                         audio_files = []
+                        
+                        # Check for MP3 files first (since we know these exist)
+                        mp3_files = []
                         for root, dirs, files in os.walk(audio_dir):
                             for file in files:
-                                if file.lower().endswith(('.wav', '.mp3', '.m4a')):
-                                    audio_files.append(os.path.join(root, file))
+                                if file.lower().endswith('.mp3'):
+                                    mp3_files.append(os.path.join(root, file))
                         
-                        self.stdout.write(f"  Found {len(audio_files)} audio files")
+                        if mp3_files:
+                            self.stdout.write(f"  Found {len(mp3_files)} MP3 files")
+                            audio_files = mp3_files
+                        else:
+                            # Check for other audio types if no MP3s found
+                            for ext in ['.wav', '.m4a']:
+                                for root, dirs, files in os.walk(audio_dir):
+                                    for file in files:
+                                        if file.lower().endswith(ext):
+                                            audio_files.append(os.path.join(root, file))
+                            
+                            if audio_files:
+                                self.stdout.write(f"  Found {len(audio_files)} non-MP3 audio files")
+                            else:
+                                # Print directory contents if no audio files found
+                                self.stdout.write(f"  No audio files found. Directory contents:")
+                                for root, dirs, files in os.walk(audio_dir):
+                                    rel_path = os.path.relpath(root, audio_dir)
+                                    if rel_path == ".":
+                                        self.stdout.write(f"    Root directory: {len(files)} files")
+                                    else:
+                                        self.stdout.write(f"    {rel_path}: {len(files)} files")
+                                    
+                                    # Print the first 5 files with their extensions for debugging
+                                    for i, file in enumerate(sorted(files)[:5]):
+                                        _, ext = os.path.splitext(file)
+                                        self.stdout.write(f"      - {file} (extension: {ext})")
+                        
+                        self.stdout.write(f"  Processing {len(audio_files)} audio files")
                         
                         for file_path in audio_files:
                             file_size = os.path.getsize(file_path)
@@ -447,16 +504,11 @@ class Command(BaseCommand):
                             recording_dt = None
                             
                             try:
-                                # Our files follow the format: 2024-05-16T17_49_40.549Z.m4a
-                                # Extract the date and time from this format
+                                # Extract the date from the filename - handle different formats
                                 dt_part = file_name
                                 
-                                # Remove the .m4a if it's somehow in the filename
-                                if dt_part.endswith('.m4a'):
-                                    dt_part = dt_part[:-4]
-                                    
-                                # Convert from ISO-like format
-                                if 'T' in dt_part and 'Z' in dt_part:
+                                # First try ISO format with T separator (2024-05-16T17_49_40)
+                                if 'T' in dt_part:
                                     # Split date and time
                                     date_part, time_part = dt_part.split('T')
                                     
@@ -471,13 +523,42 @@ class Command(BaseCommand):
                                     # Format time part - replace underscores with colons
                                     time_part = time_part.replace('_', ':')
                                     
-                                    # Format date part - replace hyphens with hyphens (already correct)
-                                    date_part = date_part.replace('-', '-')
-                                    
                                     # Create datetime object
                                     iso_dt = f"{date_part}T{time_part}"
                                     recording_dt = datetime.datetime.fromisoformat(iso_dt)
                                     recording_dt = recording_dt.replace(tzinfo=timezone.get_current_timezone())
+                                
+                                # Try format with underscores (YYYYMMDD_HHMMSS)
+                                elif '_' in dt_part:
+                                    parts = dt_part.split('_')
+                                    # Look for a part that matches the date format YYYYMMDD
+                                    for part in parts:
+                                        if len(part) == 8 and part.isdigit():
+                                            date_part = part
+                                            # Look for a part that might be the time
+                                            for time_part in parts:
+                                                if len(time_part) >= 6 and time_part.isdigit():
+                                                    year = int(date_part[0:4])
+                                                    month = int(date_part[4:6])
+                                                    day = int(date_part[6:8])
+                                                    
+                                                    hour = int(time_part[0:2])
+                                                    minute = int(time_part[2:4])
+                                                    second = int(time_part[4:6])
+                                                    
+                                                    recording_dt = datetime.datetime(
+                                                        year, month, day, hour, minute, second,
+                                                        tzinfo=timezone.get_current_timezone()
+                                                    )
+                                                    break
+                                            break
+                                
+                                # Log the parsed date for debugging
+                                if recording_dt:
+                                    self.stdout.write(f"    Parsed date {recording_dt} from {file_name}")
+                                else:
+                                    self.stdout.write(f"    Could not parse date from {file_name}")
+                                
                             except (ValueError, IndexError) as e:
                                 self.stdout.write(f"  Warning: Could not parse date from {file_name}: {e}")
                                 recording_dt = None
