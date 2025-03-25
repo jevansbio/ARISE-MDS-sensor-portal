@@ -3,6 +3,29 @@
 from django.db import migrations, models
 
 
+def add_country_field_if_missing(apps, schema_editor):
+    # Get the actual db connection being used
+    connection = schema_editor.connection
+    cursor = connection.cursor()
+    
+    # Check if the country column already exists in the deployment table
+    cursor.execute("""
+    SELECT column_name 
+    FROM information_schema.columns 
+    WHERE table_name='data_models_deployment' 
+    AND column_name='country';
+    """)
+    
+    column_exists = cursor.fetchone() is not None
+    
+    if not column_exists:
+        # Use raw SQL to add the column if it doesn't exist
+        cursor.execute("""
+        ALTER TABLE data_models_deployment 
+        ADD COLUMN country varchar(100) NULL;
+        """)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,9 +33,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-    migrations.AddField(
-        model_name='deployment',
-        name='country',
-        field=models.CharField(blank=True, max_length=100, null=True),
-    ),
-]
+        migrations.RunPython(add_country_field_if_missing),
+    ]
