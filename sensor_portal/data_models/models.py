@@ -172,7 +172,6 @@ class Device(BaseModel):
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
-    password = EncryptedCharField(max_length=100, blank=True, null=True)
     input_storage = models.ForeignKey(
         DataStorageInput, null=True, blank=True, related_name="linked_devices", on_delete=models.SET_NULL)
 
@@ -362,7 +361,6 @@ class Deployment(BaseModel):
 
     username = models.CharField(
         max_length=100, unique=True, null=True, blank=True, default=None)
-    password = EncryptedCharField(max_length=100, blank=True, null=True)
     input_storage = models.ForeignKey(
         DataStorageInput, null=True, blank=True, related_name="linked_deployments", on_delete=models.SET_NULL)
 

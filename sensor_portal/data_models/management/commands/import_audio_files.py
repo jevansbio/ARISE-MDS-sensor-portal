@@ -149,7 +149,8 @@ class Command(BaseCommand):
                         'site': site,
                         'device_type': audio_type,
                         'deployment_start': timezone.now() - datetime.timedelta(days=30),
-                        # Don't include autoupdate or other fields that might not exist yet
+                        'time_zone': 'UTC',
+                        # Remove password field and any other fields that might not exist
                     }
                 )
                 
