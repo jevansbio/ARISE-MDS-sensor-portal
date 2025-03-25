@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
 from data_models.models import DataType, Site, Device, Deployment, Project, DataFile, DeviceModel
+from django.db import connection
 
 class Command(BaseCommand):
     help = 'Import audio files from NINA project directory'
@@ -124,13 +125,30 @@ class Command(BaseCommand):
             
             # Create device if it doesn't exist
             if not options['dry_run']:
+                # Check which fields are available in the Device model
+                available_fields = {}
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT column_name FROM information_schema.columns 
+                        WHERE table_name='data_models_device'
+                    """)
+                    columns = [row[0] for row in cursor.fetchall()]
+                
+                # Build defaults dict with only fields that exist in the database
+                device_defaults = {
+                    'name': f'AudioMoth {device_id}',
+                    'model': device_model,
+                    'type': audio_type
+                }
+                
+                # Only add these fields if they exist in the database
+                if 'country' in columns:
+                    device_defaults['country'] = 'Unknown'  # Safe default
+                
+                # Get or create device with only valid fields
                 device, created = Device.objects.get_or_create(
                     device_ID=device_id,
-                    defaults={
-                        'name': f'AudioMoth {device_id}',
-                        'model': device_model,  # Use the DeviceModel instance, not a string
-                        'type': audio_type
-                    }
+                    defaults=device_defaults
                 )
                 if created:
                     stats['devices'] += 1

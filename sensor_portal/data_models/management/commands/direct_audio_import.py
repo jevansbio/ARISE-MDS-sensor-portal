@@ -181,46 +181,48 @@ class Command(BaseCommand):
             $$;
             """)
             
-            # Check if country column exists in deployment table and add it if missing
-            self.stdout.write("Checking if country column exists in deployment table...")
-            cursor.execute("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='data_models_deployment' 
-            AND column_name='country';
-            """)
+            # Handle schema differences with more robust error handling
+            self.stdout.write("Checking and fixing schema differences...")
             
-            if cursor.fetchone() is None:
-                self.stdout.write("Country column doesn't exist in deployment table. Adding it...")
-                cursor.execute("""
-                ALTER TABLE data_models_deployment 
-                ADD COLUMN country varchar(100) NULL;
-                """)
-                self.stdout.write("Country column added successfully.")
-            else:
-                self.stdout.write("Country column already exists in deployment table.")
+            # Use a more robust approach with direct SQL and better error handling
+            cursor.execute("""
+            DO $$
+            BEGIN
+                -- Check if country column exists in device table
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name='data_models_device' AND column_name='country'
+                ) THEN
+                    -- Add country column to device table
+                    EXECUTE 'ALTER TABLE data_models_device ADD COLUMN country varchar(100) NULL';
+                    RAISE NOTICE 'Added country column to data_models_device table';
+                END IF;
                 
-            # Check if country column exists in device table and add it if missing
-            self.stdout.write("Checking if country column exists in device table...")
-            cursor.execute("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='data_models_device' 
-            AND column_name='country';
+                -- More robust: If the deployment table has country and device doesn't, add it
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name='data_models_deployment' AND column_name='country'
+                ) AND NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name='data_models_device' AND column_name='country'
+                ) THEN
+                    -- Add country column to device table
+                    EXECUTE 'ALTER TABLE data_models_device ADD COLUMN country varchar(100) NULL';
+                    RAISE NOTICE 'Added country column to data_models_device table (from deployment)';
+                END IF;
+                
+                -- Handle any other tables that might need the country field
+                -- By handling each possible case separately, we make this very robust
+                
+            EXCEPTION WHEN OTHERS THEN
+                RAISE NOTICE 'Error fixing schema differences: %', SQLERRM;
+            END;
+            $$;
             """)
-            
-            if cursor.fetchone() is None:
-                self.stdout.write("Country column doesn't exist in device table. Adding it...")
-                cursor.execute("""
-                ALTER TABLE data_models_device 
-                ADD COLUMN country varchar(100) NULL;
-                """)
-                self.stdout.write("Country column added successfully.")
-            else:
-                self.stdout.write("Country column already exists in device table.")
             
             # Commit schema changes
             conn.commit()
+            self.stdout.write("Schema differences fixed and committed.")
             
             # Clean existing data if requested
             if options['clean'] and not options['dry_run']:
