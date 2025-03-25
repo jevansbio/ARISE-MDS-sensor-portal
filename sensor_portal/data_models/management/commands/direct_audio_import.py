@@ -317,7 +317,8 @@ class Command(BaseCommand):
                         self.stdout.write(f"  Created device {device_id}")
                     
                     # 2. Create deployment
-                    deployment_id = f'NINA_{device_id[:5]}'
+                    # Use the full device_id to ensure uniqueness
+                    deployment_id = f'NINA_{device_id}'
                     cursor.execute('SELECT id FROM data_models_deployment WHERE "deployment_ID" = %s', [deployment_id])
                     result = cursor.fetchone()
                     
@@ -487,13 +488,15 @@ class Command(BaseCommand):
                     else:
                         self.stdout.write(self.style.WARNING(f"  No audio directory found at {audio_dir}"))
                     
+                    # Commit after processing each device to ensure changes are saved
+                    # even if a later device fails
+                    conn.commit()
+                    self.stdout.write(f"  Committed changes for device {device_id}")
+                    
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f"Error processing device {device_id}: {e}"))
                     stats['errors'] += 1
-                    conn.rollback()  # Rollback the transaction for this device
-                    
-            # Commit all changes
-            conn.commit()
+                    conn.rollback()  # Rollback the transaction for this device only
             
             # Print summary
             self.stdout.write(self.style.SUCCESS(f"Import summary:"))
