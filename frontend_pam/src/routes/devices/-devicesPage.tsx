@@ -52,21 +52,6 @@ export default function DevicesPage() {
       ),
     },
     {
-      accessorKey: 'project',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() =>
-            column.toggleSorting(column.getIsSorted() === 'asc')
-          }
-          className="w-full justify-start"
-        >
-          Project
-          <TbArrowsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-    },
-    {
       accessorKey: 'startDate',
       header: ({ column }) => (
         <Button
@@ -110,22 +95,6 @@ export default function DevicesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-    },
-    {
-      accessorKey: 'batteryLevel',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() =>
-            column.toggleSorting(column.getIsSorted() === 'asc')
-          }
-          className="w-full justify-start"
-        >
-          Battery Level
-          <TbArrowsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => `${row.original.batteryLevel}%`,
     },
     {
       accessorKey: 'folderSize',

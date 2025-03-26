@@ -17,3 +17,9 @@ export type AudioFile = {
     fileLength: string;
     fileSize: number;
 };
+
+export type ModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+};
