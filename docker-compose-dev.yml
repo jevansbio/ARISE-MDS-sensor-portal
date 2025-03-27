@@ -40,8 +40,8 @@ services:
     ports:
       - '3001'
     volumes:
-      - ./frontend_pam/src:/app/frontend/src
-      - ./frontend_pam/public:/app/frontend/public
+      - ./frontend_pam/src:/app/frontend_pam/src
+      - ./frontend_pam/public:/app/frontend_pam/public
     command: npm run dev
     restart: always
     environment:
