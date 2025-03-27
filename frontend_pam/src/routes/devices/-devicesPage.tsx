@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { devicesQueryOptions } from '@/api/query';
+import { useContext, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -18,12 +17,38 @@ import {
 } from '@tanstack/react-table';
 import { TbArrowsUpDown } from 'react-icons/tb';
 import { Device } from '@/types';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import AuthContext from '@/auth/AuthContext';
+import { getData } from '@/utils/FetchFunctions';
 
 export default function DevicesPage() {
-  const { data } = useSuspenseQuery(devicesQueryOptions);
+  // const { data } = useSuspenseQuery(devicesQueryOptions);
+
+  const authContext = useContext(AuthContext) as any;
+  const { authTokens } = authContext || { authTokens: null };
+  const apiURL = "device/"
+
+  const getDataFunc = async () => {
+    if (!authTokens?.access) return [];
+    const response_json = await getData(apiURL, authTokens.access);
+
+    return response_json.map((device: any) => ({
+      id: device.device_ID,
+      startDate: device.start_date,
+      endDate: device.end_date,
+      intId: device.id
+    }));
+  };
+
+  const { data = []} = useQuery({
+    queryKey: [apiURL],
+    queryFn: getDataFunc,
+    enabled: !!authTokens?.access,
+  });
+
+
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns: ColumnDef<Device>[] = [
@@ -161,3 +186,4 @@ export default function DevicesPage() {
     </div>
   );
 }
+

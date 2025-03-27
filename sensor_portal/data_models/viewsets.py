@@ -208,6 +208,29 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     filterset_class = DeviceFilter
     search_fields = ['device_ID', 'name', 'model__name', 'country', 'site_name', 'habitat']
 
+    # Legg til disse to linjene:
+    lookup_field = 'device_ID'          # Forteller DRF at detaljvisning bruker device_ID
+    lookup_url_kwarg = 'device_ID'      # Valgfritt: URL-parameteret blir <device_ID>
+
+    @action(detail=True, methods=['get'])
+    def datafiles(self, request, device_ID=None):
+        """
+        Returnerer alle DataFile-objekter som er knyttet til dette Device-objektet
+        gjennom Deployment.
+        """
+        device = self.get_object()
+        user = request.user
+
+        # Finn alle DataFile knyttet til device via deployment
+        datafiles_qs = DataFile.objects.filter(deployment__device=device)
+
+        # Dersom du har rettighetsstyring på DataFile, filtrer dem her
+        datafiles_qs = perms['data_models.view_datafile'].filter(user, datafiles_qs)
+
+        # Serialiser resultatet
+        serializer = DataFileSerializer(datafiles_qs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     @action(detail=True, methods=['get'])
     def metrics(self, request, pk=None):
         device = self.get_object()
