@@ -2,6 +2,7 @@ import os
 import datetime
 import psycopg2
 import glob
+import json
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
@@ -400,11 +401,36 @@ class Command(BaseCommand):
                     device_cursor.execute('SELECT id FROM data_models_device WHERE "device_ID" = %s', [device_id])
                     result = device_cursor.fetchone()
                     
+                    # Initialize device_config here, before any branches
+                    device_config = {}
+                    device_config_path = os.path.join(device_dir, '.config')
+                    if os.path.exists(device_config_path):
+                        try:
+                            with open(device_config_path, 'r') as f:
+                                device_config = json.load(f)
+                            self.stdout.write(f"  Found device config in {device_dir}")
+                        except Exception as e:
+                            self.stdout.write(f"  Warning: Could not read device config: {e}")
+                    
                     if result:
                         device_id_pk = result[0]
                         self.stdout.write(f"  Device {device_id} already exists.")
+                        
+                        # Update existing device with config if we found it
+                        if device_config:
+                            device_cursor.execute("""
+                                UPDATE data_models_device 
+                                SET name = %s,
+                                    extra_data = %s
+                                WHERE id = %s
+                            """, [
+                                device_config.get('name', f'AudioMoth {device_id}'),
+                                json.dumps(device_config),
+                                device_id_pk
+                            ])
+                            self.stdout.write(f"  Updated existing device with config data")
                     else:
-                        # Insert with explicit defaults for problematic fields
+                        # Insert with device config data
                         device_cursor.execute("""
                             INSERT INTO data_models_device 
                             ("device_ID", name, model_id, type_id, created_on, modified_on, 
@@ -413,21 +439,20 @@ class Command(BaseCommand):
                             RETURNING id
                         """, [
                             device_id, 
-                            f'AudioMoth {device_id}',
+                            device_config.get('name', f'AudioMoth {device_id}'),
                             device_model_id,
                             audio_type_id,
                             timezone.now(),
                             timezone.now(),
                             False,  # autoupdate
                             48,     # update_time
-                            '{}'    # empty JSON object for extra_data
+                            json.dumps(device_config)  # store full device config
                         ])
                         device_id_pk = device_cursor.fetchone()[0]
                         stats['devices'] += 1
                         self.stdout.write(f"  Created device {device_id}")
                     
                     # 2. Create deployment with a unique deployment_ID for each device
-                    # Use the full device_id to ensure uniqueness
                     deployment_id = f'NINA_{device_id}'
                     
                     if verbosity > 1:
@@ -440,32 +465,99 @@ class Command(BaseCommand):
                         deployment_id_pk = result[0]
                         self.stdout.write(f"  Deployment {deployment_id} already exists.")
                     else:
-                        deployment_device_id = f"{deployment_id}-Audio-1"
+                        # Default to 1 if no device_n specified
+                        device_n = 1
+                        
+                        # Try to read deployment config from conf_20240314_TABMON/.config
+                        deployment_config = {}
+                        config_path = os.path.join(device_dir, 'conf_20240314_TABMON', '.config')
+                        if os.path.exists(config_path):
+                            try:
+                                with open(config_path, 'r') as f:
+                                    deployment_config = json.load(f)
+                                self.stdout.write(f"  Found deployment config in conf_20240314_TABMON")
+                            except Exception as e:
+                                self.stdout.write(f"  Warning: Could not read deployment config: {e}")
+                        
+                        # Get deployment start date from config or default
+                        deployment_start = timezone.now() - datetime.timedelta(days=30)
+                        if 'StartDate' in deployment_config:
+                            try:
+                                # Remove the 'Z' and parse
+                                start_date_str = deployment_config['StartDate'].replace('Z', '+00:00')
+                                deployment_start = datetime.datetime.fromisoformat(start_date_str)
+                            except Exception as e:
+                                self.stdout.write(f"  Warning: Could not parse StartDate: {e}")
+                        
+                        # Get deployment end date if available
+                        deployment_end = None
+                        if 'EndDate' in deployment_config:
+                            try:
+                                # Remove the 'Z' and parse
+                                end_date_str = deployment_config['EndDate'].replace('Z', '+00:00')
+                                deployment_end = datetime.datetime.fromisoformat(end_date_str)
+                            except Exception as e:
+                                self.stdout.write(f"  Warning: Could not parse EndDate: {e}")
+                        
+                        # Get coordinates if available
+                        latitude = None
+                        longitude = None
+                        if 'Latitude' in deployment_config:
+                            try:
+                                latitude = float(deployment_config['Latitude'])
+                            except Exception as e:
+                                self.stdout.write(f"  Warning: Could not parse Latitude: {e}")
+                        if 'Longitude' in deployment_config:
+                            try:
+                                longitude = float(deployment_config['Longitude'])
+                            except Exception as e:
+                                self.stdout.write(f"  Warning: Could not parse Longitude: {e}")
                         
                         if verbosity > 1:
-                            self.stdout.write(f"  Creating new deployment with device ID: {deployment_device_id}")
+                            self.stdout.write(f"  Creating new deployment with device ID: {deployment_id}")
                             
-                        # Create deployment with minimal fields and explicit defaults
+                        # Create deployment with all available fields from config
                         device_cursor.execute("""
                             INSERT INTO data_models_deployment 
                             ("deployment_ID", "deployment_device_ID", device_id, site_id, 
-                             device_type_id, device_n, deployment_start, is_active, 
-                             created_on, modified_on, time_zone, extra_data)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             device_type_id, device_n, deployment_start, deployment_end,
+                             is_active, created_on, modified_on, time_zone, extra_data,
+                             latitude, longitude, coordinate_uncertainty, gps_device,
+                             mic_height, mic_direction, habitat, protocol_checklist,
+                             score, user_email, country, site_name)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                             RETURNING id
                         """, [
                             deployment_id,
-                            deployment_device_id,
+                            f"{device_id}-Audio-{device_n}",
                             device_id_pk,
                             site_id, 
                             audio_type_id,
-                            1,  # device_n
-                            timezone.now() - datetime.timedelta(days=30),
+                            device_n,
+                            deployment_start,
+                            deployment_end,
                             True,  # is_active
                             timezone.now(),
                             timezone.now(),
-                            'UTC',  # Add default time_zone
-                            '{}'    # empty JSON object for extra_data
+                            'UTC',  # time_zone
+                            json.dumps({
+                                'deployment_config': deployment_config,
+                                'device_config': device_config,  # Include device config too
+                                'last_updated': timezone.now().isoformat()
+                            }),
+                            latitude,
+                            longitude,
+                            deployment_config.get('Coordinate Uncertainty'),
+                            deployment_config.get('GPS device'),
+                            deployment_config.get('Microphone Height'),
+                            deployment_config.get('Microphone Direction'),
+                            deployment_config.get('Habitat'),
+                            deployment_config.get('Protocol Checklist'),
+                            deployment_config.get('Score'),
+                            deployment_config.get('Adresse e-mail'),
+                            deployment_config.get('Country'),
+                            deployment_config.get('Site')
                         ])
                         deployment_id_pk = device_cursor.fetchone()[0]
                         
@@ -489,6 +581,42 @@ class Command(BaseCommand):
                     
                     # Log which directory we're using
                     self.stdout.write(f"  Looking for audio files in: {audio_dir}")
+
+                    # Read and process config file if it exists
+                    config_path = os.path.join(device_dir, '.config')
+                    if os.path.exists(config_path):
+                        try:
+                            with open(config_path, 'r') as f:
+                                config_data = json.load(f)
+                                
+                            # Update device with config data
+                            device_cursor.execute("""
+                                UPDATE data_models_device 
+                                SET name = %s,
+                                    extra_data = %s
+                                WHERE id = %s
+                            """, [
+                                config_data.get('name', f'AudioMoth {device_id}'),
+                                json.dumps(config_data.get('extra_data', {})),
+                                device_id_pk
+                            ])
+                            
+                            # Update deployment with config data
+                            device_cursor.execute("""
+                                UPDATE data_models_deployment 
+                                SET extra_data = %s
+                                WHERE id = %s
+                            """, [
+                                json.dumps({
+                                    'device_config': config_data,
+                                    'last_updated': timezone.now().isoformat()
+                                }),
+                                deployment_id_pk
+                            ])
+                            
+                            self.stdout.write(f"  Updated device and deployment with config data")
+                        except Exception as e:
+                            self.stdout.write(f"  Warning: Could not process config file: {e}")
                     
                     # Check if directory exists and has files
                     if os.path.exists(audio_dir):
