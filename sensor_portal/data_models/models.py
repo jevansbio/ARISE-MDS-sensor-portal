@@ -191,10 +191,20 @@ class Device(BaseModel):
         return f"/api/device/{self.pk}"
 
     def get_folder_size(self, unit="MB"):
-        """Calculate the total size of all files associated with this device"""
-        all_files = DataFile.objects.filter(deployment__device=self)
-        return all_files.file_size(unit) if all_files.exists() else 0
-        
+        """
+        Calculate the total size of all DataFile objects associated with this device.
+        Filstørrelse antas å være lagret i MB som standard.
+        Du kan spesifisere en annen enhet ved å sende 'KB' eller 'GB'.
+        """
+        agg = DataFile.objects.filter(deployment__device=self).aggregate(total_size=Sum('file_size'))
+        total_size = agg['total_size'] or 0
+
+        if unit.upper() == "KB":
+            return total_size * 1024
+        elif unit.upper() == "GB":
+            return total_size / 1024
+        return total_size
+
     def get_last_upload(self):
         """Get the datetime of the most recent file upload for this device"""
         all_files = DataFile.objects.filter(deployment__device=self)

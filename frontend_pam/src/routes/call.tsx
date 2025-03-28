@@ -24,9 +24,7 @@ function RouteComponent() {
   }
 
   // Define API parameters for the call to fetch device data
-  const apiURL = "device/";
-  const valueKey = "id";
-  const labelKey = "name";
+  const apiURL = "deployment/";
 
    // Function that fetches data from the API using the stored authentication token
   const getDataFunc = async () => {
@@ -40,12 +38,8 @@ function RouteComponent() {
     try {
       const response_json = await getData(apiURL, authTokens.access);
       console.log("API response:", response_json);
-      
-      // Map the response data to an array of objects with 'value' and 'label' properties
-      return response_json.map((x: any) => ({
-        value: x[valueKey],
-        label: x[labelKey],
-      }));
+
+      return response_json;
     } catch (error) {
       console.error("API call failed:", error);
       throw error;
@@ -69,13 +63,6 @@ function RouteComponent() {
       <h1>Hello "/call"!</h1>
       {isLoading && <p>Loading data...</p>}
       {error && <p>Error fetching data: {error.message}</p>}
-      {data && (
-        <ul>
-          {data.map((item: any) => (
-            <li key={item.value}>{item.label}</li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
