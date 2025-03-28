@@ -69,6 +69,10 @@ services:
       - CELERY_BACKEND=redis://sensor_portal_redis:6379/0
       - DEV=True
       - FIELD_ENCRYPTION_KEY=FrMHRMwLSdQytSjWRAIwaFPzzWC1R5XIPaH6HQbcryA=
+      - USE_FAKE_GCS=True
+      - GCS_BUCKET_NAME=audio-files
+      - GCS_MEDIA_BUCKET_NAME=media-files
+      - GCS_PUBLIC_URL=/file_storage/fake_gcs
     depends_on:
       sensor_portal_db:
         condition: service_healthy

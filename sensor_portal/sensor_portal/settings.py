@@ -257,3 +257,11 @@ if DEVMODE:
     MAX_ARCHIVE_SIZE_GB = 0.025
 
 HUMAN_TAXON_CODE = 2436436
+
+# Fake Google Cloud Storage settings
+USE_FAKE_GCS = os.environ.get('USE_FAKE_GCS', 'True').lower() == 'true'
+GCS_BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME', 'audio-files')
+GCS_MEDIA_BUCKET_NAME = os.environ.get('GCS_MEDIA_BUCKET_NAME', 'media-files')
+
+# URL for GCS public files (fake or real)
+GCS_PUBLIC_URL = os.environ.get('GCS_PUBLIC_URL', '/file_storage/fake_gcs')
