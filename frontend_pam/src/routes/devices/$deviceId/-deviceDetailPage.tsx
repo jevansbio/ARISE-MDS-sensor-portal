@@ -21,28 +21,28 @@ export default function DeviceDetailPage() {
 
     const responseJson = await getData(apiURL, authTokens.access);
 
-    return {
-      id: responseJson.device_ID,       
-      deploymentID: responseJson.deployment_device_ID,
-      startDate: responseJson.start_date,
-      endDate: responseJson.end_date,
-      lastUpload: responseJson.last_upload,
-      folderSize: responseJson.folder_size,
-      country: responseJson.country,
-      site: responseJson.site_name,
-      latitude: responseJson.latitude,
-      longitude: responseJson.longitude,
-      coordinateUncertainty: responseJson.coordinate_uncertainty,
-      gpsDevice: responseJson.gps_device,
-      micHeight: responseJson.mic_height,
-      micDirection: responseJson.mic_direction,
-      habitat: responseJson.habitat,
-      score: responseJson.score,
-      protocolChecklist: responseJson.protocol_checklist,
-      userEmail: responseJson.user_email,
-      comment: responseJson.comment,
-    };
-  };
+    return responseJson; 
+    //   // id: responseJson.device_ID,       
+    //   // deploymentID: responseJson.deployment_device_ID,
+    //   // startDate: responseJson.start_date,
+    //   // endDate: responseJson.end_date,
+    //   // lastUpload: responseJson.last_upload,
+    //   // folderSize: responseJson.folder_size,
+    //   // country: responseJson.country,
+    //   // site: responseJson.site_name,
+    //   // latitude: responseJson.latitude,
+    //   // longitude: responseJson.longitude,
+    //   // coordinateUncertainty: responseJson.coordinate_uncertainty,
+    //   // gpsDevice: responseJson.gps_device,
+    //   // micHeight: responseJson.mic_height,
+    //   // micDirection: responseJson.mic_direction,
+    //   // habitat: responseJson.habitat,
+    //   // score: responseJson.score,
+    //   // protocolChecklist: responseJson.protocol_checklist,
+    //   // userEmail: responseJson.user_email,
+    //   // comment: responseJson.comment,
+    // };
+  }
 
   const {
     data: device,
@@ -69,7 +69,7 @@ export default function DeviceDetailPage() {
       <h2 className="text-2xl font-bold mb-4">Device Details</h2>
       <div className="grid grid-cols-2 gap-x-8 gap-y-4">
         <p>
-          <strong>Device ID:</strong> {device.id}
+          <strong>Device ID:</strong> {device.device_ID}
         </p>
         <p>
           <strong>Deployment ID:</strong> {device.deploymentID}
@@ -84,7 +84,7 @@ export default function DeviceDetailPage() {
           <strong>Last upload:</strong> {device.lastUpload}
         </p>
         <p>
-          <strong>Folder size:</strong> {device.folderSize}
+          <strong>Folder size:</strong> {device.folder_size}
         </p>
         <p>
           <strong>Country:</strong> {device.country}
