@@ -65,13 +65,14 @@ Initialize the fake GCS environment and import audio files in two steps:
 docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py fake_gcs --init
 
 # Step 2: Import audio files (cleans existing data first)
-docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py import_audio_to_gcs --init-gcs --clean
+docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py direct_audio_import --clean
 ```
 
 This will:
 - Create device-specific buckets in fake GCS
 - Copy audio files into these buckets
 - Create database records for devices, deployments, and files
+- Import all deployment details from config files (location, dates, settings, etc.)
 - Link everything together properly
 
 ### Resulting Storage Structure
