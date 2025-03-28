@@ -17,7 +17,7 @@ import {
 } from "@tanstack/react-table";
 import { TbArrowsUpDown } from "react-icons/tb";
 import { Device } from "@/types";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import AuthContext from "@/auth/AuthContext";

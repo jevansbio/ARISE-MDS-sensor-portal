@@ -19,8 +19,7 @@ function RouteComponent() {
     return <p>Loading authentication...</p>;
   }
 
-  const apiURL = "devices/10000000d642707c/datafiles";
-
+  const apiURL = "devices/10000000d642707c/datafiles/1";
 
   const getDataFunc = async () => {
     console.log("hecking authTokens:", authTokens);
@@ -40,7 +39,6 @@ function RouteComponent() {
       throw error;
     }
   };
-  
 
   const { data, isLoading, error } = useQuery({
     queryKey: [apiURL],
@@ -52,20 +50,11 @@ function RouteComponent() {
   console.log("Query error:", error);
   console.log("Query data:", data);
 
-  
-
   return (
     <div>
       <h1>Hello "/call"!</h1>
       {isLoading && <p>Loading data...</p>}
       {error && <p>Error fetching data: {error.message}</p>}
-      {data && (
-        <ul>
-          {data.map((device: any) => (
-            <li key={device.device_ID}>{device.managers}</li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

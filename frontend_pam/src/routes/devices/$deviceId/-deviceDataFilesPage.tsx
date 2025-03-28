@@ -18,21 +18,14 @@ import {
 } from "@tanstack/react-table";
 import { TbArrowsUpDown } from "react-icons/tb";
 import { Link } from "@tanstack/react-router";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Route } from ".";
 import { useContext, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 
-export default function DeviceAudioFilesPage() {
+export default function DeviceDataFilesPage() {
   const { deviceId } = Route.useParams();
-  // Define table columns for the audio files table
-  // const { data: dataFiles } = useSuspenseQuery(audioFilesQueryOptions(deviceId));
-
-  // Define table columns for the audio files table
-  // const { data: audioFiles } = useSuspenseQuery(audioFilesQueryOptions(deviceId));
-
-  // Hent deviceId fra URL-parameteren
 
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
@@ -41,7 +34,6 @@ export default function DeviceAudioFilesPage() {
     return <p>Loading authentication...</p>;
   }
 
-  // Bygg API-urlen dynamisk basert på deviceId
   const apiURL = `devices/${deviceId}/datafiles`;
 
   const getDataFunc = async () => {
@@ -58,9 +50,7 @@ export default function DeviceAudioFilesPage() {
   };
 
   const {
-    data: dataFiles = [],
-    isLoading,
-    error,
+    data: dataFiles = []
   } = useQuery({
     queryKey: [apiURL],
     queryFn: getDataFunc,
@@ -82,8 +72,8 @@ export default function DeviceAudioFilesPage() {
       ),
       cell: ({ row }) => (
         <Link
-          to="/devices/$deviceId/$audioFileId"
-          params={{ deviceId: deviceId, audioFileId: row.original.id }}
+          to="/devices/$deviceId/$dataFileId"
+          params={{ deviceId: deviceId, dataFileId: row.original.id }}
           className="text-blue-500 hover:underline"
         >
           {row.original.id}

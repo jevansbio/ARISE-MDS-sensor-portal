@@ -14,20 +14,15 @@ export default function DeviceDetailPage() {
     return <p>Loading authentication...</p>;
   }
 
-  // Bygg endepunkt for én device
   const apiURL = `devices/${deviceId}`;
 
-  // Funksjon for å hente data fra API
   const getDeviceFunc = async () => {
     if (!authTokens?.access) return null;
 
-    // Hent JSON fra serveren
     const responseJson = await getData(apiURL, authTokens.access);
 
-    // Anta at serveren returnerer en device med feltene du trenger.
-    // Map til et objekt du kan bruke direkte i UI-et:
     return {
-      id: responseJson.device_ID,         // <- Fra backend-felt device_ID
+      id: responseJson.device_ID,       
       deploymentID: responseJson.deployment_device_ID,
       startDate: responseJson.start_date,
       endDate: responseJson.end_date,
@@ -69,7 +64,6 @@ export default function DeviceDetailPage() {
     return <p>No device found</p>;
   }
 
-  // Nå kan du vise feltene fra "device"
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Device Details</h2>
