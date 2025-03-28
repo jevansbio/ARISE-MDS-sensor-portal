@@ -1,4 +1,3 @@
-import { useContext, useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,6 +6,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DataFile } from "@/types";
+import { Button } from "@/components/ui/button";
 import {
   type ColumnDef,
   flexRender,
@@ -16,41 +17,57 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { TbArrowsUpDown } from "react-icons/tb";
-import { Device } from "@/types";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Route } from ".";
+import { useContext, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 
-export default function DevicesPage() {
-  // const { data } = useSuspenseQuery(devicesQueryOptions);
+export default function DeviceAudioFilesPage() {
+  const { deviceId } = Route.useParams();
+  // Define table columns for the audio files table
+  // const { data: dataFiles } = useSuspenseQuery(audioFilesQueryOptions(deviceId));
+
+  // Define table columns for the audio files table
+  // const { data: audioFiles } = useSuspenseQuery(audioFilesQueryOptions(deviceId));
+
+  // Hent deviceId fra URL-parameteren
 
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
-  const apiURL = "devices/";
+
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
+
+  // Bygg API-urlen dynamisk basert på deviceId
+  const apiURL = `devices/${deviceId}/datafiles`;
 
   const getDataFunc = async () => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
-
-    return response_json.map((device: any) => ({
-      id: device.device_ID,
-      startDate: device.start_date,
-      endDate: device.end_date,
-      intId: device.id,
+    return response_json.map((dataFile: any) => ({
+      id: dataFile.id,
+      config: dataFile.config,
+      sampleRate: dataFile.sampleRate,
+      fileLength: dataFile.file_length,
+      fileSize: dataFile.file_size,
+      fileFormat: dataFile.file_format,
     }));
   };
 
-  const { data = [] } = useQuery({
+  const {
+    data: dataFiles = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: [apiURL],
     queryFn: getDataFunc,
     enabled: !!authTokens?.access,
   });
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-
-  const columns: ColumnDef<Device>[] = [
+  const columns: ColumnDef<DataFile>[] = [
     {
       accessorKey: "id",
       header: ({ column }) => (
@@ -59,80 +76,87 @@ export default function DevicesPage() {
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          Device
+          ID
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
         <Link
-          to="/devices/$deviceId"
-          params={{ deviceId: row.original.id }}
-           className="text-blue-500 hover:underline"
+          to="/devices/$deviceId/$audioFileId"
+          params={{ deviceId: deviceId, audioFileId: row.original.id }}
+          className="text-blue-500 hover:underline"
         >
           {row.original.id}
         </Link>
       ),
     },
     {
-      accessorKey: "startDate",
+      accessorKey: "config",
+      header: "Config",
+    },
+    {
+      accessorKey: "samplerate",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          Start Date
+          Sample Rate
+          <TbArrowsUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => `${row.original.samplerate} Hz`,
+    },
+    {
+      accessorKey: "fileLength",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="w-full justify-start"
+        >
+          File Length
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
     },
     {
-      accessorKey: "endDate",
+      accessorKey: "fileSize",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          End Date
+          File Size (MB)
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => `${row.original.fileSize} MB`,
     },
     {
-      accessorKey: "lastUpload",
+      accessorKey: "fileFormat",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          Last Upload
+          File format
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-    },
-    {
-      accessorKey: "folderSize",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
-          Folder Size
-          <TbArrowsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      cell: ({ row }) => `${row.original.fileFormat} `,
     },
   ];
 
+  // Table state and instance for sorting and rendering
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
-    data: data,
+    data: dataFiles,
     columns,
-    state: {
-      sorting,
-    },
+    state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),

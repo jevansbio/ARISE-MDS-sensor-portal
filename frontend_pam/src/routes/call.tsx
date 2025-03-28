@@ -19,7 +19,7 @@ function RouteComponent() {
     return <p>Loading authentication...</p>;
   }
 
-  const apiURL = "device/10000000d642707c/datafiles";
+  const apiURL = "devices/10000000d642707c/datafiles";
 
 
   const getDataFunc = async () => {

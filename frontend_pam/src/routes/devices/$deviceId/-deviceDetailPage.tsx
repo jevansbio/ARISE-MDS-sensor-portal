@@ -1,13 +1,75 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { deviceQueryOptions } from '@/api/query';
-import { Route } from '.';
+import { useQuery } from "@tanstack/react-query";
+import { Route } from ".";
+import AuthContext from "@/auth/AuthContext";
+import { getData } from "@/utils/FetchFunctions";
+import { useContext } from "react";
 
 export default function DeviceDetailPage() {
-
   const { deviceId } = Route.useParams();
 
-  const { data: device } = useSuspenseQuery(deviceQueryOptions(deviceId));
+  const authContext = useContext(AuthContext) as any;
+  const { authTokens } = authContext || { authTokens: null };
 
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
+
+  // Bygg endepunkt for én device
+  const apiURL = `devices/${deviceId}`;
+
+  // Funksjon for å hente data fra API
+  const getDeviceFunc = async () => {
+    if (!authTokens?.access) return null;
+
+    // Hent JSON fra serveren
+    const responseJson = await getData(apiURL, authTokens.access);
+
+    // Anta at serveren returnerer en device med feltene du trenger.
+    // Map til et objekt du kan bruke direkte i UI-et:
+    return {
+      id: responseJson.device_ID,         // <- Fra backend-felt device_ID
+      deploymentID: responseJson.deployment_device_ID,
+      startDate: responseJson.start_date,
+      endDate: responseJson.end_date,
+      lastUpload: responseJson.last_upload,
+      folderSize: responseJson.folder_size,
+      country: responseJson.country,
+      site: responseJson.site_name,
+      latitude: responseJson.latitude,
+      longitude: responseJson.longitude,
+      coordinateUncertainty: responseJson.coordinate_uncertainty,
+      gpsDevice: responseJson.gps_device,
+      micHeight: responseJson.mic_height,
+      micDirection: responseJson.mic_direction,
+      habitat: responseJson.habitat,
+      score: responseJson.score,
+      protocolChecklist: responseJson.protocol_checklist,
+      userEmail: responseJson.user_email,
+      comment: responseJson.comment,
+    };
+  };
+
+  const {
+    data: device,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [apiURL],
+    queryFn: getDeviceFunc,
+    enabled: !!authTokens?.access,
+  });
+
+  if (isLoading) {
+    return <p>Loading device...</p>;
+  }
+  if (error) {
+    return <p>Error: {(error as Error).message}</p>;
+  }
+  if (!device) {
+    return <p>No device found</p>;
+  }
+
+  // Nå kan du vise feltene fra "device"
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Device Details</h2>
@@ -16,7 +78,7 @@ export default function DeviceDetailPage() {
           <strong>Device ID:</strong> {device.id}
         </p>
         <p>
-          <strong>Deployment ID:</strong> 
+          <strong>Deployment ID:</strong> {device.deploymentID}
         </p>
         <p>
           <strong>Start date:</strong> {device.startDate}
@@ -31,49 +93,43 @@ export default function DeviceDetailPage() {
           <strong>Folder size:</strong> {device.folderSize}
         </p>
         <p>
-          <strong>Country:</strong> 
+          <strong>Country:</strong> {device.country}
         </p>
         <p>
-          <strong>Site:</strong> 
+          <strong>Site:</strong> {device.site}
         </p>
         <p>
-          <strong>Date:</strong> 
+          <strong>Latitude:</strong> {device.latitude}
         </p>
         <p>
-          <strong>Time:</strong> 
+          <strong>Longitude:</strong> {device.longitude}
         </p>
         <p>
-          <strong>Latitude:</strong> 
+          <strong>Coordinate Uncertainty:</strong> {device.coordinateUncertainty}
         </p>
         <p>
-          <strong>Longitude:</strong> 
+          <strong>GPS device:</strong> {device.gpsDevice}
         </p>
         <p>
-          <strong>Coordinate Uncertainty:</strong> 
+          <strong>Microphone Height:</strong> {device.micHeight}
         </p>
         <p>
-          <strong>GPS device:</strong> 
+          <strong>Microphone Direction:</strong> {device.micDirection}
         </p>
         <p>
-          <strong>Microphone Height:</strong> 
+          <strong>Habitat:</strong> {device.habitat}
         </p>
         <p>
-          <strong>Microphone Direction:</strong> 
+          <strong>Score:</strong> {device.score}
         </p>
         <p>
-          <strong>Habitat:</strong> 
+          <strong>Protocol Checklist:</strong> {device.protocolChecklist}
         </p>
         <p>
-          <strong>Score:</strong> 
+          <strong>Adresse e-mail:</strong> {device.userEmail}
         </p>
         <p>
-          <strong>Protocol Checklist:</strong> 
-        </p>
-        <p>
-          <strong>Adresse e-mail:</strong> 
-        </p>
-        <p>
-          <strong>Comment:</strong> 
+          <strong>Comment:</strong> {device.comment}
         </p>
       </div>
     </div>
