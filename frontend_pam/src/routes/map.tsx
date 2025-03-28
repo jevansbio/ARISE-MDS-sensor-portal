@@ -1,4 +1,5 @@
 import AuthContext from '@/auth/AuthContext';
+import DeploymentMap from '@/components/map/DeploymentMap';
 import { getData } from '@/utils/FetchFunctions';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
@@ -46,12 +47,6 @@ function RouteComponent() {
   }
 
   return (
-    <div>
-      {isPending && <div>Data is pending update...</div>}
-      {isRefetching && <div>Refetching data...</div>}
-      {isPlaceholderData && <div>Displaying previous data...</div>}
-      <h1>Hello "/map"!</h1>
-      <div>Data: {JSON.stringify(data)}</div>
-    </div>
+    <DeploymentMap deployments={data} />
   );
 }

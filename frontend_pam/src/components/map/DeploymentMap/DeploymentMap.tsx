@@ -7,9 +7,8 @@ import {
 } from "react-leaflet";
 import { Map as LeafletMap, FeatureGroup as LeafletFeatureGroup} from "leaflet";
 import { Icon } from "leaflet";
-import "../BeautifyMarker/leaflet-beautify-marker-icon.css";
+import "../../../misc/BeautifyMarker/leaflet-beautify-marker-icon.css";
 import { Marker as CompMarker } from "@adamscybot/react-leaflet-component-marker";
-import { IconPickerItem } from "react-icons-picker";
 
 //import logo from "../snyper4g.png";
 import UserLocationMarker from "../MapUserLocationMarker";
@@ -62,12 +61,6 @@ const DeploymentIcon = ({
 						width: "100%",
 					}}
 				>
-					<IconPickerItem
-						value={symbol}
-						size={symbolSize}
-						color={textColor}
-					/>
-
 					{/* <img
 						style={{ height: "100%", objectFit: "cover" }}
 						src={logo}
@@ -134,8 +127,8 @@ const DeploymentMap = ({ deployments }: Props) => {
 									position={latLng}
 									icon={
 										<DeploymentIcon
-											borderColor="blue"
-											textColor="blue"
+											borderColor="red"
+											textColor="red"
 										/>
 									}
 								>
