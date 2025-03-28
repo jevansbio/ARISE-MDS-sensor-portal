@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import DeviceNav from '@/components/pagenav/DeviceNav';
-import DeviceAudioFilesPage from './-deviceAudioFilesPage';
+import DeviceAudioFilesPage from './-deviceDataFilesPage';
 import DeviceDetailPage from './-deviceDetailPage';
 
 export default function DevicePage() {

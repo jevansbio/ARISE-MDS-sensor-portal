@@ -208,6 +208,48 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     filterset_class = DeviceFilter
     search_fields = ['device_ID', 'name', 'model__name', 'country', 'site_name', 'habitat']
 
+    # Legg til disse to linjene:
+    lookup_field = 'device_ID'          # Forteller DRF at detaljvisning bruker device_ID
+    lookup_url_kwarg = 'device_ID'      # Valgfritt: URL-parameteret blir <device_ID>
+
+    @action(detail=True, methods=['get'])
+    def datafiles(self, request, device_ID=None):
+        """
+        Returnerer alle DataFile-objekter som er knyttet til dette Device-objektet
+        gjennom Deployment.
+        """
+        device = self.get_object()
+        user = request.user
+
+        datafiles_qs = DataFile.objects.filter(deployment__device=device)
+
+        datafiles_qs = perms['data_models.view_datafile'].filter(user, datafiles_qs)
+
+        serializer = DataFileSerializer(datafiles_qs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)')
+    def datafile_detail(self, request, device_ID=None, datafile_id=None):
+
+        device = self.get_object()
+        user = request.user
+
+        # Hent datafilen som er knyttet til en deployment som igjen tilhører device
+        try:
+            datafile = DataFile.objects.get(deployment__device=device, pk=datafile_id)
+        except DataFile.DoesNotExist:
+            return Response({"error": "DataFile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Sjekk om brukeren har lov til å se datafilen (permissions)
+        datafile_perm = perms['data_models.view_datafile'].filter(
+            user, DataFile.objects.filter(pk=datafile_id)
+        ).first()
+        if not datafile_perm:
+            raise PermissionDenied("You don't have permission to view this datafile")
+
+        serializer = DataFileSerializer(datafile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['get'])
     def metrics(self, request, pk=None):
         device = self.get_object()

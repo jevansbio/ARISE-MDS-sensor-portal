@@ -17,7 +17,7 @@ import { Route as CallImport } from './routes/call'
 import { Route as IndexImport } from './routes/index'
 import { Route as DevicesIndexImport } from './routes/devices/index'
 import { Route as DevicesDeviceIdIndexImport } from './routes/devices/$deviceId/index'
-import { Route as DevicesDeviceIdAudioFileIdImport } from './routes/devices/$deviceId/$audioFileId'
+import { Route as DevicesDeviceIdDataFileIdImport } from './routes/devices/$deviceId/$dataFileId'
 
 // Create/Update Routes
 
@@ -57,13 +57,11 @@ const DevicesDeviceIdIndexRoute = DevicesDeviceIdIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const DevicesDeviceIdAudioFileIdRoute = DevicesDeviceIdAudioFileIdImport.update(
-  {
-    id: '/devices/$deviceId/$audioFileId',
-    path: '/devices/$deviceId/$audioFileId',
-    getParentRoute: () => rootRoute,
-  } as any,
-)
+const DevicesDeviceIdDataFileIdRoute = DevicesDeviceIdDataFileIdImport.update({
+  id: '/devices/$deviceId/$dataFileId',
+  path: '/devices/$deviceId/$dataFileId',
+  getParentRoute: () => rootRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -104,11 +102,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevicesIndexImport
       parentRoute: typeof rootRoute
     }
-    '/devices/$deviceId/$audioFileId': {
-      id: '/devices/$deviceId/$audioFileId'
-      path: '/devices/$deviceId/$audioFileId'
-      fullPath: '/devices/$deviceId/$audioFileId'
-      preLoaderRoute: typeof DevicesDeviceIdAudioFileIdImport
+    '/devices/$deviceId/$dataFileId': {
+      id: '/devices/$deviceId/$dataFileId'
+      path: '/devices/$deviceId/$dataFileId'
+      fullPath: '/devices/$deviceId/$dataFileId'
+      preLoaderRoute: typeof DevicesDeviceIdDataFileIdImport
       parentRoute: typeof rootRoute
     }
     '/devices/$deviceId/': {
@@ -129,7 +127,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices': typeof DevicesIndexRoute
-  '/devices/$deviceId/$audioFileId': typeof DevicesDeviceIdAudioFileIdRoute
+  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRoute
   '/devices/$deviceId': typeof DevicesDeviceIdIndexRoute
 }
 
@@ -139,7 +137,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices': typeof DevicesIndexRoute
-  '/devices/$deviceId/$audioFileId': typeof DevicesDeviceIdAudioFileIdRoute
+  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRoute
   '/devices/$deviceId': typeof DevicesDeviceIdIndexRoute
 }
 
@@ -150,7 +148,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices/': typeof DevicesIndexRoute
-  '/devices/$deviceId/$audioFileId': typeof DevicesDeviceIdAudioFileIdRoute
+  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRoute
   '/devices/$deviceId/': typeof DevicesDeviceIdIndexRoute
 }
 
@@ -162,7 +160,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/map'
     | '/devices'
-    | '/devices/$deviceId/$audioFileId'
+    | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -171,7 +169,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/map'
     | '/devices'
-    | '/devices/$deviceId/$audioFileId'
+    | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId'
   id:
     | '__root__'
@@ -180,7 +178,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/map'
     | '/devices/'
-    | '/devices/$deviceId/$audioFileId'
+    | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId/'
   fileRoutesById: FileRoutesById
 }
@@ -191,7 +189,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   DevicesIndexRoute: typeof DevicesIndexRoute
-  DevicesDeviceIdAudioFileIdRoute: typeof DevicesDeviceIdAudioFileIdRoute
+  DevicesDeviceIdDataFileIdRoute: typeof DevicesDeviceIdDataFileIdRoute
   DevicesDeviceIdIndexRoute: typeof DevicesDeviceIdIndexRoute
 }
 
@@ -201,7 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   DevicesIndexRoute: DevicesIndexRoute,
-  DevicesDeviceIdAudioFileIdRoute: DevicesDeviceIdAudioFileIdRoute,
+  DevicesDeviceIdDataFileIdRoute: DevicesDeviceIdDataFileIdRoute,
   DevicesDeviceIdIndexRoute: DevicesDeviceIdIndexRoute,
 }
 
@@ -220,7 +218,7 @@ export const routeTree = rootRoute
         "/login",
         "/map",
         "/devices/",
-        "/devices/$deviceId/$audioFileId",
+        "/devices/$deviceId/$dataFileId",
         "/devices/$deviceId/"
       ]
     },
@@ -239,8 +237,8 @@ export const routeTree = rootRoute
     "/devices/": {
       "filePath": "devices/index.tsx"
     },
-    "/devices/$deviceId/$audioFileId": {
-      "filePath": "devices/$deviceId/$audioFileId.tsx"
+    "/devices/$deviceId/$dataFileId": {
+      "filePath": "devices/$deviceId/$dataFileId.tsx"
     },
     "/devices/$deviceId/": {
       "filePath": "devices/$deviceId/index.tsx"

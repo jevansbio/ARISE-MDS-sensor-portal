@@ -196,6 +196,8 @@ class DeviceSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckForm
     is_active = serializers.BooleanField(
         read_only=True)
 
+    folder_size = serializers.SerializerMethodField()
+
     class Meta:
         model = Device
         exclude = []
@@ -203,6 +205,10 @@ class DeviceSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckForm
     def __init__(self, *args, **kwargs):
         self.management_perm = 'data_models.change_device'
         super(DeviceSerializer, self).__init__(*args, **kwargs)
+    
+    def get_folder_size(self, instance):
+        return instance.get_folder_size()
+
 
     def to_representation(self, instance):
         initial_rep = super(DeviceSerializer, self).to_representation(instance)

@@ -19,9 +19,7 @@ function RouteComponent() {
     return <p>Loading authentication...</p>;
   }
 
-  const apiURL = "device/";
-  const valueKey = "id";
-  const labelKey = "name";
+  const apiURL = "devices/10000000d642707c/datafiles/1";
 
   const getDataFunc = async () => {
     console.log("hecking authTokens:", authTokens);
@@ -35,10 +33,7 @@ function RouteComponent() {
       const response_json = await getData(apiURL, authTokens.access);
       console.log("API response:", response_json);
 
-      return response_json.map((x: any) => ({
-        value: x[valueKey],
-        label: x[labelKey],
-      }));
+      return response_json;
     } catch (error) {
       console.error("API call failed:", error);
       throw error;
@@ -60,13 +55,6 @@ function RouteComponent() {
       <h1>Hello "/call"!</h1>
       {isLoading && <p>Loading data...</p>}
       {error && <p>Error fetching data: {error.message}</p>}
-      {data && (
-        <ul>
-          {data.map((item: any) => (
-            <li key={item.value}>{item.label}</li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

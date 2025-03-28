@@ -7,15 +7,16 @@ export type Device = {
     batteryLevel: number;
     folderSize: string;
     action: string;
-    audioFiles: AudioFile[];
+    dataFile: DataFile[];
 };
 
-export type AudioFile = {
+export type DataFile = {
     id: string;
     config: string;
     samplerate: number;
     fileLength: string;
     fileSize: number;
+    fileFormat: string;
 };
 
 export type ModalProps = {
