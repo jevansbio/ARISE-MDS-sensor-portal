@@ -21,28 +21,8 @@ export default function DeviceDetailPage() {
 
     const responseJson = await getData(apiURL, authTokens.access);
 
-    return responseJson; 
-    //   // id: responseJson.device_ID,       
-    //   // deploymentID: responseJson.deployment_device_ID,
-    //   // startDate: responseJson.start_date,
-    //   // endDate: responseJson.end_date,
-    //   // lastUpload: responseJson.last_upload,
-    //   // folderSize: responseJson.folder_size,
-    //   // country: responseJson.country,
-    //   // site: responseJson.site_name,
-    //   // latitude: responseJson.latitude,
-    //   // longitude: responseJson.longitude,
-    //   // coordinateUncertainty: responseJson.coordinate_uncertainty,
-    //   // gpsDevice: responseJson.gps_device,
-    //   // micHeight: responseJson.mic_height,
-    //   // micDirection: responseJson.mic_direction,
-    //   // habitat: responseJson.habitat,
-    //   // score: responseJson.score,
-    //   // protocolChecklist: responseJson.protocol_checklist,
-    //   // userEmail: responseJson.user_email,
-    //   // comment: responseJson.comment,
-    // };
-  }
+    return responseJson;
+  };
 
   const {
     data: device,
@@ -72,7 +52,7 @@ export default function DeviceDetailPage() {
           <strong>Device ID:</strong> {device.device_ID}
         </p>
         <p>
-          <strong>Deployment ID:</strong> {device.deploymentID}
+          <strong>Deployment ID:</strong> {device.deployment_device_ID}
         </p>
         <p>
           <strong>Start date:</strong> {device.startDate}
@@ -99,7 +79,8 @@ export default function DeviceDetailPage() {
           <strong>Longitude:</strong> {device.longitude}
         </p>
         <p>
-          <strong>Coordinate Uncertainty:</strong> {device.coordinateUncertainty}
+          <strong>Coordinate Uncertainty:</strong>{" "}
+          {device.coordinateUncertainty}
         </p>
         <p>
           <strong>GPS device:</strong> {device.gpsDevice}

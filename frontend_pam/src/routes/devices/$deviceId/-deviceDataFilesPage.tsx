@@ -57,6 +57,7 @@ export default function DeviceDataFilesPage() {
     enabled: !!authTokens?.access,
   });
 
+
   const columns: ColumnDef<DataFile>[] = [
     {
       accessorKey: "id",

@@ -39,6 +39,7 @@ export default function DevicesPage() {
       startDate: device.start_date,
       endDate: device.end_date,
       intId: device.id,
+      folderSize: device.folder_size, 
     }));
   };
 
@@ -124,6 +125,7 @@ export default function DevicesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => `${row.original.folderSize} MB`,
     },
   ];
 
