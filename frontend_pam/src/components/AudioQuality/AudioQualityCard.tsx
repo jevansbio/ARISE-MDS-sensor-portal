@@ -84,7 +84,7 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
     return (
       <div className="mt-6">
         <h4 className="text-sm font-semibold text-gray-600 mb-4">Temporal Evolution</h4>
-        <div className="h-64">
+        <div className="h-[500px]">
           <Line
             data={{
               labels: temporalData.times.map((t: number) => t.toFixed(1) + 's'),
@@ -99,19 +99,44 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
             }}
             options={{
               responsive: true,
+              maintainAspectRatio: false,
               interaction: {
                 mode: 'index',
                 intersect: false,
+              },
+              plugins: {
+                legend: {
+                  position: 'top' as const,
+                  labels: {
+                    padding: 20,
+                    font: {
+                      size: 12
+                    }
+                  }
+                }
               },
               scales: {
                 x: {
                   title: {
                     display: true,
-                    text: 'Time (seconds)'
+                    text: 'Time (seconds)',
+                    font: {
+                      size: 12
+                    }
+                  },
+                  ticks: {
+                    font: {
+                      size: 11
+                    }
                   }
                 },
                 y: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  ticks: {
+                    font: {
+                      size: 11
+                    }
+                  }
                 }
               }
             }}
@@ -132,6 +157,21 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
         >
           {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
         </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
+        <div className="text-sm">
+          <span className="font-semibold">Sample Rate:</span>
+          <div className="mt-1">{dataFile.sampleRate ? `${dataFile.sampleRate} Hz` : 'Not available'}</div>
+        </div>
+        <div className="text-sm">
+          <span className="font-semibold">File Length:</span>
+          <div className="mt-1">{dataFile.fileLength || 'Not available'}</div>
+        </div>
+        <div className="text-sm">
+          <span className="font-semibold">Config:</span>
+          <div className="mt-1">{dataFile.config || 'Not available'}</div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -192,18 +232,6 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
           Last checked: {new Date(dataFile.qualityCheckDt).toLocaleString()}
         </div>
       )}
-
-      <div className="mt-4 space-y-2">
-        <div className="text-sm">
-          <span className="font-semibold">Sample Rate:</span> {dataFile.sampleRate ? `${dataFile.sampleRate} Hz` : 'Not available'}
-        </div>
-        <div className="text-sm">
-          <span className="font-semibold">File Length:</span> {dataFile.fileLength || 'Not available'}
-        </div>
-        <div className="text-sm">
-          <span className="font-semibold">Config:</span> {dataFile.config || 'Not available'}
-        </div>
-      </div>
     </div>
   );
 };
