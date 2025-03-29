@@ -600,6 +600,21 @@ class DataFile(BaseModel):
     sample_rate = models.IntegerField(null=True, blank=True)
     file_length = models.CharField(max_length=50, blank=True, null=True)
 
+    # Audio quality check fields
+    quality_score = models.FloatField(null=True, blank=True)
+    quality_issues = models.JSONField(default=list, blank=True)
+    quality_check_dt = models.DateTimeField(null=True, blank=True)
+    quality_check_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('in_progress', 'In Progress'),
+            ('completed', 'Completed'),
+            ('failed', 'Failed')
+        ],
+        default='pending'
+    )
+
     upload_dt = models.DateTimeField(default=djtimezone.now)
     recording_dt = models.DateTimeField(null=True, db_index=True)
     path = models.CharField(max_length=500)

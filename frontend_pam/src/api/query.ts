@@ -1,4 +1,4 @@
-import { AudioFile, Device } from "@/types";
+import { AudioFile, Device, DataFile } from "@/types";
 import { queryOptions } from "@tanstack/react-query";
 
 const API_URL = 'http://localhost:3001/devices';
@@ -54,3 +54,43 @@ export const audioFileQueryOptions = (deviceId: string, audioFileId: string) => 
     queryKey: ['audioFile', deviceId, audioFileId],
     queryFn: () => fetchAudioFileById(deviceId, audioFileId),
 });
+
+export const deviceOptions = (deviceId: string) => queryOptions({
+  queryKey: ['device', deviceId],
+  queryFn: () => getDevice(deviceId),
+});
+
+export const dataFileOptions = (deviceId: string, dataFileId: string) => queryOptions({
+  queryKey: ['dataFile', deviceId, dataFileId],
+  queryFn: () => getDataFile(deviceId, dataFileId),
+});
+
+export async function getDevices(): Promise<Device[]> {
+  const response = await fetch("/api/devices");
+  if (!response.ok) {
+    throw new Error("Failed to fetch devices");
+  }
+  return response.json();
+}
+
+export async function getDevice(deviceId: string): Promise<Device> {
+  const response = await fetch(`/api/devices/${deviceId}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch device");
+  }
+  return response.json();
+}
+
+export async function getDataFiles(deviceId: string): Promise<DataFile[]> {
+  const device = await getDevice(deviceId);
+  return device.dataFile;
+}
+
+export async function getDataFile(deviceId: string, dataFileId: string): Promise<DataFile | undefined> {
+  const device = await getDevice(deviceId);
+  const dataFile = device.dataFile.find((file) => file.id === dataFileId);
+  if (!dataFile) {
+    throw new Error("Data file not found");
+  }
+  return dataFile;
+}

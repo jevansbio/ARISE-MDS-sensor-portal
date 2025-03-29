@@ -22,6 +22,7 @@ from .serializers import (DataFileSerializer, DataFileUploadSerializer,
                           DataTypeSerializer, DeploymentSerializer,
                           DeploymentSerializer_GeoJSON, DeviceSerializer,
                           ProjectSerializer, SiteSerializer)
+from data_models.services.audio_quality import AudioQualityChecker
 
 
 class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
@@ -544,6 +545,39 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
 
         return Response({"uploaded_files": uploaded_files, "invalid_files": invalid_files, "existing_files": existing_files},
                         status=status_code, headers=headers)
+
+    @action(detail=True, methods=['post'])
+    def check_quality(self, request, pk=None):
+        """
+        Trigger quality check for an audio file
+        """
+        data_file = self.get_object()
+        user = request.user
+        
+        if not user.has_perm('data_models.change_datafile', data_file):
+            raise PermissionDenied("You don't have permission to check quality for this file")
+            
+        try:
+            quality_data = AudioQualityChecker.update_file_quality(data_file)
+            return Response(quality_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['get'])
+    def quality_status(self, request, pk=None):
+        """
+        Get the current quality check status for a file
+        """
+        data_file = self.get_object()
+        return Response({
+            'status': data_file.quality_check_status,
+            'score': data_file.quality_score,
+            'issues': data_file.quality_issues,
+            'last_check': data_file.quality_check_dt
+        })
 
 
 class SiteViewSet(viewsets.ReadOnlyModelViewSet):
