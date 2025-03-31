@@ -13,10 +13,11 @@ import { Marker as CompMarker } from "@adamscybot/react-leaflet-component-marker
 //import logo from "../snyper4g.png";
 import UserLocationMarker from "../MapUserLocationMarker";
 import ResetLocation from "../MapControlResetLocation";
+import { Link } from "@tanstack/react-router";
 
 interface Props {
 	//should be changed from any
-	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any }];
+	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any }];
 }
 
 interface IconProps {
@@ -96,6 +97,8 @@ const DeploymentMap = ({ deployments }: Props) => {
 		setBounds();
 	}, [map, setBounds]);
 
+	console.log(deployments.map((deploymentData) => deploymentData.extra_data.device_config.device_ID));
+
 	return (
 		<div>
 			<MapContainer
@@ -132,7 +135,15 @@ const DeploymentMap = ({ deployments }: Props) => {
 										/>
 									}
 								>
-									<Popup>{deploymentData.deployment_device_ID}</Popup>
+									<Popup>
+									<Link
+										to="/devices/$deviceId"
+										params={{ deviceId: deploymentData.extra_data.device_config.device_ID }}
+										className="text-blue-500 hover:underline"
+									>
+										View Device: {deploymentData.extra_data.device_config.device_ID}
+									</Link>
+									</Popup>
 								</CompMarker>
 							</>
 						);
