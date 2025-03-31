@@ -423,8 +423,9 @@ class Command(BaseCommand):
                                     INSERT INTO data_models_datafile
                                     (deployment_id, file_type_id, file_name, file_size, file_format,
                                      path, local_path, created_on, modified_on,
-                                     upload_dt, recording_dt, local_storage, archived, do_not_remove)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                     upload_dt, recording_dt, local_storage, archived, do_not_remove,
+                                     quality_check_status, quality_issues)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                 """, [
                                     deployment_id_pk,
                                     audio_type.id,
@@ -439,7 +440,9 @@ class Command(BaseCommand):
                                     recording_dt,
                                     True,  # local_storage
                                     False,  # archived
-                                    False   # do_not_remove
+                                    False,  # do_not_remove
+                                    'pending',  # quality_check_status
+                                    '[]'  # empty JSON array for quality_issues
                                 ])
                                 
                                 # Add optional fields if they exist

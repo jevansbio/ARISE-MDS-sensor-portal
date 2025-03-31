@@ -1,120 +1,128 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-interface DeviceFormProps {
-  onSave: () => void;
-}
+const formSchema = z.object({
+  deviceId: z.string().min(1, "Device ID is required"),
+  name: z.string().min(1, "Name is required"),
+  model: z.string().min(1, "Model is required"),
+  country: z.string().min(1, "Country is required"),
+  siteName: z.string().min(1, "Site name is required"),
+  habitat: z.string().min(1, "Habitat is required"),
+});
 
-function DeviceForm({ onSave }: DeviceFormProps) {
-  const form = useForm({
-    defaultValues: {
-      country: "",
-      site: "",
-      date: "",
-      time: "",
-      latitude: "",
-      longitude: "",
-      coordUncertainty: "",
-      gpsDevice: "",
-      deviceId: "",
-      deploymentId: "",
-      micHeight: "",
-      micDirection: "",
-      habitat: "",
-      score: "",
-      protocolChecklist: "",
-      email: "",
-      comment: "",
-    },
-    onSubmit: async (values) => {
-      console.log(values);
-      if (onSave) {
-         onSave(); 
-      }
-   },
+type FormValues = z.infer<typeof formSchema>;
+
+export default function DeviceForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
   });
 
-  const fieldsConfig = [
-    { name: "country", label: "Country", type: "text" },
-    { name: "site", label: "Site", type: "text" },
-    { name: "date", label: "Date", type: "date" },
-    { name: "time", label: "Time (UTC)", type: "time" },
-    { name: "latitude", label: "Latitude", type: "text" },
-    { name: "longitude", label: "Longitude", type: "text" },
-    {
-      name: "coordUncertainty",
-      label: "Coordinate Uncertainty",
-      type: "number",
-    },
-    { name: "gpsDevice", label: "GPS device", type: "text" },
-    { name: "deviceId", label: "Device ID", type: "text" },
-    { name: "deploymentId", label: "Deployment ID", type: "text" },
-    { name: "micHeight", label: "Microphone Height", type: "number" },
-    { name: "micDirection", label: "Microphone Direction", type: "text" },
-    { name: "habitat", label: "Habitat", type: "text" },
-    { name: "score", label: "Score", type: "number" },
-    { name: "protocolChecklist", label: "Protocol Checklist", type: "text" },
-    { name: "email", label: "Adresse e-mail", type: "email" },
-    { name: "comment", label: "Comment", type: "text" },
-  ] as const;
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const response = await fetch("/api/devices/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create device");
+      }
+
+      // Handle success (e.g., show a success message, redirect, etc.)
+    } catch (error) {
+      console.error("Error creating device:", error);
+      // Handle error (e.g., show an error message)
+    }
+  };
 
   return (
-    <form
-      onSubmit={form.handleSubmit}
-    >
-    
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        {fieldsConfig.map((fieldConfig) => (
-          <form.Field
-            key={fieldConfig.name}
-            name={fieldConfig.name}
-            children={(field) => (
-              <div
-                className={`flex flex-col my-2 ${fieldConfig.name === "comment" ? "col-span-2" : ""} text-sm md:text-base lg:text-lg`}
-              >
-                <label htmlFor={fieldConfig.name}>{fieldConfig.label}:</label>
-                <input
-                  className={`border border-gray-300 rounded w-full p-2`}
-                  id={fieldConfig.name}
-                  type={fieldConfig.type}
-                  value={field.state.value}
-                  onChange={(e) => {
-                    let value = e.target.value;
-                    if (
-                      fieldConfig.name === "latitude" ||
-                      fieldConfig.name === "longitude"
-                    ) {
-                      value = value.replace(/,/g, ".");
-                      const regex = /^\d*\.?\d{0,5}$/;
-                      if (!regex.test(value)) return;
-                    }
-
-                    field.handleChange(value);
-                  }}
-                />
-              </div>
-            )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="deviceId">Device ID</Label>
+          <Input
+            id="deviceId"
+            placeholder="Enter device ID"
+            {...register("deviceId")}
           />
-        ))}
+          {errors.deviceId && (
+            <p className="text-sm text-red-500">{errors.deviceId.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            placeholder="Enter device name"
+            {...register("name")}
+          />
+          {errors.name && (
+            <p className="text-sm text-red-500">{errors.name.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="model">Model</Label>
+          <Input
+            id="model"
+            placeholder="Enter device model"
+            {...register("model")}
+          />
+          {errors.model && (
+            <p className="text-sm text-red-500">{errors.model.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="country">Country</Label>
+          <Input
+            id="country"
+            placeholder="Enter country"
+            {...register("country")}
+          />
+          {errors.country && (
+            <p className="text-sm text-red-500">{errors.country.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="siteName">Site Name</Label>
+          <Input
+            id="siteName"
+            placeholder="Enter site name"
+            {...register("siteName")}
+          />
+          {errors.siteName && (
+            <p className="text-sm text-red-500">{errors.siteName.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="habitat">Habitat</Label>
+          <Input
+            id="habitat"
+            placeholder="Enter habitat"
+            {...register("habitat")}
+          />
+          {errors.habitat && (
+            <p className="text-sm text-red-500">{errors.habitat.message}</p>
+          )}
+        </div>
       </div>
 
-      
-     
-    <div className="text-center mt-6">
-      <button type="submit" className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block mx-auto w-80">
-          Save
-      </button>
-    </div>
-
+      <Button type="submit">Create Device</Button>
     </form>
-     
   );
 }
-
-export default DeviceForm;
