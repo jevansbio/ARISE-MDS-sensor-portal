@@ -1,11 +1,10 @@
 export type Device = {
     id: string;
-    project: string;
     startDate: string;
     endDate: string;
     lastUpload: string;
     batteryLevel: number;
-    folderSize: string;
+    folder_size: string;
     action: string;
     dataFile: DataFile[];
 };
@@ -13,10 +12,10 @@ export type Device = {
 export type DataFile = {
     id: string;
     config: string;
-    samplerate: number;
-    fileLength: string;
-    fileSize: number;
-    fileFormat: string;
+    sample_rate: number;
+    file_length: string;
+    file_size: string;
+    file_format: string;
 };
 
 export type ModalProps = {

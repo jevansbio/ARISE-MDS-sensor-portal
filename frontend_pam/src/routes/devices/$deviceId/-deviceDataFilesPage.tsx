@@ -23,6 +23,7 @@ import { Route } from ".";
 import { useContext, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
+import { bytesToMegabytes } from "@/utils/convertion";
 
 export default function DeviceDataFilesPage() {
   const { deviceId } = Route.useParams();
@@ -36,17 +37,20 @@ export default function DeviceDataFilesPage() {
 
   const apiURL = `devices/${deviceId}/datafiles`;
 
-  const getDataFunc = async () => {
+  const getDataFunc = async (): Promise<DataFile[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
-    return response_json.map((dataFile: any) => ({
+  
+    const dataFiles: DataFile[] = response_json.map((dataFile: any):DataFile => ({
       id: dataFile.id,
       config: dataFile.config,
-      sampleRate: dataFile.sampleRate,
-      fileLength: dataFile.file_length,
-      fileSize: dataFile.file_size,
-      fileFormat: dataFile.file_format,
+      sample_rate: dataFile.sample_rate, 
+      file_length: dataFile.file_length,
+      file_size: dataFile.file_size,
+      file_format: dataFile.file_format,
     }));
+
+    return dataFiles;
   };
 
   const {
@@ -86,7 +90,7 @@ export default function DeviceDataFilesPage() {
       header: "Config",
     },
     {
-      accessorKey: "samplerate",
+      accessorKey: "sample_rate",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -97,10 +101,10 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.samplerate} Hz`,
+      cell: ({ row }) => `${row.original.sample_rate} Hz`,
     },
     {
-      accessorKey: "fileLength",
+      accessorKey: "file_length",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -113,7 +117,7 @@ export default function DeviceDataFilesPage() {
       ),
     },
     {
-      accessorKey: "fileSize",
+      accessorKey: "file_size",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -124,10 +128,10 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.fileSize} MB`,
+      cell: ({ row }) => `${bytesToMegabytes(row.original.file_size)} MB`,   
     },
     {
-      accessorKey: "fileFormat",
+      accessorKey: "file_format",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -138,7 +142,7 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.fileFormat} `,
+      cell: ({ row }) => `${row.original.file_format} `,
     },
   ];
 
