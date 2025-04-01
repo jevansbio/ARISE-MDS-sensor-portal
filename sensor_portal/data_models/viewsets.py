@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils import timezone as djtimezone
+from django.http import HttpResponse
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -230,7 +231,6 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     
     @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)')
     def datafile_detail(self, request, device_ID=None, datafile_id=None):
-
         device = self.get_object()
         user = request.user
 
@@ -249,6 +249,40 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
 
         serializer = DataFileSerializer(datafile)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)/download')
+    def download_datafile(self, request, device_ID=None, datafile_id=None):
+        """Last ned en spesifikkdatafil fra en enhet"""
+        device = self.get_object()
+        user = request.user
+
+        try:
+            datafile = DataFile.objects.get(deployment__device=device, pk=datafile_id)
+            if not datafile.path:
+                return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
+        except DataFile.DoesNotExist:
+            return Response({"error": "DataFile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=datafile_id)).first():
+            raise PermissionDenied("You don't have permission to download this datafile")
+
+        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        if not os.path.exists(file_path):
+            return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+                response = HttpResponse(file_content, content_type=f"audio/{datafile.file_format.lower().replace('.', '')}")
+                response['Content-Disposition'] = f'inline; filename="audio_file_{datafile_id}.{datafile.file_format.lower().replace(".", "")}"'
+                response['Content-Length'] = len(file_content)
+                response['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+                response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+                response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+                response['Access-Control-Allow-Credentials'] = 'true'
+                return response
+        except IOError as e:
+            return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['get'])
     def metrics(self, request, pk=None):

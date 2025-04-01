@@ -23,6 +23,8 @@ import { Route } from ".";
 import { useContext, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
+import DownloadButton from "@/components/DownloadButton/DownloadButton";
+import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
 
 export default function DeviceDataFilesPage() {
   const { deviceId } = Route.useParams();
@@ -56,7 +58,6 @@ export default function DeviceDataFilesPage() {
     queryFn: getDataFunc,
     enabled: !!authTokens?.access,
   });
-
 
   const columns: ColumnDef<DataFile>[] = [
     {
@@ -139,6 +140,24 @@ export default function DeviceDataFilesPage() {
         </Button>
       ),
       cell: ({ row }) => `${row.original.fileFormat} `,
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <AudioPlayer
+            deviceId={deviceId}
+            fileId={row.original.id}
+            fileFormat={row.original.fileFormat}
+          />
+          <DownloadButton
+            deviceId={deviceId}
+            fileId={row.original.id}
+            fileFormat={row.original.fileFormat}
+          />
+        </div>
+      ),
     },
   ];
 
