@@ -4,7 +4,7 @@ export type Device = {
     endDate: string;
     lastUpload: string;
     batteryLevel: number;
-    folder_size: string;
+    folder_size: number;
     action: string;
     dataFile: DataFile[];
 };

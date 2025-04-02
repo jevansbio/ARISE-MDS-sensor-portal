@@ -147,7 +147,7 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${bytesToMegabytes(row.original.file_size)} MB`,   
+      cell: ({ row }) => `${bytesToMegabytes(row.original.fileSize)} MB`,   
     },
     {
       accessorKey: "file_format",
