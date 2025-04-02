@@ -25,6 +25,8 @@ import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
+import { bytesToMegabytes } from "@/utils/convertion";
+
 
 export default function DeviceDataFilesPage() {
   const { deviceId } = Route.useParams();
@@ -38,10 +40,11 @@ export default function DeviceDataFilesPage() {
 
   const apiURL = `devices/${deviceId}/datafiles`;
 
-  const getDataFunc = async () => {
+  const getDataFunc = async (): Promise<DataFile[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
-    return response_json.map((dataFile: any) => ({
+  
+    const dataFiles: DataFile[] = response_json.map((dataFile: any):DataFile => ({
       id: dataFile.id,
       deployment: dataFile.deployment,
       fileName: dataFile.file_name,
@@ -65,6 +68,8 @@ export default function DeviceDataFilesPage() {
       archived: dataFile.archived,
       favourite: dataFile.is_favourite
     }));
+
+    return dataFiles;
   };
 
   const {
@@ -121,7 +126,7 @@ export default function DeviceDataFilesPage() {
       cell: ({ row }) => row.original.sampleRate ? `${row.original.sampleRate} Hz` : '-',
     },
     {
-      accessorKey: "fileLength",
+      accessorKey: "file_length",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -134,7 +139,7 @@ export default function DeviceDataFilesPage() {
       ),
     },
     {
-      accessorKey: "fileSize",
+      accessorKey: "file_size",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -145,10 +150,10 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.fileSize} MB`,
+      cell: ({ row }) => `${bytesToMegabytes(row.original.fileSize)} MB`,   
     },
     {
-      accessorKey: "fileFormat",
+      accessorKey: "file_format",
       header: ({ column }) => (
         <Button
           variant="ghost"
