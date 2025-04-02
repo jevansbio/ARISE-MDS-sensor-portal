@@ -7,7 +7,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 const AuthContext = createContext();
 
-
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export default AuthContext;
 
@@ -134,6 +140,7 @@ export const AuthProvider = ({ children }) => {
     authTokens: authTokens,
     loginUser: loginUser,
     logoutUser: logoutUser,
+    useAuth: useAuth
   };
 
   // Removed Header and Outlet; now simply render children so that your __root.tsx layout is used.

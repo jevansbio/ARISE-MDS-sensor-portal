@@ -23,7 +23,10 @@ import { Route } from ".";
 import { useContext, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
+import DownloadButton from "@/components/DownloadButton/DownloadButton";
+import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
 import { bytesToMegabytes } from "@/utils/convertion";
+
 
 export default function DeviceDataFilesPage() {
   const { deviceId } = Route.useParams();
@@ -177,6 +180,24 @@ export default function DeviceDataFilesPage() {
       ),
       cell: ({ row }) => row.original.qualityScore ? `${row.original.qualityScore}/100` : '-',
     },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <AudioPlayer
+            deviceId={deviceId}
+            fileId={row.original.id}
+            fileFormat={row.original.fileFormat}
+          />
+          <DownloadButton
+            deviceId={deviceId}
+            fileId={row.original.id}
+            fileFormat={row.original.fileFormat}
+          />
+        </div>
+      ),
+    },
   ];
 
   // Table state and instance for sorting and rendering
@@ -191,36 +212,40 @@ export default function DeviceDataFilesPage() {
   });
 
   return (
-    <div className="rounded-md border m-5 shadow-md">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-0 py-0">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="container mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-6">Data Files</h1>
+    
+      <div className="rounded-md border m-5 shadow-md">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="px-0 py-0">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="px-4 py-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
