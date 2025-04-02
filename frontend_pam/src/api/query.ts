@@ -1,4 +1,4 @@
-import { AudioFile, Device, DataFile } from "@/types";
+import { Device, DataFile } from "@/types";
 import { queryOptions } from "@tanstack/react-query";
 
 const API_URL = 'http://localhost:3001/devices';
@@ -29,28 +29,28 @@ export const deviceQueryOptions = (deviceId: string) => queryOptions<Device>({
     queryFn: () => fetchDeviceById(deviceId),
 });
 
-const fetchAudioFiles = async (deviceId: string): Promise<AudioFile[]> => {
+const fetchAudioFiles = async (deviceId: string): Promise<DataFile[]> => {
   const responseJson = fetchDeviceById(deviceId);
   const device: Device = await responseJson;
-  return device.audioFiles;
+  return device.dataFile;
 }
 
-export const audioFilesQueryOptions = (deviceId: string) => queryOptions<AudioFile[]>({
+export const audioFilesQueryOptions = (deviceId: string) => queryOptions<DataFile[]>({
     queryKey: ['audioFiles', deviceId],
     queryFn: () => fetchAudioFiles(deviceId),
 });
 
-const fetchAudioFileById = async (deviceId: string, audioFileId: string): Promise<AudioFile> => {
+const fetchAudioFileById = async (deviceId: string, audioFileId: string): Promise<DataFile> => {
   const responseJson = fetchDeviceById(deviceId);
   const device: Device = await responseJson;
-  const audioFile = device.audioFiles.find((audioFile) => audioFile.id === audioFileId);
+  const audioFile = device.dataFile.find((file) => file.id === audioFileId);
   if (!audioFile) {
     throw new Error(`Audio file not found (ID: ${audioFileId})`);
   }
   return audioFile;
 }
 
-export const audioFileQueryOptions = (deviceId: string, audioFileId: string) => queryOptions<AudioFile>({
+export const audioFileQueryOptions = (deviceId: string, audioFileId: string) => queryOptions<DataFile>({
     queryKey: ['audioFile', deviceId, audioFileId],
     queryFn: () => fetchAudioFileById(deviceId, audioFileId),
 });

@@ -22,22 +22,29 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
+import { bytesToMegabytes } from "@/utils/convertion";
 
 export default function DevicesPage() {
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
   const apiURL = "devices/";
 
-  const getDataFunc = async () => {
+  const getDataFunc = async (): Promise<Device[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
-
-    return response_json.map((device: any) => ({
+  
+    const devices: Device[] = response_json.map((device: any): Device => ({
       id: device.device_ID,
       startDate: device.start_date,
       endDate: device.end_date,
-      folderSize: device.folder_size,
+      folder_size: device.folder_size,
+      lastUpload: "",
+      batteryLevel: 0,
+      action: "",
+      dataFile: []
     }));
+  
+    return devices;
   };
 
   const { data = [] } = useQuery({
@@ -111,7 +118,7 @@ export default function DevicesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.folderSize} MB`,
+      cell: ({ row }) => `${bytesToMegabytes(row.original.folder_size)} MB`,    
     },
   ];
 
