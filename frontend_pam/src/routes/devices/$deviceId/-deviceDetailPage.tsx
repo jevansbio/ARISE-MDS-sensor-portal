@@ -48,7 +48,7 @@ export default function DeviceDetailPage() {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Device Details</h2>
-      <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 max-w-3xl">
         <p>
           <strong>Device ID:</strong> {device.device_ID}
         </p>

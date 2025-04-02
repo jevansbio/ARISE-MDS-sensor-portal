@@ -65,9 +65,7 @@ export default function DeviceDataFilesPage() {
     }));
   };
 
-  const {
-    data: dataFiles = []
-  } = useQuery({
+  const { data: dataFiles = [] } = useQuery({
     queryKey: [apiURL],
     queryFn: getDataFunc,
     enabled: !!authTokens?.access,
@@ -79,7 +77,9 @@ export default function DeviceDataFilesPage() {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
           className="w-full justify-start"
         >
           ID
@@ -109,21 +109,25 @@ export default function DeviceDataFilesPage() {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
           className="w-full justify-start"
         >
           Sample Rate
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => row.original.sampleRate ? `${row.original.sampleRate} Hz` : '-',
+      cell: ({ row }) => row.original.sampleRate ? `${row.original.sampleRate} Hz` : "-",
     },
     {
       accessorKey: "fileLength",
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
           className="w-full justify-start"
         >
           File Length
@@ -136,7 +140,9 @@ export default function DeviceDataFilesPage() {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
           className="w-full justify-start"
         >
           File Size (MB)
@@ -150,10 +156,12 @@ export default function DeviceDataFilesPage() {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
           className="w-full justify-start"
         >
-          File format
+          File Format
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
@@ -164,18 +172,23 @@ export default function DeviceDataFilesPage() {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
           className="w-full justify-start"
         >
           Quality Score
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => row.original.qualityScore ? `${row.original.qualityScore}/100` : '-',
+      cell: ({ row }) =>
+        row.original.qualityScore ? `${row.original.qualityScore}/100` : "-",
     },
   ];
 
-  // Table state and instance for sorting and rendering
+  // Define the columns to always show on small screens
+  const allowedColumns = ["id", "fileSize"];
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data: dataFiles,
@@ -193,7 +206,14 @@ export default function DeviceDataFilesPage() {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-0 py-0">
+                <TableHead
+                  key={header.id}
+                  className={`px-0 py-0 ${
+                    allowedColumns.includes(header.column.id)
+                      ? ""
+                      : "hidden md:table-cell"
+                  }`}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -209,7 +229,14 @@ export default function DeviceDataFilesPage() {
           {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
+                <TableCell
+                  key={cell.id}
+                  className={`px-4 py-2 ${
+                    allowedColumns.includes(cell.column.id)
+                      ? ""
+                      : "hidden md:table-cell"
+                  }`}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

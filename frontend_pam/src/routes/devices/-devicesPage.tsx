@@ -24,8 +24,6 @@ import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 
 export default function DevicesPage() {
-  // const { data } = useSuspenseQuery(devicesQueryOptions);
-
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
   const apiURL = "devices/";
@@ -38,8 +36,7 @@ export default function DevicesPage() {
       id: device.device_ID,
       startDate: device.start_date,
       endDate: device.end_date,
-      intId: device.id,
-      folderSize: device.folder_size, 
+      folderSize: device.folder_size,
     }));
   };
 
@@ -68,7 +65,7 @@ export default function DevicesPage() {
         <Link
           to="/devices/$deviceId"
           params={{ deviceId: row.original.id }}
-           className="text-blue-500 hover:underline"
+          className="text-blue-500 hover:underline"
         >
           {row.original.id}
         </Link>
@@ -80,12 +77,13 @@ export default function DevicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
+          className="w-full justify-start hidden md:flex"
         >
           Start Date
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => <span className="hidden md:block">{row.original.startDate}</span>,
     },
     {
       accessorKey: "endDate",
@@ -93,25 +91,13 @@ export default function DevicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
+          className="w-full justify-start hidden md:flex"
         >
           End Date
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-    },
-    {
-      accessorKey: "lastUpload",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
-          Last Upload
-          <TbArrowsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      cell: ({ row }) => <span className="hidden md:block">{row.original.endDate}</span>,
     },
     {
       accessorKey: "folderSize",
@@ -141,36 +127,47 @@ export default function DevicesPage() {
   });
 
   return (
-    <div className="rounded-md border m-5 shadow-md">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-0 py-0">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+    <div className="rounded-md border shadow-md m-2 lg:m-4">
+      <div className="overflow-x-auto max-w-[350px] sm:max-w-full mx-auto sm:ml-0">
+        <Table className="w-full text-sm md:text-base">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="px-1 py-1 text-left">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length > 0 ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} className="hover:bg-gray-100">
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="px-1 py-1">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-center py-3">
+                  No data available
                 </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
+  
 }

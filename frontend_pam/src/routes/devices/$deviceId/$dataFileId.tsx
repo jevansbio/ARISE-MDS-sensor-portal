@@ -124,6 +124,12 @@ function RouteComponent() {
           <h3 className="text-lg font-semibold">File Information</h3>
           <div className="space-y-2">
             <div className="text-sm">
+              <span className="font-semibold">File ID:</span> {dataFile.id}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">File name:</span> {dataFile.fileName}
+            </div>
+            <div className="text-sm">
               <span className="font-semibold">Format:</span> {dataFile.fileFormat}
             </div>
             <div className="text-sm">
@@ -141,14 +147,14 @@ function RouteComponent() {
               <span className="font-semibold">Storage:</span>{' '}
               {dataFile.localStorage ? 'Local' : 'Remote'}
             </div>
-            {dataFile.extraData && Object.keys(dataFile.extraData).length > 0 && (
+           {/* {dataFile.extraData && Object.keys(dataFile.extraData).length > 0 && (
               <div className="text-sm">
                 <span className="font-semibold">Additional Data:</span>
                 <pre className="mt-1 p-2 bg-gray-50 rounded text-xs">
                   {JSON.stringify(dataFile.extraData, null, 2)}
                 </pre>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 
