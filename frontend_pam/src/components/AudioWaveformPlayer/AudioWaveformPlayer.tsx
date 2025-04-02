@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { FaPlay, FaPause, FaStepBackward, FaStepForward } from 'react-icons/fa';
+import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { formatTime } from '@/utils/timeFormat';
 import AuthContext from '@/auth/AuthContext';
 import { useContext } from 'react';
@@ -29,6 +29,7 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
@@ -64,6 +65,17 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         }
         setIsLoading(false);
       });
+
+      // Add user interaction listener
+      const handleUserInteraction = () => {
+        setHasUserInteracted(true);
+        if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+      };
+
+      window.addEventListener('click', handleUserInteraction, { once: true });
+      window.addEventListener('touchstart', handleUserInteraction, { once: true });
     }
 
     return () => {
@@ -79,7 +91,6 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
       }
     };
   }, []);
-
 
   useEffect(() => {
     if (authTokens?.access) {
@@ -103,6 +114,9 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
 
       if (!audioRef.current || !audioRef.current.src) {
         const audioUrl = `/api/devices/${deviceId}/datafiles/${fileId}/download`;
+        console.log('Fetching audio from:', audioUrl);
+        console.log('File format:', fileFormat);
+        
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
@@ -111,22 +125,31 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         });
         
         if (!response.ok) {
+          console.error('Response status:', response.status);
+          console.error('Response headers:', Object.fromEntries(response.headers.entries()));
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const blob = await response.blob();
-        const mimeType = fileFormat.toLowerCase() === 'mp3' ? 'audio/mpeg' : `audio/${fileFormat.toLowerCase()}`;
-        const audioBlob = new Blob([blob], { type: mimeType });
-        const objectUrl = URL.createObjectURL(audioBlob);
+        console.log('Received blob:', blob);
+        console.log('Blob type:', blob.type);
+        
+        const mimeType = blob.type || (fileFormat.toLowerCase().replace('.', '') === 'mp3' ? 'audio/mpeg' : `audio/${fileFormat.toLowerCase().replace('.', '')}`);
+        console.log('Setting MIME type:', mimeType);
+        
+        const objectUrl = URL.createObjectURL(blob);
+        console.log('Created object URL:', objectUrl);
         
         if (audioRef.current) {
           audioRef.current.src = objectUrl;
+          console.log('Set audio source:', objectUrl);
           
           if (analyserRef.current) {
             try {
               const source = audioContextRef.current.createMediaElementSource(audioRef.current);
               source.connect(analyserRef.current);
               analyserRef.current.connect(audioContextRef.current.destination);
+              console.log('Connected audio to analyser');
             } catch (error) {
               console.error('Error connecting audio to analyser:', error);
               if (!(error instanceof Error && error.message.includes('already connected'))) {
@@ -135,7 +158,29 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
             }
           }
           
-          await audioRef.current.load();
+          await new Promise((resolve, reject) => {
+            if (!audioRef.current) {
+              reject(new Error('Audio element not found'));
+              return;
+            }
+            
+            const handleCanPlay = () => {
+              console.log('Audio loaded successfully');
+              audioRef.current?.removeEventListener('canplay', handleCanPlay);
+              audioRef.current?.removeEventListener('error', handleError);
+              resolve(true);
+            };
+            
+            const handleError = (e: Event) => {
+              console.error('Audio error:', e);
+              audioRef.current?.removeEventListener('canplay', handleCanPlay);
+              audioRef.current?.removeEventListener('error', handleError);
+              reject(new Error('Failed to load audio'));
+            };
+            
+            audioRef.current.addEventListener('canplay', handleCanPlay);
+            audioRef.current.addEventListener('error', handleError);
+          });
         }
       }
       
@@ -160,6 +205,12 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
       setIsLoading(true);
       setError(null);
       
+      if (!hasUserInteracted) {
+        setError('Please click or tap anywhere to enable audio playback');
+        setIsLoading(false);
+        return;
+      }
+      
       if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
         await audioContextRef.current.resume();
       }
@@ -176,7 +227,10 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         audioRef.current.pause();
       } else {
         try {
-          await audioRef.current.play();
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
           startWaveformAnimation();
         } catch (playError) {
           console.error('Play error:', playError);
@@ -259,15 +313,13 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
             onClick={stepBackward}
             disabled={isLoading || currentTime <= 0}
             className="w-10 h-10 rounded-full"
           >
-            <FaStepBackward className="h-4 w-4" />
+            <SkipBack className="h-4 w-4" />
           </Button>
           <Button
-            variant="ghost"
             onClick={togglePlayPause}
             disabled={isLoading}
             className="w-10 h-10 rounded-full"
@@ -275,18 +327,17 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
             {isLoading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900" />
             ) : isPlaying ? (
-              <FaPause className="h-4 w-4" />
+              <Pause className="h-4 w-4" />
             ) : (
-              <FaPlay className="h-4 w-4" />
+              <Play className="h-4 w-4" />
             )}
           </Button>
           <Button
-            variant="ghost"
             onClick={stepForward}
             disabled={isLoading || currentTime >= duration}
             className="w-10 h-10 rounded-full"
           >
-            <FaStepForward className="h-4 w-4" />
+            <SkipForward className="h-4 w-4" />
           </Button>
         </div>
         <div className="text-sm text-gray-600">
