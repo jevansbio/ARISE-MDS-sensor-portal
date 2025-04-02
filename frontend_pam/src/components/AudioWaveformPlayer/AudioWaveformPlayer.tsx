@@ -120,13 +120,18 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
-            'Accept': '*/*'
-          }
+            'Accept': '*/*',
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
         });
         
         if (!response.ok) {
           console.error('Response status:', response.status);
           console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+          if (response.status === 403) {
+            throw new Error('Authentication failed. Please log in again.');
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -134,10 +139,15 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         console.log('Received blob:', blob);
         console.log('Blob type:', blob.type);
         
-        const mimeType = blob.type || (fileFormat.toLowerCase().replace('.', '') === 'mp3' ? 'audio/mpeg' : `audio/${fileFormat.toLowerCase().replace('.', '')}`);
+        // Use the blob's type if available, otherwise determine from file format
+        const mimeType = blob.type || (fileFormat.toLowerCase().startsWith('.') ? 
+          `audio/${fileFormat.toLowerCase().substring(1)}` : 
+          `audio/${fileFormat.toLowerCase()}`);
         console.log('Setting MIME type:', mimeType);
         
-        const objectUrl = URL.createObjectURL(blob);
+        // Create a new blob with the correct MIME type
+        const audioBlob = new Blob([blob], { type: mimeType });
+        const objectUrl = URL.createObjectURL(audioBlob);
         console.log('Created object URL:', objectUrl);
         
         if (audioRef.current) {
