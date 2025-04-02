@@ -113,13 +113,6 @@ export default function AudioPlayer({ deviceId, fileId, fileFormat = 'mp3', clas
         )}
       </Button>
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      
-      <audio
-        controls
-        style={{ display: 'none' }}
-        src={`/api/devices/${deviceId}/datafiles/${fileId}/download`}
-        crossOrigin="use-credentials"
-      />
     </div>
   );
 } 

@@ -43,11 +43,27 @@ export default function DeviceDataFilesPage() {
     const response_json = await getData(apiURL, authTokens.access);
     return response_json.map((dataFile: any) => ({
       id: dataFile.id,
-      config: dataFile.config,
-      sampleRate: dataFile.sampleRate,
-      fileLength: dataFile.file_length,
-      fileSize: dataFile.file_size,
+      deployment: dataFile.deployment,
+      fileName: dataFile.file_name,
       fileFormat: dataFile.file_format,
+      fileSize: dataFile.file_size,
+      fileType: dataFile.file_type,
+      path: dataFile.path,
+      localPath: dataFile.local_path,
+      uploadDt: dataFile.upload_dt,
+      recordingDt: dataFile.recording_dt,
+      config: dataFile.config,
+      sampleRate: dataFile.sample_rate,
+      fileLength: dataFile.file_length,
+      qualityScore: dataFile.quality_score,
+      qualityIssues: dataFile.quality_issues || [],
+      qualityCheckDt: dataFile.quality_check_dt,
+      qualityCheckStatus: dataFile.quality_check_status,
+      extraData: dataFile.extra_data,
+      thumbUrl: dataFile.thumb_url,
+      localStorage: dataFile.local_storage,
+      archived: dataFile.archived,
+      favourite: dataFile.is_favourite
     }));
   };
 
@@ -83,11 +99,15 @@ export default function DeviceDataFilesPage() {
       ),
     },
     {
+      accessorKey: "fileName",
+      header: "File Name",
+    },
+    {
       accessorKey: "config",
       header: "Config",
     },
     {
-      accessorKey: "samplerate",
+      accessorKey: "sampleRate",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -98,7 +118,7 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.samplerate} Hz`,
+      cell: ({ row }) => row.original.sampleRate ? `${row.original.sampleRate} Hz` : '-',
     },
     {
       accessorKey: "fileLength",
@@ -139,7 +159,21 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.fileFormat} `,
+      cell: ({ row }) => row.original.fileFormat,
+    },
+    {
+      accessorKey: "qualityScore",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="w-full justify-start"
+        >
+          Quality Score
+          <TbArrowsUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => row.original.qualityScore ? `${row.original.qualityScore}/100` : '-',
     },
     {
       id: "actions",
@@ -173,36 +207,40 @@ export default function DeviceDataFilesPage() {
   });
 
   return (
-    <div className="rounded-md border m-5 shadow-md">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-0 py-0">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="container mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-6">Data Files</h1>
+    
+      <div className="rounded-md border m-5 shadow-md">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="px-0 py-0">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="px-4 py-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
