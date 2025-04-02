@@ -52,8 +52,10 @@ export default function AudioPlayer({ deviceId, fileId, fileFormat = 'mp3', clas
           const response = await fetch(`/api/devices/${deviceId}/datafiles/${fileId}/download`, {
             headers: {
               'Authorization': `Bearer ${authTokens.access}`,
-              'Accept': '*/*'
-            }
+              'Accept': '*/*',
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include'
           });
 
           if (!response.ok) {
@@ -63,10 +65,19 @@ export default function AudioPlayer({ deviceId, fileId, fileFormat = 'mp3', clas
           }
 
           const blob = await response.blob();
-
-          const mimeType = fileFormat.toLowerCase() === 'mp3' ? 'audio/mpeg' : `audio/${fileFormat.toLowerCase()}`;
+          console.log('Received blob:', blob);
+          console.log('Blob type:', blob.type);
+          
+          // Use the blob's type if available, otherwise determine from file format
+          const mimeType = blob.type || (fileFormat.toLowerCase().startsWith('.') ? 
+            `audio/${fileFormat.toLowerCase().substring(1)}` : 
+            `audio/${fileFormat.toLowerCase()}`);
+          console.log('Setting MIME type:', mimeType);
+          
+          // Create a new blob with the correct MIME type
           const audioBlob = new Blob([blob], { type: mimeType });
           const audioUrl = URL.createObjectURL(audioBlob);
+          console.log('Created object URL:', audioUrl);
 
           audioRef.current.src = audioUrl;
           await audioRef.current.load();
@@ -80,7 +91,10 @@ export default function AudioPlayer({ deviceId, fileId, fileFormat = 'mp3', clas
         audioRef.current?.pause();
       } else {
         try {
-          await audioRef.current?.play();
+          const playPromise = audioRef.current?.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
         } catch (playError) {
           console.error('Play error:', playError);
           throw new Error('Failed to play audio: format not supported');
