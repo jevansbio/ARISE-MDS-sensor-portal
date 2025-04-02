@@ -319,9 +319,9 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+    <div className={`bg-white rounded-lg shadow-md m-4 p-2 ${className}`}>
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
+        <div className="flex items-center gap-2 mb-4 sm:mb-0">
           <Button
             onClick={stepBackward}
             disabled={isLoading || currentTime <= 0}
@@ -354,13 +354,11 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
       </div>
-
+  
       <div className="relative mb-4">
         <canvas
           ref={canvasRef}
-          width={800}
-          height={100}
-          className="w-full h-24 bg-gray-100 rounded"
+          className="w-full h-24 bg-gray-100 rounded mb-4 sm:mb-0"
         />
         <Slider
           defaultValue={currentTime.toString()}
@@ -370,7 +368,7 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
           className="absolute bottom-0 w-full [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-gray-200 [&::-webkit-slider-runnable-track]:border [&::-webkit-slider-runnable-track]:border-gray-300 [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-gray-200 [&::-moz-range-track]:border [&::-moz-range-track]:border-gray-300 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md"
         />
       </div>
-
+  
       {error && (
         <div className="text-red-500 text-sm mt-2">
           {error}
@@ -378,4 +376,4 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
       )}
     </div>
   );
-} 
+}  

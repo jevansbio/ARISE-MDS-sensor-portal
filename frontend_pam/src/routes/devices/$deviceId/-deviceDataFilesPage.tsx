@@ -212,7 +212,7 @@ export default function DeviceDataFilesPage() {
   ];
 
   // Define the columns to always show on small screens
-  const allowedColumns = ["id", "fileSize"];
+  const allowedColumns = ["id", "file_size"];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
