@@ -18,11 +18,40 @@ docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage
 
 
 ## if you have changes which have not yet been applied. 
-# Step 1: Create a new migration file
-docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py makemigrations data_models
+# open the database
+docker compose -f docker-compose-dev.yml exec sensor_portal_db psql -U postgres
+# enter the correct database
+\c postgres
 
-# Step 2: Apply the migration
-docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py migrate
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (
+        SELECT tablename
+        FROM pg_tables
+        WHERE schemaname = current_schema()
+        AND tablename != 'spatial_ref_sys'
+    )
+    LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
+
+-- Drop the PostGIS extension
+DROP EXTENSION IF EXISTS postgis CASCADE;
+-- Then drop all other tables
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema())
+    LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
+-- Recreate PostGIS extension if needed
+CREATE EXTENSION postgis;
 ```
 
 ```bash
@@ -155,7 +184,7 @@ The primary way data gets sent from the backend to the frontend is through RESTf
 
 ```bash
 # List available API endpoints
-docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py show_urls
+
 ```
 
 Common endpoints include:
@@ -170,12 +199,12 @@ Common endpoints include:
 To verify data is being sent correctly:
 
 1. Using the Django Admin Interface:
-   - Navigate to http://localhost:8000/admin/ 
+   - Navigate to http://localhost:8080/admin/ 
    - Log in with your superuser credentials
    - Browse to various model pages to confirm data exists
 
 2. Testing API endpoints directly:
-   - Visit http://localhost:8000/api/ in your browser
+   - Visit http://localhost:8080/api/ in your browser
    - Use the browsable API to explore endpoints and verify data
 
 3. Using curl from command line:

@@ -43,11 +43,27 @@ export default function DeviceDataFilesPage() {
   
     const dataFiles: DataFile[] = response_json.map((dataFile: any):DataFile => ({
       id: dataFile.id,
+      deployment: dataFile.deployment,
+      fileName: dataFile.file_name,
+      fileFormat: dataFile.file_format,
+      fileSize: dataFile.file_size,
+      fileType: dataFile.file_type,
+      path: dataFile.path,
+      localPath: dataFile.local_path,
+      uploadDt: dataFile.upload_dt,
+      recordingDt: dataFile.recording_dt,
       config: dataFile.config,
-      sample_rate: dataFile.sample_rate, 
-      file_length: dataFile.file_length,
-      file_size: dataFile.file_size,
-      file_format: dataFile.file_format,
+      sampleRate: dataFile.sample_rate,
+      fileLength: dataFile.file_length,
+      qualityScore: dataFile.quality_score,
+      qualityIssues: dataFile.quality_issues || [],
+      qualityCheckDt: dataFile.quality_check_dt,
+      qualityCheckStatus: dataFile.quality_check_status,
+      extraData: dataFile.extra_data,
+      thumbUrl: dataFile.thumb_url,
+      localStorage: dataFile.local_storage,
+      archived: dataFile.archived,
+      favourite: dataFile.is_favourite
     }));
 
     return dataFiles;
@@ -60,7 +76,6 @@ export default function DeviceDataFilesPage() {
     queryFn: getDataFunc,
     enabled: !!authTokens?.access,
   });
-
 
   const columns: ColumnDef<DataFile>[] = [
     {
@@ -86,11 +101,15 @@ export default function DeviceDataFilesPage() {
       ),
     },
     {
+      accessorKey: "fileName",
+      header: "File Name",
+    },
+    {
       accessorKey: "config",
       header: "Config",
     },
     {
-      accessorKey: "sample_rate",
+      accessorKey: "sampleRate",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -101,7 +120,7 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.sample_rate} Hz`,
+      cell: ({ row }) => row.original.sampleRate ? `${row.original.sampleRate} Hz` : '-',
     },
     {
       accessorKey: "file_length",
@@ -142,7 +161,21 @@ export default function DeviceDataFilesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.file_format} `,
+      cell: ({ row }) => row.original.fileFormat,
+    },
+    {
+      accessorKey: "qualityScore",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="w-full justify-start"
+        >
+          Quality Score
+          <TbArrowsUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => row.original.qualityScore ? `${row.original.qualityScore}/100` : '-',
     },
   ];
 

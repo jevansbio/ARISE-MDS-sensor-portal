@@ -746,8 +746,9 @@ class Command(BaseCommand):
                                         INSERT INTO data_models_datafile 
                                         (deployment_id, file_name, file_size, file_format, 
                                          path, local_path, created_on, modified_on, recording_dt, file_type_id,
-                                         local_storage, archived, do_not_remove, upload_dt, extra_data, linked_files)
-                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         local_storage, archived, do_not_remove, upload_dt, extra_data, linked_files,
+                                         quality_check_status, quality_issues)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                     """, [
                                         deployment_id_pk, 
                                         file_name,
@@ -764,15 +765,18 @@ class Command(BaseCommand):
                                         False, # do_not_remove
                                         now,   # upload_dt
                                         '{}',  # empty JSON for extra_data
-                                        '{}'   # empty JSON for linked_files
+                                        '{}',  # empty JSON for linked_files
+                                        'pending',  # quality_check_status
+                                        '[]'  # empty JSON array for quality_issues
                                     ])
                                 else:
                                     device_cursor.execute("""
                                         INSERT INTO data_models_datafile 
                                         (deployment_id, file_name, file_size, file_format, 
                                          path, local_path, created_on, modified_on, file_type_id,
-                                         local_storage, archived, do_not_remove, upload_dt, extra_data, linked_files)
-                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         local_storage, archived, do_not_remove, upload_dt, extra_data, linked_files,
+                                         quality_check_status, quality_issues)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                     """, [
                                         deployment_id_pk, 
                                         file_name,
@@ -788,7 +792,9 @@ class Command(BaseCommand):
                                         False, # do_not_remove
                                         now,   # upload_dt
                                         '{}',  # empty JSON for extra_data
-                                        '{}'   # empty JSON for linked_files
+                                        '{}',  # empty JSON for linked_files
+                                        'pending',  # quality_check_status
+                                        '[]'  # empty JSON array for quality_issues
                                     ])
                                     
                                 stats['files'] += 1
