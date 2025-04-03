@@ -258,12 +258,19 @@ class DataFileSerializer(serializers.ModelSerializer):
     sample_rate = serializers.IntegerField(required=False, allow_null=True)
     file_length = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
+    # Quality check fields
+    quality_score = serializers.FloatField(read_only=True)
+    quality_issues = serializers.ListField(read_only=True)
+    quality_check_dt = serializers.DateTimeField(read_only=True)
+    quality_check_status = serializers.CharField(read_only=True)
+
     class Meta:
         model = DataFile
         fields = ('id', 'deployment_device_ID', 'deployment', 'file_name', 'file_format',
                   'file_size', 'recording_datetime', 'file_type', 'path', 'file_url',
                   'thumb_url', 'is_favourite', 'tag', 'upload_dt', 'extra_data',
-                  'config', 'sample_rate', 'file_length')
+                  'config', 'sample_rate', 'file_length',
+                  'quality_score', 'quality_issues', 'quality_check_dt', 'quality_check_status')
         read_only_fields = ('id', 'deployment_device_ID', 'upload_dt', 'file_url', 'thumb_url')
 
     def get_is_favourite(self, obj):

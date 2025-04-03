@@ -23,8 +23,7 @@ function RouteComponent() {
     return <p>Loading authentication...</p>;
   }
 
-  // Define API parameters for the call to fetch device data
-  const apiURL = "deployment/";
+  const apiURL = "devices/10000000d642707c/datafiles/1";
 
    // Function that fetches data from the API using the stored authentication token
   const getDataFunc = async () => {

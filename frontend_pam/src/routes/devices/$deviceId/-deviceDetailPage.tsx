@@ -3,6 +3,7 @@ import { Route } from ".";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import { useContext } from "react";
+import { bytesToMegabytes } from "@/utils/convertion";
 
 export default function DeviceDetailPage() {
   const { deviceId } = Route.useParams();
@@ -64,7 +65,7 @@ export default function DeviceDetailPage() {
           <strong>Last upload:</strong> {device.lastUpload}
         </p>
         <p>
-          <strong>Folder size:</strong> {device.folder_size}
+          <strong>Folder size:</strong> {bytesToMegabytes(device.folder_size)}
         </p>
         <p>
           <strong>Country:</strong> {device.country}

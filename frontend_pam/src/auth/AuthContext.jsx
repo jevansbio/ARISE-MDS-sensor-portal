@@ -10,6 +10,14 @@ const AuthContext = createContext();
 //Made as similiar as possible to this: https://github.com/jevansbio/ARISE-MDS-sensor-portal/blob/Testing/frontend/src/context/AuthContext.jsx
 
 // Export AuthContext so it can be imported and used by other modules
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
@@ -158,6 +166,7 @@ export const AuthProvider = ({ children }) => {
     authTokens: authTokens,
     loginUser: loginUser,
     logoutUser: logoutUser,
+    useAuth: useAuth
   };
 
   // Removed Header and Outlet; now simply render children so that __root.tsx layout is used.
