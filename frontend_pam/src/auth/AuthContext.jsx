@@ -19,13 +19,13 @@ export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? jwtDecode(localStorage.getItem("authTokens"))
+    sessionStorage.getItem("authTokens")
+      ? jwtDecode(sessionStorage.getItem("authTokens"))
       : null
   );
   const [authTokens, setAuthTokens] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? JSON.parse(localStorage.getItem("authTokens"))
+    sessionStorage.getItem("authTokens")
+      ? JSON.parse(sessionStorage.getItem("authTokens"))
       : null
   );
 
@@ -64,8 +64,8 @@ export const AuthProvider = ({ children }) => {
       let data = await response.json();
       console.log("Received data:", data);
   
-      localStorage.setItem("authTokens", JSON.stringify(data));
-      console.log("Saved tokens:", JSON.parse(localStorage.getItem("authTokens")));
+      sessionStorage.setItem("authTokens", JSON.stringify(data));
+      console.log("Saved tokens:", JSON.parse(sessionStorage.getItem("authTokens")));
   
       setAuthTokens(data);
       setUser(jwtDecode(data.access));
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }) => {
     if (response.status === 200) {
       setAuthTokens(data);
       setUser(jwtDecode(data.access));
-      localStorage.setItem("authTokens", JSON.stringify(data));
+      sessionStorage.setItem("authTokens", JSON.stringify(data));
     } else {
       logoutUser();
     }
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }) => {
     if (e) {
       e.preventDefault();
     }
-    localStorage.removeItem("authTokens");
+    sessionStorage.removeItem("authTokens");
     setAuthTokens(null);
     setUser(null);
     // Navigate to "/login" – ensure this route is defined in your route tree
