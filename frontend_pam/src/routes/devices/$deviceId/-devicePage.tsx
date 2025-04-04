@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import DeviceNav from '@/components/pagenav/DeviceNav';
-import DeviceAudioFilesPage from './-deviceDataFilesPage';
+import DeviceDataFilesPage from './-deviceDataFilesPage';
 import DeviceDetailPage from './-deviceDetailPage';
 import SiteDetailPage from './-SiteDetailPage';
 
 export default function DevicePage() {
-  const [activeTab, setActiveTab] = useState<'details' | 'audioFiles' | 'siteDetails'>('details'); 
+  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails'>('details'); 
 
   return (
     <div>
@@ -19,8 +19,8 @@ export default function DevicePage() {
         <DeviceDetailPage />
       )}
 
-      {activeTab === 'audioFiles' && (
-        <DeviceAudioFilesPage />
+      {activeTab === 'dataFiles' && (
+        <DeviceDataFilesPage />
       )}
       {activeTab === 'siteDetails' && (
         <SiteDetailPage />

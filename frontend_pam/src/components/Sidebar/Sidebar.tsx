@@ -1,6 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { FaHome, FaMicrochip, FaMap } from 'react-icons/fa'
-import { MdOutlineHome } from "react-icons/md";
 import { useState } from 'react';
 import { HiMenu, HiX } from 'react-icons/hi';
 

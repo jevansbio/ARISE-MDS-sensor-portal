@@ -52,8 +52,16 @@ BEGIN
 END $$;
 -- Recreate PostGIS extension if needed
 CREATE EXTENSION postgis;
-```
 
+```
+### to exit postgres shell
+\q
+
+
+### then run migrations again
+```bash
+docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py migrate
+```
 ```bash
 docker compose -f docker-compose-dev.yml exec sensor_portal_django python manage.py createsuperuser
 ```

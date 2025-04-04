@@ -1,4 +1,3 @@
-import React from 'react';
 import AuthContext from '@/auth/AuthContext'
 import { getData, postData } from '@/utils/FetchFunctions'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -6,7 +5,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useContext } from 'react'
 import AudioQualityCard from '@/components/AudioQuality/AudioQualityCard'
 import { formatFileSize } from '@/utils/formatters'
-import type { DataFile } from '@/types'
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
+import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
+import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
 export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
   component: RouteComponent,
@@ -108,35 +110,73 @@ function RouteComponent() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">{dataFile.fileName}</h2>
-        {dataFile.archived && (
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm">
-            Archived
-          </span>
-        )}
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Data File Details</h1>
+        <div className="flex gap-2">
+          <DownloadButton
+            deviceId={deviceId}
+            fileId={dataFileId}
+            fileFormat={dataFile.fileFormat}
+          />
+          <Link to="/devices/$deviceId" params={{ deviceId }}>
+            <Button variant="outline">Back to Device</Button>
+          </Link>
+        </div>
       </div>
+
+      {dataFile.fileFormat.toLowerCase().includes('mp3') && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Audio Preview</h2>
+          <AudioWaveformPlayer
+            deviceId={deviceId}
+            fileId={dataFileId}
+            fileFormat={dataFile.fileFormat}
+          />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">File Information</h2>
+          <div className="space-y-2">
+            <p><span className="font-medium">File Name:</span> {dataFile.fileName}</p>
+            <p><span className="font-medium">File Format:</span> {dataFile.fileFormat}</p>
+            <p><span className="font-medium">File Size:</span> {formatFileSize(dataFile.fileSize)}</p>
+            <p><span className="font-medium">File Type:</span> {dataFile.fileType}</p>
+            <p><span className="font-medium">Sample Rate:</span> {dataFile.sampleRate}</p>
+            <p><span className="font-medium">File Length:</span> {dataFile.fileLength}</p>
+            <p><span className="font-medium">Quality Score:</span> {dataFile.qualityScore}</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Recording Information</h2>
+          <div className="space-y-2">
+            <p><span className="font-medium">Upload Date:</span> {new Date(dataFile.uploadDt).toLocaleString()}</p>
+            <p><span className="font-medium">Recording Date:</span> {new Date(dataFile.recordingDt).toLocaleString()}</p>
+            <p><span className="font-medium">Quality Check Date:</span> {dataFile.qualityCheckDt ? new Date(dataFile.qualityCheckDt).toLocaleString() : 'Not checked'}</p>
+            <p><span className="font-medium">Quality Check Status:</span> {dataFile.qualityCheckStatus}</p>
+          </div>
+        </div>
+      </div>
+
+      {dataFile.qualityIssues && dataFile.qualityIssues.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-4">Quality Issues</h2>
+          <ul className="list-disc list-inside space-y-2">
+            {dataFile.qualityIssues.map((issue: string, index: number) => (
+              <li key={index}>{issue}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* File Information */}
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
           <h3 className="text-lg font-semibold">File Information</h3>
           <div className="space-y-2">
-            <div className="text-sm">
-              <span className="font-semibold">Format:</span> {dataFile.fileFormat}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Size:</span> {formatFileSize(dataFile.fileSize)}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Recording Date:</span>{' '}
-              {dataFile.recordingDt ? new Date(dataFile.recordingDt).toLocaleString() : 'Not available'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Upload Date:</span>{' '}
-              {new Date(dataFile.uploadDt).toLocaleString()}
-            </div>
             <div className="text-sm">
               <span className="font-semibold">Storage:</span>{' '}
               {dataFile.localStorage ? 'Local' : 'Remote'}
