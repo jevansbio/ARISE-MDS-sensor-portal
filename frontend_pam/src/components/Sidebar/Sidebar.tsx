@@ -11,7 +11,9 @@ function Sidebar() {
   const isDevicesActive = location.pathname.startsWith('/device')
 
   return (
-<div className={`h-screen border-r bg-gray-50 transition-all duration-300 w-16 md:${isCollapsed ? 'w-16' : 'w-64'}`}>
+<div className={`h-screen border-r bg-gray-50 transition-all duration-300 ${isCollapsed ? 'sm:w-16' : 'w-16 sm:w-64'}`}>
+
+
     <nav className="h-full bg-white">
       {/* hide menu button on small screen */}
       <div className="hidden md:flex items-center justify-end p-3">
