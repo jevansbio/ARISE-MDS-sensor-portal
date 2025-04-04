@@ -19,7 +19,7 @@ export default function DevicePage() {
         <DeviceDetailPage />
       )}
 
-      {activeTab === 'dataFiles' && (
+      {activeTab === 'datafiles' && (
         <DeviceDataFilesPage />
       )}
       {activeTab === 'siteDetails' && (

@@ -26,7 +26,7 @@ import { bytesToMegabytes } from "@/utils/convertion";
 import Modal from "@/components/Modal/Modal";
 import DeviceForm from "@/components/DeviceForm";
 
-export default function DevicesPage() {
+export default function DeploymentsPage() {
   // const { data } = useSuspenseQuery(devicesQueryOptions);
 
   const authContext = useContext(AuthContext) as any;
@@ -75,7 +75,7 @@ export default function DevicesPage() {
       ),
       cell: ({ row }) => (
         <Link
-          to="/devices/$deviceId"
+          to="/deployments/$deviceId"
           params={{ deviceId: row.original.id }}
            className="text-blue-500 hover:underline"
         >

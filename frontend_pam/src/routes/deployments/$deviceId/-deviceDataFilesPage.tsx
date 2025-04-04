@@ -95,7 +95,7 @@ export default function DeviceDataFilesPage() {
       ),
       cell: ({ row }) => (
         <Link
-          to="/devices/$deviceId/$dataFileId"
+          to="/deployments/$deviceId/$dataFileId"
           params={{ deviceId: deviceId, dataFileId: row.original.id }}
           className="text-blue-500 hover:underline"
         >
