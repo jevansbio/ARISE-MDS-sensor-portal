@@ -22,6 +22,8 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
+import Modal from "@/components/Modal/Modal";
+import DeviceForm from "@/components/DeviceForm";
 
 export default function DevicesPage() {
   // const { data } = useSuspenseQuery(devicesQueryOptions);
@@ -40,6 +42,8 @@ export default function DevicesPage() {
       endDate: device.end_date,
       intId: device.id,
       folderSize: device.folder_size, 
+      site: device.site_name, 
+
     }));
   };
 
@@ -53,6 +57,28 @@ export default function DevicesPage() {
 
   const columns: ColumnDef<Device>[] = [
     {
+      accessorKey: "site",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="w-full justify-start"
+        >
+          Site
+          <TbArrowsUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <Link
+          to="/devices/$deviceId"
+          params={{ deviceId: row.original.id }}
+           className="text-blue-500 hover:underline"
+        >
+          {row.original.site}
+        </Link>
+      ),
+    },
+    {
       accessorKey: "id",
       header: ({ column }) => (
         <Button
@@ -64,15 +90,8 @@ export default function DevicesPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => (
-        <Link
-          to="/devices/$deviceId"
-          params={{ deviceId: row.original.id }}
-           className="text-blue-500 hover:underline"
-        >
-          {row.original.id}
-        </Link>
-      ),
+      cell: ({ row }) => row.original.id,
+
     },
     {
       accessorKey: "startDate",
@@ -140,7 +159,26 @@ export default function DevicesPage() {
     getSortedRowModel: getSortedRowModel(),
   });
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+  
+    const handleSave = () => {
+      closeModal();
+    };
+  
+
   return (
+    <div>
+    <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
+      Add info
+    </button>
+   
+    <Modal isOpen={isModalOpen} onClose={closeModal}>
+      <DeviceForm onSave={handleSave} />
+    </Modal>
+
     <div className="rounded-md border m-5 shadow-md">
       <Table>
         <TableHeader>
@@ -171,6 +209,7 @@ export default function DevicesPage() {
           ))}
         </TableBody>
       </Table>
+    </div>
     </div>
   );
 }

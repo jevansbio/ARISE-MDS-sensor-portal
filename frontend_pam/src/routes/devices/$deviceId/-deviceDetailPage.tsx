@@ -3,11 +3,9 @@ import { Route } from ".";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import { useContext } from "react";
-import { bytesToMegabytes } from "@/utils/convertion";
 
 export default function DeviceDetailPage() {
   const { deviceId } = Route.useParams();
-
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
 
@@ -19,17 +17,11 @@ export default function DeviceDetailPage() {
 
   const getDeviceFunc = async () => {
     if (!authTokens?.access) return null;
-
     const responseJson = await getData(apiURL, authTokens.access);
-
     return responseJson;
   };
 
-  const {
-    data: device,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: device, isLoading, error } = useQuery({
     queryKey: [apiURL],
     queryFn: getDeviceFunc,
     enabled: !!authTokens?.access,
@@ -48,64 +40,21 @@ export default function DeviceDetailPage() {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Device Details</h2>
-      <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+      <div className="grid grid-cols-1 gap-4">
         <p>
           <strong>Device ID:</strong> {device.device_ID}
         </p>
         <p>
-          <strong>Deployment ID:</strong> {device.deployment_device_ID}
+          <strong>Configuration:</strong> {device.configuration}
         </p>
         <p>
-          <strong>Start date:</strong> {device.startDate}
+          <strong>SIM Card ICC:</strong> {device.sim_card_icc}
         </p>
         <p>
-          <strong>End date:</strong> {device.endDate}
+          <strong>SIM Card Batch:</strong> {device.sim_card_batch}
         </p>
         <p>
-          <strong>Last upload:</strong> {device.lastUpload}
-        </p>
-        <p>
-          <strong>Folder size:</strong> {bytesToMegabytes(device.folder_size)}
-        </p>
-        <p>
-          <strong>Country:</strong> {device.country}
-        </p>
-        <p>
-          <strong>Site:</strong> {device.site}
-        </p>
-        <p>
-          <strong>Latitude:</strong> {device.latitude}
-        </p>
-        <p>
-          <strong>Longitude:</strong> {device.longitude}
-        </p>
-        <p>
-          <strong>Coordinate Uncertainty:</strong>{" "}
-          {device.coordinateUncertainty}
-        </p>
-        <p>
-          <strong>GPS device:</strong> {device.gpsDevice}
-        </p>
-        <p>
-          <strong>Microphone Height:</strong> {device.micHeight}
-        </p>
-        <p>
-          <strong>Microphone Direction:</strong> {device.micDirection}
-        </p>
-        <p>
-          <strong>Habitat:</strong> {device.habitat}
-        </p>
-        <p>
-          <strong>Score:</strong> {device.score}
-        </p>
-        <p>
-          <strong>Protocol Checklist:</strong> {device.protocolChecklist}
-        </p>
-        <p>
-          <strong>Adresse e-mail:</strong> {device.userEmail}
-        </p>
-        <p>
-          <strong>Comment:</strong> {device.comment}
+          <strong>SD Card Size (GB):</strong> {device.sd_card_size}
         </p>
       </div>
     </div>

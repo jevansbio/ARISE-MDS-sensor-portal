@@ -1,6 +1,6 @@
 interface DeviceNavProps {
-  activeTab: 'details' | 'audioFiles';
-  setActiveTab: (tab: 'details' | 'audioFiles') => void;
+  activeTab: 'details' | 'audioFiles'| 'siteDetails';
+  setActiveTab: (tab: 'details' | 'audioFiles' | 'siteDetails') => void;
 }
 
 function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
@@ -14,7 +14,17 @@ function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
               activeTab === 'details' ? 'border-b-2 border-black' : ''
             }`}
           >
-            Details
+            Device Details
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={() => setActiveTab('siteDetails')}
+            className={`inline-block py-4 text-lg hover:text-gray-600 ${
+              activeTab === 'siteDetails' ? 'border-b-2 border-black' : ''
+            }`}
+          >
+            Site Details
           </button>
         </li>
         <li>
