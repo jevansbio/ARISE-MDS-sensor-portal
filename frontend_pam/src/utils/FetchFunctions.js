@@ -12,6 +12,7 @@ export async function getData(url, token) {
 	return response.json();
 }
 
+// Post data to API
 export async function postData(url, token, data) {
 	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		method: "POST",
@@ -30,6 +31,7 @@ export async function postData(url, token, data) {
 	return response_json;
 }
 
+// Patch data to API
 export async function patchData(url, token, data) {
 	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		method: "PATCH",
@@ -52,6 +54,7 @@ export async function patchData(url, token, data) {
 	return response_json;
 }
 
+// Delete data from API
 export async function deleteData(url, token) {
 	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
 		method: "DELETE",
