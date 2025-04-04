@@ -193,10 +193,10 @@ class DeviceSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckForm
 
     username = serializers.CharField(required=False)
     password = serializers.CharField(required=False)
-    is_active = serializers.BooleanField(
-        read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
 
     folder_size = serializers.SerializerMethodField()
+    last_upload = serializers.SerializerMethodField()
 
     class Meta:
         model = Device
@@ -209,6 +209,8 @@ class DeviceSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckForm
     def get_folder_size(self, instance):
         return instance.get_folder_size()
 
+    def get_last_upload(self, instance):
+        return instance.get_last_upload()
 
     def to_representation(self, instance):
         initial_rep = super(DeviceSerializer, self).to_representation(instance)

@@ -9,9 +9,11 @@ const formSchema = z.object({
   deviceId: z.string().min(1, "Device ID is required"),
   name: z.string().min(1, "Name is required"),
   model: z.string().min(1, "Model is required"),
-  country: z.string().min(1, "Country is required"),
-  siteName: z.string().min(1, "Site name is required"),
-  habitat: z.string().min(1, "Habitat is required"),
+  deviceStatus: z.string().optional(),
+  configuration: z.enum(["summer", "winter"]).optional(),
+  simCardIcc: z.string().optional(),
+  simCardBatch: z.string().optional(),
+  sdCardSize: z.number().positive().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -86,39 +88,53 @@ export default function DeviceForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="country">Country</Label>
+          <Label htmlFor="deviceStatus">Device Status</Label>
           <Input
-            id="country"
-            placeholder="Enter country"
-            {...register("country")}
+            id="deviceStatus"
+            placeholder="Enter device status"
+            {...register("deviceStatus")}
           />
-          {errors.country && (
-            <p className="text-sm text-red-500">{errors.country.message}</p>
-          )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="siteName">Site Name</Label>
-          <Input
-            id="siteName"
-            placeholder="Enter site name"
-            {...register("siteName")}
-          />
-          {errors.siteName && (
-            <p className="text-sm text-red-500">{errors.siteName.message}</p>
-          )}
+          <Label htmlFor="configuration">Configuration</Label>
+          <select
+            id="configuration"
+            className="w-full p-2 border rounded"
+            {...register("configuration")}
+          >
+            <option value="">Select configuration</option>
+            <option value="summer">Summer</option>
+            <option value="winter">Winter</option>
+          </select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="habitat">Habitat</Label>
+          <Label htmlFor="simCardIcc">SIM Card ICC</Label>
           <Input
-            id="habitat"
-            placeholder="Enter habitat"
-            {...register("habitat")}
+            id="simCardIcc"
+            placeholder="Enter SIM card ICC"
+            {...register("simCardIcc")}
           />
-          {errors.habitat && (
-            <p className="text-sm text-red-500">{errors.habitat.message}</p>
-          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="simCardBatch">SIM Card Batch</Label>
+          <Input
+            id="simCardBatch"
+            placeholder="Enter SIM card batch"
+            {...register("simCardBatch")}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="sdCardSize">SD Card Size (GB)</Label>
+          <Input
+            id="sdCardSize"
+            type="number"
+            placeholder="Enter SD card size in GB"
+            {...register("sdCardSize", { valueAsNumber: true })}
+          />
         </div>
       </div>
 
