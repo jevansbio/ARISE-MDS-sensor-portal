@@ -24,15 +24,15 @@ export const AuthProvider = ({ children }) => {
   // Initialize the user state by checking if auth tokens exist in localStorage
   // If tokens exist, decode them to set the user state; otherwise, set to null
   const [user, setUser] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? jwtDecode(localStorage.getItem("authTokens"))
+    sessionStorage.getItem("authTokens")
+      ? jwtDecode(sessionStorage.getItem("authTokens"))
       : null
   );
   console.log("User:", user);
   // Initialize authTokens state by parsing the tokens from localStorage if they exist
   const [authTokens, setAuthTokens] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? JSON.parse(localStorage.getItem("authTokens"))
+    sessionStorage.getItem("authTokens")
+      ? JSON.parse(sessionStorage.getItem("authTokens"))
       : null
   );
   console.log("AuthTokens:", authTokens);
@@ -79,9 +79,8 @@ export const AuthProvider = ({ children }) => {
       let data = await response.json();
       console.log("Received data:", data);
   
-      // Save the tokens to localStorage and update the authTokens state
-      localStorage.setItem("authTokens", JSON.stringify(data));
-      console.log("Saved tokens:", JSON.parse(localStorage.getItem("authTokens")));
+      sessionStorage.setItem("authTokens", JSON.stringify(data));
+      console.log("Saved tokens:", JSON.parse(sessionStorage.getItem("authTokens")));
   
       // Update authTokens and user state using the new tokens
       setAuthTokens(data);
@@ -130,7 +129,7 @@ export const AuthProvider = ({ children }) => {
     if (response.status === 200) {
       setAuthTokens(data);
       setUser(jwtDecode(data.access));
-      localStorage.setItem("authTokens", JSON.stringify(data));
+      sessionStorage.setItem("authTokens", JSON.stringify(data));
     } else {
       logoutUser();
     }
@@ -153,7 +152,7 @@ export const AuthProvider = ({ children }) => {
     if (e) {
       e.preventDefault();
     }
-    localStorage.removeItem("authTokens");
+    sessionStorage.removeItem("authTokens");
     setAuthTokens(null);
     setUser(null);
     // Navigate to "/login" – ensure this route is defined in your route tree
