@@ -44,45 +44,7 @@ function RouteComponent() {
   const { authTokens } = authContext || { authTokens: null };
   const queryClient = useQueryClient();
 
-  // If we're on the observations route, render the child route
-  if (location.pathname.endsWith('/observations')) {
-    return <Outlet />
-  }
-
-  if (!authTokens) {
-    return <p>Loading authentication...</p>;
-  }
-
   const apiURL = `devices/${deviceId}/datafiles/${dataFileId}`;
-
-  const getDataFunc = async () => {
-    if (!authTokens?.access) return null;
-    const responseJson = await getData(apiURL, authTokens.access);
-    return {
-      id: responseJson.id,
-      deployment: responseJson.deployment,
-      fileName: responseJson.file_name,
-      fileFormat: responseJson.file_format,
-      fileSize: responseJson.file_size,
-      fileType: responseJson.file_type,
-      path: responseJson.path,
-      localPath: responseJson.local_path,
-      uploadDt: responseJson.upload_dt,
-      recordingDt: responseJson.recording_dt,
-      config: responseJson.config,
-      sampleRate: responseJson.sample_rate,
-      fileLength: responseJson.file_length,
-      qualityScore: responseJson.quality_score,
-      qualityIssues: responseJson.quality_issues || [],
-      qualityCheckDt: responseJson.quality_check_dt,
-      qualityCheckStatus: responseJson.quality_check_status,
-      extraData: responseJson.extra_data,
-      thumbUrl: responseJson.thumb_url,
-      localStorage: responseJson.local_storage,
-      archived: responseJson.archived,
-      favourite: responseJson.is_favourite
-    };
-  };
 
   const {
     data: dataFile,
@@ -90,7 +52,34 @@ function RouteComponent() {
     error,
   } = useQuery({
     queryKey: [apiURL],
-    queryFn: getDataFunc,
+    queryFn: async () => {
+      if (!authTokens?.access) return null;
+      const responseJson = await getData(apiURL, authTokens.access);
+      return {
+        id: responseJson.id,
+        deployment: responseJson.deployment,
+        fileName: responseJson.file_name,
+        fileFormat: responseJson.file_format,
+        fileSize: responseJson.file_size,
+        fileType: responseJson.file_type,
+        path: responseJson.path,
+        localPath: responseJson.local_path,
+        uploadDt: responseJson.upload_dt,
+        recordingDt: responseJson.recording_dt,
+        config: responseJson.config,
+        sampleRate: responseJson.sample_rate,
+        fileLength: responseJson.file_length,
+        qualityScore: responseJson.quality_score,
+        qualityIssues: responseJson.quality_issues || [],
+        qualityCheckDt: responseJson.quality_check_dt,
+        qualityCheckStatus: responseJson.quality_check_status,
+        extraData: responseJson.extra_data,
+        thumbUrl: responseJson.thumb_url,
+        localStorage: responseJson.local_storage,
+        archived: responseJson.archived,
+        favourite: responseJson.is_favourite
+      };
+    },
     enabled: !!authTokens?.access,
   });
 
@@ -100,7 +89,6 @@ function RouteComponent() {
       return postData(`datafile/${dataFileId}/check_quality/`, authTokens.access, {});
     },
     onSuccess: () => {
-      // Refetch the data file to get updated quality information
       queryClient.invalidateQueries({ queryKey: [apiURL] });
     },
   });
@@ -109,12 +97,23 @@ function RouteComponent() {
     checkQualityMutation.mutate();
   };
 
+  // Early returns after all hooks are called
+  if (location.pathname.endsWith('/observations')) {
+    return <Outlet />
+  }
+
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
+
   if (isLoading) {
     return <p>Loading datafile...</p>;
   }
+
   if (error) {
     return <p>Error: {(error as Error).message}</p>;
   }
+
   if (!dataFile) {
     return <p>No datafile found</p>;
   }
