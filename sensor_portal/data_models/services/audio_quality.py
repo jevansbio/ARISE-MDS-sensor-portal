@@ -22,6 +22,7 @@ class AudioQualityChecker:
         
         # Configuration for observation detection
         MIN_DURATION = 1.0  # Minimum duration in seconds
+        MAX_DURATION = 30.0  # Maximum duration in seconds
         MIN_AMPLITUDE = 0.0042  # Minimum RMS amplitude
         MAX_GAP = 1.0  # Maximum gap between segments to merge in seconds
         MAX_OBSERVATIONS = 50  # Maximum number of observations per file
@@ -52,12 +53,18 @@ class AudioQualityChecker:
             end_time = float(segment[1] * hop_length / sr)
             duration = end_time - start_time
             
-            # Skip segments that are too short
-            if duration < MIN_DURATION:
-                short_segments += 1
-                if i < 5:  # Log details for first few segments only to avoid spam
-                    logger.info(f"Segment {i} filtered out: duration {duration:.2f}s < {MIN_DURATION}s")
+            # Skip segments that are too short or too long
+            if duration < MIN_DURATION or duration > MAX_DURATION:
+                if duration < MIN_DURATION:
+                    short_segments += 1
+                    if i < 5:  # Log details for first few segments only to avoid spam
+                        logger.info(f"Segment {i} filtered out: duration {duration:.2f}s < {MIN_DURATION}s")
+                if duration > MAX_DURATION:
+                    long_segments += 1
+                    if i < 5:  # Log details for first few segments only to avoid spam
+                        logger.info(f"Segment {i} filtered out: duration {duration:.2f}s > {MAX_DURATION}s")
                 continue
+            
                 
             # Calculate segment metrics
             segment_rms = rms[int(segment[0]/hop_length):int(segment[1]/hop_length)]

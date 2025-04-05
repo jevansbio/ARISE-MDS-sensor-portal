@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { formatTime } from '@/utils/timeFormat';
 import AuthContext from '@/auth/AuthContext';
 import { useContext } from 'react';
@@ -23,6 +23,7 @@ interface AudioWaveformPlayerProps {
   className?: string;
   startTime?: number;
   endTime?: number;
+  totalDuration?: number;
 }
 
 export default function AudioWaveformPlayer({ 
@@ -30,15 +31,19 @@ export default function AudioWaveformPlayer({
   fileId, 
   fileFormat, 
   className = "",
-  startTime,
-  endTime 
+  startTime = 0,
+  endTime,
+  totalDuration
 }: AudioWaveformPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(startTime);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
@@ -59,10 +64,8 @@ export default function AudioWaveformPlayer({
       audioRef.current = audio;
 
       audio.addEventListener('loadedmetadata', () => {
-        setDuration(audio.duration);
+        setDuration(endTime ? endTime - startTime : audio.duration);
         setIsLoading(false);
-        
-        // Set initial time to startTime if provided
         if (startTime !== undefined) {
           audio.currentTime = startTime;
         }
@@ -70,13 +73,19 @@ export default function AudioWaveformPlayer({
 
       audio.addEventListener('timeupdate', () => {
         setCurrentTime(audio.currentTime);
-        // Stop playback if we reach endTime
         if (endTime !== undefined && audio.currentTime >= endTime) {
           audio.pause();
           setIsPlaying(false);
           if (startTime !== undefined) {
             audio.currentTime = startTime;
           }
+        }
+      });
+
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        if (startTime !== undefined) {
+          audio.currentTime = startTime;
         }
       });
 
@@ -88,7 +97,6 @@ export default function AudioWaveformPlayer({
         setIsLoading(false);
       });
 
-      // Add user interaction listener
       const handleUserInteraction = () => {
         setHasUserInteracted(true);
         if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
@@ -120,6 +128,27 @@ export default function AudioWaveformPlayer({
     }
   }, [authTokens]);
 
+  useEffect(() => {
+    if (canvasRef.current && audioRef.current && !isLoading) {
+      drawWaveform();
+    }
+  }, [currentTime, isPlaying, duration]);
+
+  // Reset current time when start time changes
+  useEffect(() => {
+    if (audioRef.current && startTime !== undefined) {
+      audioRef.current.currentTime = startTime;
+      setCurrentTime(startTime);
+    }
+  }, [startTime]);
+
+  // Update duration when end time changes
+  useEffect(() => {
+    if (startTime !== undefined && endTime !== undefined) {
+      setDuration(endTime - startTime);
+    }
+  }, [startTime, endTime]);
+
   const loadAudio = async (isInitialLoad = false) => {
     if (!authTokens?.access || !audioContextRef.current) {
       if (!isInitialLoad) {
@@ -136,9 +165,6 @@ export default function AudioWaveformPlayer({
 
       if (!audioRef.current || !audioRef.current.src) {
         const audioUrl = `/api/devices/${deviceId}/datafiles/${fileId}/download`;
-        console.log('Fetching audio from:', audioUrl);
-        console.log('File format:', fileFormat);
-        
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
@@ -148,44 +174,32 @@ export default function AudioWaveformPlayer({
         });
         
         if (!response.ok) {
-          console.error('Response status:', response.status);
-          console.error('Response headers:', Object.fromEntries(response.headers.entries()));
           if (response.status === 404) {
-            throw new Error('Audio file not found. Please check if the file exists.');
+            throw new Error('Audio file not found');
           }
           if (response.status === 403) {
-            throw new Error('Authentication failed. Please log in again.');
+            throw new Error('Authentication failed');
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const blob = await response.blob();
-        console.log('Received blob:', blob);
-        console.log('Blob type:', blob.type);
-        
-        // Use the blob's type if available, otherwise determine from file format
         const mimeType = blob.type || (fileFormat.toLowerCase().startsWith('.') ? 
           `audio/${fileFormat.toLowerCase().substring(1)}` : 
           `audio/${fileFormat.toLowerCase()}`);
-        console.log('Setting MIME type:', mimeType);
         
-        // Create a new blob with the correct MIME type
         const audioBlob = new Blob([blob], { type: mimeType });
         const objectUrl = URL.createObjectURL(audioBlob);
-        console.log('Created object URL:', objectUrl);
         
         if (audioRef.current) {
           audioRef.current.src = objectUrl;
-          console.log('Set audio source:', objectUrl);
           
           if (analyserRef.current) {
             try {
               const source = audioContextRef.current.createMediaElementSource(audioRef.current);
               source.connect(analyserRef.current);
               analyserRef.current.connect(audioContextRef.current.destination);
-              console.log('Connected audio to analyser');
             } catch (error) {
-              console.error('Error connecting audio to analyser:', error);
               if (!(error instanceof Error && error.message.includes('already connected'))) {
                 throw error;
               }
@@ -199,14 +213,12 @@ export default function AudioWaveformPlayer({
             }
             
             const handleCanPlay = () => {
-              console.log('Audio loaded successfully');
               audioRef.current?.removeEventListener('canplay', handleCanPlay);
               audioRef.current?.removeEventListener('error', handleError);
               resolve(true);
             };
             
             const handleError = (e: Event) => {
-              console.error('Audio error:', e);
               audioRef.current?.removeEventListener('canplay', handleCanPlay);
               audioRef.current?.removeEventListener('error', handleError);
               reject(new Error('Failed to load audio'));
@@ -220,7 +232,6 @@ export default function AudioWaveformPlayer({
       
       return true;
     } catch (error) {
-      console.error('Error loading audio:', error);
       if (!isInitialLoad) {
         setError(error instanceof Error ? error.message : 'Failed to load audio');
       }
@@ -265,15 +276,12 @@ export default function AudioWaveformPlayer({
           if (playPromise !== undefined) {
             await playPromise;
           }
-          startWaveformAnimation();
         } catch (playError) {
-          console.error('Play error:', playError);
           throw new Error('Failed to play audio: format not supported');
         }
       }
       setIsPlaying(!isPlaying);
     } catch (error) {
-      console.error('Error playing audio:', error);
       setError(error instanceof Error ? error.message : 'Failed to play audio');
       setIsPlaying(false);
     } finally {
@@ -281,138 +289,298 @@ export default function AudioWaveformPlayer({
     }
   };
 
-  const startWaveformAnimation = () => {
+  const drawWaveform = () => {
     if (!canvasRef.current || !analyserRef.current) return;
-
+    
     const canvas = canvasRef.current;
-    const analyser = analyserRef.current;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const draw = () => {
-      animationFrameRef.current = requestAnimationFrame(draw);
-      analyser.getByteTimeDomainData(dataArray);
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      ctx.fillStyle = 'rgb(200, 200, 200)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    // Clear canvas
+    ctx.fillStyle = '#f9fafb';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Draw observation boundaries if available
+    if (startTime !== undefined && endTime !== undefined && totalDuration) {
+      const startX = (startTime / totalDuration) * width;
+      const endX = (endTime / totalDuration) * width;
+      
+      // Draw highlighted region
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
+      ctx.fillRect(startX, 0, endX - startX, height);
+      
+      // Draw boundary lines
+      ctx.strokeStyle = 'rgb(59, 130, 246)';
       ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgb(0, 0, 0)';
       ctx.beginPath();
-
-      const sliceWidth = canvas.width / bufferLength;
+      ctx.moveTo(startX, 0);
+      ctx.lineTo(startX, height);
+      ctx.moveTo(endX, 0);
+      ctx.lineTo(endX, height);
+      ctx.stroke();
+    }
+    
+    // Draw waveform
+    if (analyserRef.current) {
+      const bufferLength = analyserRef.current.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyserRef.current.getByteTimeDomainData(dataArray);
+      
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgb(59, 130, 246)';
+      ctx.beginPath();
+      
+      const sliceWidth = width / bufferLength;
       let x = 0;
-
+      
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 128.0;
-        const y = v * canvas.height / 2;
-
+        const y = (v * height) / 2;
+        
         if (i === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
-
+        
         x += sliceWidth;
       }
-
-      ctx.lineTo(canvas.width, canvas.height / 2);
+      
+      ctx.lineTo(width, height / 2);
       ctx.stroke();
-    };
-
-    draw();
-  };
-
-  const seek = (value: number[]) => {
-    if (!audioRef.current) return;
-    const newTime = value[0];
-    // Constrain seeking within segment bounds if they exist
-    if (startTime !== undefined && endTime !== undefined) {
-      audioRef.current.currentTime = Math.max(startTime, Math.min(endTime, newTime));
-    } else {
-      audioRef.current.currentTime = newTime;
     }
-    setCurrentTime(audioRef.current.currentTime);
+    
+    // Draw playhead
+    if (audioRef.current && duration) {
+      const playheadX = (currentTime / duration) * width;
+      ctx.strokeStyle = 'rgb(239, 68, 68)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playheadX, 0);
+      ctx.lineTo(playheadX, height);
+      ctx.stroke();
+    }
+    
+    // Request next frame
+    animationFrameRef.current = requestAnimationFrame(drawWaveform);
   };
 
-  const stepBackward = () => {
+  const handleTimeUpdate = () => {
     if (!audioRef.current) return;
-    const newTime = Math.max(
-      startTime !== undefined ? startTime : 0,
-      audioRef.current.currentTime - 10
-    );
-    audioRef.current.currentTime = newTime;
+    const time = audioRef.current.currentTime;
+    setCurrentTime(time);
+    
+    // If we're past the end time, reset to start
+    if (endTime && time >= endTime) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      audioRef.current.currentTime = startTime || 0;
+      setCurrentTime(startTime || 0);
+    }
   };
 
-  const stepForward = () => {
+  const handleSeek = (newTime: number) => {
     if (!audioRef.current) return;
-    const newTime = Math.min(
-      endTime !== undefined ? endTime : duration,
-      audioRef.current.currentTime + 10
+    
+    // Clamp the time to the observation boundaries
+    const clampedTime = Math.min(
+      endTime || duration,
+      Math.max(startTime || 0, newTime)
     );
+    
+    audioRef.current.currentTime = clampedTime;
+    setCurrentTime(clampedTime);
+  };
+
+  const handleVolumeChange = (newVolume: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = newVolume;
+    setVolume(newVolume);
+    setIsMuted(newVolume === 0);
+  };
+
+  const toggleMute = () => {
+    if (!audioRef.current) return;
+    if (isMuted) {
+      audioRef.current.volume = volume;
+      setIsMuted(false);
+    } else {
+      audioRef.current.volume = 0;
+      setIsMuted(true);
+    }
+  };
+
+  const skipBackward = () => {
+    if (!audioRef.current) return;
+    const newTime = Math.max(startTime, currentTime - 5);
     audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const skipForward = () => {
+    if (!audioRef.current) return;
+    const newTime = Math.min(endTime || duration, currentTime + 5);
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={stepBackward}
-            disabled={isLoading || currentTime <= (startTime ?? 0)}
-            className="w-10 h-10 rounded-full"
-          >
-            <SkipBack className="h-4 w-4" />
-          </Button>
-          <Button
-            onClick={togglePlayPause}
-            disabled={isLoading}
-            className="w-10 h-10 rounded-full"
-          >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900" />
-            ) : isPlaying ? (
-              <Pause className="h-4 w-4" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
-          </Button>
-          <Button
-            onClick={stepForward}
-            disabled={isLoading || currentTime >= (endTime ?? duration)}
-            className="w-10 h-10 rounded-full"
-          >
-            <SkipForward className="h-4 w-4" />
-          </Button>
+    <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
+      <div className="p-4 space-y-4">
+        {/* Observation info */}
+        {startTime !== undefined && endTime !== undefined && (
+          <div className="text-sm text-gray-500 flex items-center justify-between">
+            <span>Observation segment: {formatTime(endTime - startTime)}</span>
+            <span>Full recording: {formatTime(totalDuration || duration)}</span>
+          </div>
+        )}
+
+        {/* Waveform display */}
+        <div className="relative h-24 bg-gray-50 rounded-lg overflow-hidden">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full"
+            width={800}
+            height={96}
+          />
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          )}
         </div>
-        <div className="text-sm text-gray-600">
-          {formatTime(currentTime)} / {formatTime(endTime ?? duration)}
+        
+        {/* Time and volume controls */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium w-24">
+              {formatTime(currentTime)}
+            </span>
+            <div className="flex-1 mx-2">
+              <Slider
+                value={currentTime}
+                min={0}
+                max={endTime || duration}
+                step={0.1}
+                onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                className="w-full"
+              />
+            </div>
+            <span className="font-medium w-24 text-right">
+              {formatTime(endTime || duration)}
+            </span>
+          </div>
+          
+          {/* Context timeline */}
+          {totalDuration && (
+            <div className="flex items-center gap-2 px-1 text-xs text-gray-500">
+              <div className="w-16 text-left">{formatTime(0)}</div>
+              <div className="flex-1 h-1 bg-gray-100 rounded relative">
+                {startTime !== undefined && endTime !== undefined && (
+                  <div 
+                    className="absolute h-full bg-blue-200"
+                    style={{
+                      left: `${(startTime / totalDuration) * 100}%`,
+                      width: `${((endTime - startTime) / totalDuration) * 100}%`
+                    }}
+                  />
+                )}
+                <div 
+                  className="absolute h-full w-0.5 bg-red-500"
+                  style={{
+                    left: `${(currentTime / totalDuration) * 100}%`
+                  }}
+                />
+              </div>
+              <div className="w-16 text-right">{formatTime(totalDuration)}</div>
+            </div>
+          )}
+        </div>
+        
+        {/* Playback controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleMute}
+              className="hover:bg-gray-100"
+            >
+              {isMuted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+            </Button>
+            <div className="w-24">
+              <Slider
+                value={isMuted ? 0 : volume * 100}
+                min={0}
+                max={100}
+                step={1}
+                onChange={(e) => handleVolumeChange(parseFloat(e.target.value) / 100)}
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={skipBackward}
+              disabled={currentTime <= startTime}
+              className="h-8 w-8"
+            >
+              <SkipBack className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={togglePlayPause}
+              disabled={isLoading}
+              className="h-10 w-10 rounded-full"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900" />
+              ) : isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4 ml-0.5" />
+              )}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={skipForward}
+              disabled={currentTime >= (endTime || duration)}
+              className="h-8 w-8"
+            >
+              <SkipForward className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="w-32" /> {/* Spacer to balance layout */}
         </div>
       </div>
-
-      <div className="relative mb-4">
-        <canvas
-          ref={canvasRef}
-          width={800}
-          height={100}
-          className="w-full h-24 bg-gray-100 rounded"
-        />
-        <Slider
-          defaultValue={currentTime.toString()}
-          max={(endTime ?? duration).toString()}
-          min={(startTime ?? 0).toString()}
-          step="0.1"
-          onChange={(e) => seek([parseFloat(e.target.value)])}
-          className="absolute bottom-0 w-full [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-gray-200 [&::-webkit-slider-runnable-track]:border [&::-webkit-slider-runnable-track]:border-gray-300 [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-gray-200 [&::-moz-range-track]:border [&::-moz-range-track]:border-gray-300 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md"
-        />
-      </div>
-
+      
       {error && (
-        <div className="text-red-500 text-sm mt-2">
-          {error}
+        <div className="px-4 pb-4">
+          <div className="text-sm text-red-600 bg-red-50 rounded-md p-2">
+            {error}
+          </div>
+        </div>
+      )}
+      
+      {!hasUserInteracted && (
+        <div className="px-4 pb-4">
+          <div className="text-sm text-blue-600 bg-blue-50 rounded-md p-2">
+            Click or tap anywhere to enable audio playback
+          </div>
         </div>
       )}
     </div>
