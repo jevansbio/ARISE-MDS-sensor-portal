@@ -1,8 +1,9 @@
 from bridgekeeper import perms
-from bridgekeeper.rules import R
+from bridgekeeper.rules import R, always_allow
 from data_models.models import DataFile
 from django.db.models import Q
 from utils.rules import check_super, final_query, query_super
+from .models import Observation
 
 
 class CanViewObservationDataFile(R):
@@ -22,3 +23,6 @@ class CanViewObservationDataFile(R):
             accumulated_q = Q(data_files__in=perms['data_models.view_datafile'].filter(
                 user, DataFile.objects.filter(observations__isnull=False)))
             return final_query(accumulated_q)
+
+# Define permission to view observations
+perms['observation_editor.view_observation'] = always_allow

@@ -7,11 +7,13 @@ from utils.viewsets import (AddOwnerViewSetMixIn, CheckAttachmentViewSetMixIn,
 from .GBIF_functions import GBIF_species_search
 from .models import Observation, Taxon
 from .serializers import EvenShorterTaxonSerialier, ObservationSerializer
+from .filtersets import ObservationFilterSet
 
 
 class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     search_fields = ["taxon__species_name", "taxon__species_common_name"]
     ordering_fields = ["obs_dt", "created_on"]
+    filterset_class = ObservationFilterSet
     queryset = Observation.objects.all().distinct()
     serializer_class = ObservationSerializer
 

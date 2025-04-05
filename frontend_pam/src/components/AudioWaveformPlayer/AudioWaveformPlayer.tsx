@@ -142,8 +142,7 @@ export default function AudioWaveformPlayer({
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
-            'Accept': '*/*',
-            'Content-Type': 'application/json'
+            'Accept': '*/*'
           },
           credentials: 'include'
         });
@@ -151,6 +150,9 @@ export default function AudioWaveformPlayer({
         if (!response.ok) {
           console.error('Response status:', response.status);
           console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+          if (response.status === 404) {
+            throw new Error('Audio file not found. Please check if the file exists.');
+          }
           if (response.status === 403) {
             throw new Error('Authentication failed. Please log in again.');
           }

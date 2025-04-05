@@ -7,7 +7,18 @@ export async function getData(url, token) {
 		},
 	});
 	if (!response.ok) {
-		throw new Error(response.statusText);
+		// Try to get error details from response
+		try {
+			const errorData = await response.json();
+			throw new Error(
+				errorData.detail || 
+				errorData.message || 
+				`${response.status} ${response.statusText}`
+			);
+		} catch (e) {
+			// If we can't parse the error JSON, throw the status
+			throw new Error(`${response.status} ${response.statusText}`);
+		}
 	}
 	return response.json();
 }

@@ -1,7 +1,7 @@
 import AuthContext from '@/auth/AuthContext'
 import { getData, postData } from '@/utils/FetchFunctions'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useLocation } from '@tanstack/react-router'
 import { useContext } from 'react'
 import AudioQualityCard from '@/components/AudioQuality/AudioQualityCard'
 import { formatFileSize } from '@/utils/formatters'
@@ -12,6 +12,10 @@ import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
 export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
   component: RouteComponent,
+  beforeLoad: ({ location }) => {
+    console.log('Loading data file route, path:', location.pathname);
+    return true;
+  },
   errorComponent: ({ error }) => {
     console.error('Route error:', error);
     return (
@@ -35,9 +39,15 @@ export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
 
 function RouteComponent() {
   const { deviceId, dataFileId } = Route.useParams()
+  const location = useLocation()
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
   const queryClient = useQueryClient();
+
+  // If we're on the observations route, render the child route
+  if (location.pathname.endsWith('/observations')) {
+    return <Outlet />
+  }
 
   if (!authTokens) {
     return <p>Loading authentication...</p>;
@@ -195,6 +205,7 @@ function RouteComponent() {
         {/* Quality Information */}
         <AudioQualityCard
           dataFile={dataFile}
+          deviceId={deviceId}
           onCheckQuality={handleCheckQuality}
         />
       </div>

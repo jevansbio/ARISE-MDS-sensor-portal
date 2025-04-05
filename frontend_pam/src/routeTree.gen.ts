@@ -18,6 +18,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as DevicesIndexImport } from './routes/devices/index'
 import { Route as DevicesDeviceIdIndexImport } from './routes/devices/$deviceId/index'
 import { Route as DevicesDeviceIdDataFileIdImport } from './routes/devices/$deviceId/$dataFileId'
+import { Route as DevicesDeviceIdDataFileIdObservationsImport } from './routes/devices/$deviceId/$dataFileId/observations'
 
 // Create/Update Routes
 
@@ -62,6 +63,13 @@ const DevicesDeviceIdDataFileIdRoute = DevicesDeviceIdDataFileIdImport.update({
   path: '/devices/$deviceId/$dataFileId',
   getParentRoute: () => rootRoute,
 } as any)
+
+const DevicesDeviceIdDataFileIdObservationsRoute =
+  DevicesDeviceIdDataFileIdObservationsImport.update({
+    id: '/observations',
+    path: '/observations',
+    getParentRoute: () => DevicesDeviceIdDataFileIdRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -116,10 +124,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevicesDeviceIdIndexImport
       parentRoute: typeof rootRoute
     }
+    '/devices/$deviceId/$dataFileId/observations': {
+      id: '/devices/$deviceId/$dataFileId/observations'
+      path: '/observations'
+      fullPath: '/devices/$deviceId/$dataFileId/observations'
+      preLoaderRoute: typeof DevicesDeviceIdDataFileIdObservationsImport
+      parentRoute: typeof DevicesDeviceIdDataFileIdImport
+    }
   }
 }
 
 // Create and export the route tree
+
+interface DevicesDeviceIdDataFileIdRouteChildren {
+  DevicesDeviceIdDataFileIdObservationsRoute: typeof DevicesDeviceIdDataFileIdObservationsRoute
+}
+
+const DevicesDeviceIdDataFileIdRouteChildren: DevicesDeviceIdDataFileIdRouteChildren =
+  {
+    DevicesDeviceIdDataFileIdObservationsRoute:
+      DevicesDeviceIdDataFileIdObservationsRoute,
+  }
+
+const DevicesDeviceIdDataFileIdRouteWithChildren =
+  DevicesDeviceIdDataFileIdRoute._addFileChildren(
+    DevicesDeviceIdDataFileIdRouteChildren,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -127,8 +157,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices': typeof DevicesIndexRoute
-  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRoute
+  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRouteWithChildren
   '/devices/$deviceId': typeof DevicesDeviceIdIndexRoute
+  '/devices/$deviceId/$dataFileId/observations': typeof DevicesDeviceIdDataFileIdObservationsRoute
 }
 
 export interface FileRoutesByTo {
@@ -137,8 +168,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices': typeof DevicesIndexRoute
-  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRoute
+  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRouteWithChildren
   '/devices/$deviceId': typeof DevicesDeviceIdIndexRoute
+  '/devices/$deviceId/$dataFileId/observations': typeof DevicesDeviceIdDataFileIdObservationsRoute
 }
 
 export interface FileRoutesById {
@@ -148,8 +180,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/devices/': typeof DevicesIndexRoute
-  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRoute
+  '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRouteWithChildren
   '/devices/$deviceId/': typeof DevicesDeviceIdIndexRoute
+  '/devices/$deviceId/$dataFileId/observations': typeof DevicesDeviceIdDataFileIdObservationsRoute
 }
 
 export interface FileRouteTypes {
@@ -162,6 +195,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId'
+    | '/devices/$deviceId/$dataFileId/observations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -171,6 +205,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId'
+    | '/devices/$deviceId/$dataFileId/observations'
   id:
     | '__root__'
     | '/'
@@ -180,6 +215,7 @@ export interface FileRouteTypes {
     | '/devices/'
     | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId/'
+    | '/devices/$deviceId/$dataFileId/observations'
   fileRoutesById: FileRoutesById
 }
 
@@ -189,7 +225,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   DevicesIndexRoute: typeof DevicesIndexRoute
-  DevicesDeviceIdDataFileIdRoute: typeof DevicesDeviceIdDataFileIdRoute
+  DevicesDeviceIdDataFileIdRoute: typeof DevicesDeviceIdDataFileIdRouteWithChildren
   DevicesDeviceIdIndexRoute: typeof DevicesDeviceIdIndexRoute
 }
 
@@ -199,7 +235,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   DevicesIndexRoute: DevicesIndexRoute,
-  DevicesDeviceIdDataFileIdRoute: DevicesDeviceIdDataFileIdRoute,
+  DevicesDeviceIdDataFileIdRoute: DevicesDeviceIdDataFileIdRouteWithChildren,
   DevicesDeviceIdIndexRoute: DevicesDeviceIdIndexRoute,
 }
 
@@ -238,10 +274,17 @@ export const routeTree = rootRoute
       "filePath": "devices/index.tsx"
     },
     "/devices/$deviceId/$dataFileId": {
-      "filePath": "devices/$deviceId/$dataFileId.tsx"
+      "filePath": "devices/$deviceId/$dataFileId.tsx",
+      "children": [
+        "/devices/$deviceId/$dataFileId/observations"
+      ]
     },
     "/devices/$deviceId/": {
       "filePath": "devices/$deviceId/index.tsx"
+    },
+    "/devices/$deviceId/$dataFileId/observations": {
+      "filePath": "devices/$deviceId/$dataFileId/observations.tsx",
+      "parent": "/devices/$deviceId/$dataFileId"
     }
   }
 }

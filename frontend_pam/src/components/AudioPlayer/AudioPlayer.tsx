@@ -52,8 +52,7 @@ export default function AudioPlayer({ deviceId, fileId, fileFormat = 'mp3', clas
           const response = await fetch(`/api/devices/${deviceId}/datafiles/${fileId}/download`, {
             headers: {
               'Authorization': `Bearer ${authTokens.access}`,
-              'Accept': '*/*',
-              'Content-Type': 'application/json'
+              'Accept': '*/*'
             },
             credentials: 'include'
           });
@@ -61,6 +60,9 @@ export default function AudioPlayer({ deviceId, fileId, fileFormat = 'mp3', clas
           if (!response.ok) {
             console.error('Response status:', response.status);
             console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+            if (response.status === 404) {
+              throw new Error('Audio file not found. Please check if the file exists.');
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 

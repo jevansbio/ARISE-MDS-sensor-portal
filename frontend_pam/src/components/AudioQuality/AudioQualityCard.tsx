@@ -1,5 +1,6 @@
 import React from 'react';
-import { DataFile } from '@/types';
+import { Link } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,29 +23,32 @@ ChartJS.register(
   Legend
 );
 
-interface TemporalEvolutionData {
-  times: number[];
-  rms_energy: number[];
-  spectral_centroid: number[];
-  zero_crossing_rate: number[];
-}
-
-interface QualityMetrics {
-  [key: string]: number;
-}
-
-interface ExtraData {
-  temporal_evolution?: TemporalEvolutionData;
-  quality_metrics?: QualityMetrics;
-  observations?: string[];
+interface DataFile {
+  id: string;
+  deployment: string;
+  deviceId?: string;
+  sampleRate: number | null;
+  fileLength: string | null;
+  config: string | null;
+  qualityCheckStatus: string;
+  qualityScore: number | null;
+  qualityIssues: string[];
+  qualityCheckDt: string | null;
+  extraData: {
+    quality_metrics?: any;
+    temporal_evolution?: any;
+    observations?: string[];
+    auto_detected_observations?: number[];
+  } | null;
 }
 
 interface Props {
   dataFile: DataFile;
+  deviceId: string;
   onCheckQuality: () => void;
 }
 
-const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
+const AudioQualityCard: React.FC<Props> = ({ dataFile, deviceId, onCheckQuality }) => {
   const getQualityColor = (score: number | null) => {
     if (score === null) return 'bg-gray-200';
     if (score >= 80) return 'bg-green-100';
@@ -150,13 +154,27 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
     <div className="bg-white rounded-lg shadow p-6 space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Audio Quality</h3>
-        <button
-          onClick={onCheckQuality}
-          disabled={dataFile.qualityCheckStatus === 'in_progress'}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
-        >
-          {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
-        </button>
+        <div className="flex gap-2">
+          <Button
+            onClick={onCheckQuality}
+            disabled={dataFile.qualityCheckStatus === 'in_progress'}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
+          </Button>
+          {dataFile.extraData?.auto_detected_observations && dataFile.extraData.auto_detected_observations.length > 0 && (
+            <Link 
+              to="/devices/$deviceId/$dataFileId/observations"
+              params={{
+                deviceId: deviceId,
+                dataFileId: dataFile.id
+              }}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              View {dataFile.extraData.auto_detected_observations.length} Observations
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
