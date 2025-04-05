@@ -1,16 +1,70 @@
 import os
 import librosa
 import numpy as np
-from datetime import timezone
-from django.utils import timezone as djtimezone
+from datetime import timedelta
+from django.utils import timezone
 from data_models.models import DataFile
 import logging
+from observation_editor.models import Observation, Taxon
 
 logger = logging.getLogger(__name__)
 
 class AudioQualityChecker:
     """Service for checking audio file quality"""
     
+    @staticmethod
+    def create_observations_from_segments(data_file, silent_segments, rms, hop_length, sr):
+        """
+        Create observations for significant audio segments
+        Returns list of created observations
+        """
+        observations = []
+        
+        # Get or create a default "Unknown" taxon for auto-detected observations
+        try:
+            unknown_taxon = Taxon.objects.get_or_create(
+                species_name="Unknown",
+                defaults={
+                    "species_common_name": "Auto-detected sound",
+                    "taxon_source": 0  # custom source
+                }
+            )[0]
+        except Exception as e:
+            logger.error(f"Error creating default taxon: {str(e)}")
+            unknown_taxon = None
+        
+        # Convert segment samples to timestamps
+        for i, segment in enumerate(silent_segments):
+            start_time = float(segment[0] * hop_length / sr)
+            end_time = float(segment[1] * hop_length / sr)
+            
+            # Calculate segment metrics
+            segment_rms = rms[int(segment[0]/hop_length):int(segment[1]/hop_length)]
+            avg_amplitude = float(np.mean(segment_rms))
+            
+            try:
+                # Create observation with the unknown taxon
+                observation = Observation.objects.create(
+                    source="auto_detect",
+                    taxon=unknown_taxon,  # Set the default taxon
+                    obs_dt=data_file.recording_dt + timedelta(seconds=start_time) if data_file.recording_dt else None,
+                    extra_data={
+                        "start_time": start_time,
+                        "end_time": end_time,
+                        "duration": end_time - start_time,
+                        "avg_amplitude": avg_amplitude,
+                        "auto_detected": True,
+                        "needs_review": True  # Flag for user review
+                    }
+                )
+                observation.data_files.add(data_file)
+                observations.append(observation)
+            except Exception as e:
+                logger.error(f"Error creating observation for segment {i}: {str(e)}")
+                continue
+            
+        return observations
+
     @staticmethod
     def check_audio_quality(file_path):
         """
@@ -203,6 +257,22 @@ class AudioQualityChecker:
             DataFile.objects.filter(id=data_file.id).update(quality_check_status='in_progress')
             logger.info("Updated status to in_progress")
             
+            # Load audio and perform quality check
+            y, sr = librosa.load(file_path)
+            frame_length = int(sr * 0.025)  # 25ms frames
+            hop_length = int(sr * 0.010)    # 10ms hop
+            
+            # RMS energy over time
+            rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)[0]
+            
+            # Detect segments of activity
+            silent_segments = librosa.effects.split(y, top_db=40, frame_length=frame_length, hop_length=hop_length)
+            
+            # Create observations for detected segments
+            observations = AudioQualityChecker.create_observations_from_segments(
+                data_file, silent_segments, rms, hop_length, sr
+            )
+            
             # Perform quality check
             quality_data = AudioQualityChecker.check_audio_quality(file_path)
             logger.info("Quality check completed")
@@ -211,14 +281,15 @@ class AudioQualityChecker:
             extra_data = {
                 'quality_metrics': quality_data['metrics'],
                 'temporal_evolution': quality_data['temporal_evolution'],
-                'observations': quality_data['observations']
+                'observations': quality_data['observations'],
+                'auto_detected_observations': [obs.id for obs in observations]
             }
             
             # Update the data file with results using update() to skip validation
             DataFile.objects.filter(id=data_file.id).update(
                 quality_score=quality_data['quality_score'],
                 quality_issues=quality_data['quality_issues'],
-                quality_check_dt=djtimezone.now(),
+                quality_check_dt=timezone.now(),
                 quality_check_status='completed',
                 extra_data=extra_data
             )

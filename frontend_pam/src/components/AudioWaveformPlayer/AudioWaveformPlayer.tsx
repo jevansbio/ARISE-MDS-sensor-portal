@@ -21,9 +21,18 @@ interface AudioWaveformPlayerProps {
   fileId: string;
   fileFormat: string;
   className?: string;
+  startTime?: number;
+  endTime?: number;
 }
 
-export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, className = "" }: AudioWaveformPlayerProps) {
+export default function AudioWaveformPlayer({ 
+  deviceId, 
+  fileId, 
+  fileFormat, 
+  className = "",
+  startTime,
+  endTime 
+}: AudioWaveformPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,10 +61,23 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
       audio.addEventListener('loadedmetadata', () => {
         setDuration(audio.duration);
         setIsLoading(false);
+        
+        // Set initial time to startTime if provided
+        if (startTime !== undefined) {
+          audio.currentTime = startTime;
+        }
       });
 
       audio.addEventListener('timeupdate', () => {
         setCurrentTime(audio.currentTime);
+        // Stop playback if we reach endTime
+        if (endTime !== undefined && audio.currentTime >= endTime) {
+          audio.pause();
+          setIsPlaying(false);
+          if (startTime !== undefined) {
+            audio.currentTime = startTime;
+          }
+        }
       });
 
       audio.addEventListener('error', (e) => {
@@ -90,7 +112,7 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [startTime, endTime]);
 
   useEffect(() => {
     if (authTokens?.access) {
@@ -304,18 +326,32 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
 
   const seek = (value: number[]) => {
     if (!audioRef.current) return;
-    audioRef.current.currentTime = value[0];
-    setCurrentTime(value[0]);
+    const newTime = value[0];
+    // Constrain seeking within segment bounds if they exist
+    if (startTime !== undefined && endTime !== undefined) {
+      audioRef.current.currentTime = Math.max(startTime, Math.min(endTime, newTime));
+    } else {
+      audioRef.current.currentTime = newTime;
+    }
+    setCurrentTime(audioRef.current.currentTime);
   };
 
   const stepBackward = () => {
     if (!audioRef.current) return;
-    audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
+    const newTime = Math.max(
+      startTime !== undefined ? startTime : 0,
+      audioRef.current.currentTime - 10
+    );
+    audioRef.current.currentTime = newTime;
   };
 
   const stepForward = () => {
     if (!audioRef.current) return;
-    audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + 10);
+    const newTime = Math.min(
+      endTime !== undefined ? endTime : duration,
+      audioRef.current.currentTime + 10
+    );
+    audioRef.current.currentTime = newTime;
   };
 
   return (
@@ -324,7 +360,7 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         <div className="flex items-center gap-2">
           <Button
             onClick={stepBackward}
-            disabled={isLoading || currentTime <= 0}
+            disabled={isLoading || currentTime <= (startTime ?? 0)}
             className="w-10 h-10 rounded-full"
           >
             <SkipBack className="h-4 w-4" />
@@ -344,14 +380,14 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
           </Button>
           <Button
             onClick={stepForward}
-            disabled={isLoading || currentTime >= duration}
+            disabled={isLoading || currentTime >= (endTime ?? duration)}
             className="w-10 h-10 rounded-full"
           >
             <SkipForward className="h-4 w-4" />
           </Button>
         </div>
         <div className="text-sm text-gray-600">
-          {formatTime(currentTime)} / {formatTime(duration)}
+          {formatTime(currentTime)} / {formatTime(endTime ?? duration)}
         </div>
       </div>
 
@@ -364,7 +400,8 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
         />
         <Slider
           defaultValue={currentTime.toString()}
-          max={duration.toString()}
+          max={(endTime ?? duration).toString()}
+          min={(startTime ?? 0).toString()}
           step="0.1"
           onChange={(e) => seek([parseFloat(e.target.value)])}
           className="absolute bottom-0 w-full [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-gray-200 [&::-webkit-slider-runnable-track]:border [&::-webkit-slider-runnable-track]:border-gray-300 [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-gray-200 [&::-moz-range-track]:border [&::-moz-range-track]:border-gray-300 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md"
@@ -378,4 +415,4 @@ export default function AudioWaveformPlayer({ deviceId, fileId, fileFormat, clas
       )}
     </div>
   );
-} 
+}
