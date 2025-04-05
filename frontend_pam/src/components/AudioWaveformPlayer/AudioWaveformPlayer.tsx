@@ -123,10 +123,18 @@ export default function AudioWaveformPlayer({
   }, [startTime, endTime]);
 
   useEffect(() => {
-    if (authTokens?.access) {
-      loadAudio(true);
-    }
-  }, [authTokens]);
+    const initAudio = async () => {
+      if (authTokens?.access && !isInitialized) {
+        try {
+          await loadAudio(true);
+        } catch (error) {
+          console.error('Error initializing audio:', error);
+        }
+      }
+    };
+    
+    initAudio();
+  }, [authTokens, isInitialized]);
 
   useEffect(() => {
     if (canvasRef.current && audioRef.current && !isLoading) {
@@ -168,47 +176,50 @@ export default function AudioWaveformPlayer({
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
-            'Accept': '*/*'
+            'Accept': '*/*'  // Accept any content type
           },
           credentials: 'include'
         });
         
         if (!response.ok) {
+          console.error('Response status:', response.status);
+          console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+          
           if (response.status === 404) {
             throw new Error('Audio file not found');
           }
           if (response.status === 403) {
             throw new Error('Authentication failed');
           }
+          if (response.status === 406) {
+            throw new Error('Server cannot provide audio in requested format');
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const blob = await response.blob();
-        const mimeType = blob.type || (fileFormat.toLowerCase().startsWith('.') ? 
-          `audio/${fileFormat.toLowerCase().substring(1)}` : 
-          `audio/${fileFormat.toLowerCase()}`);
+        console.log('Received blob:', blob);
+        console.log('Blob type:', blob.type);
         
+        // Determine MIME type from file format or blob type
+        let mimeType = blob.type;
+        if (!mimeType || mimeType === 'application/octet-stream') {
+          // If no MIME type or generic binary, try to determine from file format
+          mimeType = fileFormat.toLowerCase().startsWith('.') ? 
+            `audio/${fileFormat.toLowerCase().substring(1)}` : 
+            `audio/${fileFormat.toLowerCase()}`;
+        }
+        console.log('Using MIME type:', mimeType);
+        
+        // Create a new blob with the determined MIME type
         const audioBlob = new Blob([blob], { type: mimeType });
         const objectUrl = URL.createObjectURL(audioBlob);
         
         if (audioRef.current) {
           audioRef.current.src = objectUrl;
-          
-          if (analyserRef.current) {
-            try {
-              const source = audioContextRef.current.createMediaElementSource(audioRef.current);
-              source.connect(analyserRef.current);
-              analyserRef.current.connect(audioContextRef.current.destination);
-            } catch (error) {
-              if (!(error instanceof Error && error.message.includes('already connected'))) {
-                throw error;
-              }
-            }
-          }
-          
           await new Promise((resolve, reject) => {
             if (!audioRef.current) {
-              reject(new Error('Audio element not found'));
+              reject(new Error('Audio element not available'));
               return;
             }
             
@@ -221,25 +232,35 @@ export default function AudioWaveformPlayer({
             const handleError = (e: Event) => {
               audioRef.current?.removeEventListener('canplay', handleCanPlay);
               audioRef.current?.removeEventListener('error', handleError);
-              reject(new Error('Failed to load audio'));
+              const audioError = (e.target as HTMLAudioElement).error;
+              reject(new Error(`Audio format not supported: ${audioError?.message || 'unknown error'}`));
             };
             
             audioRef.current.addEventListener('canplay', handleCanPlay);
             audioRef.current.addEventListener('error', handleError);
+            audioRef.current.load();
           });
+          
+          if (analyserRef.current && audioContextRef.current) {
+            try {
+              const source = audioContextRef.current.createMediaElementSource(audioRef.current);
+              source.connect(analyserRef.current);
+              analyserRef.current.connect(audioContextRef.current.destination);
+              setIsInitialized(true);
+            } catch (error) {
+              console.error('Error connecting audio nodes:', error);
+              // Don't throw here, as the audio might still play without visualization
+            }
+          }
         }
       }
-      
+
       return true;
     } catch (error) {
-      if (!isInitialLoad) {
-        setError(error instanceof Error ? error.message : 'Failed to load audio');
-      }
+      console.error('Error loading audio:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load audio');
+      setIsLoading(false);
       return false;
-    } finally {
-      if (!isInitialLoad) {
-        setIsLoading(false);
-      }
     }
   };
 
@@ -427,6 +448,13 @@ export default function AudioWaveformPlayer({
     setCurrentTime(newTime);
   };
 
+  const formatAmplitude = (value: number): string => {
+    if (value < 0.01) {
+      return value.toFixed(4); // Show 4 decimal places for very small values
+    }
+    return value.toFixed(2);
+  };
+
   return (
     <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
       <div className="p-4 space-y-4">
@@ -524,6 +552,9 @@ export default function AudioWaveformPlayer({
                 onChange={(e) => handleVolumeChange(parseFloat(e.target.value) / 100)}
               />
             </div>
+            <span className="text-xs text-gray-500 w-16">
+              {formatAmplitude(isMuted ? 0 : volume)}
+            </span>
           </div>
           
           <div className="flex items-center gap-2">

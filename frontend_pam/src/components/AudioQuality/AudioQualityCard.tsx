@@ -38,7 +38,7 @@ interface DataFile {
     quality_metrics?: any;
     temporal_evolution?: any;
     observations?: string[];
-    auto_detected_observations?: number[];
+    auto_detected_observations: number[];
   } | null;
 }
 
@@ -162,18 +162,24 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, deviceId, onCheckQuality 
           >
             {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
           </Button>
-          {dataFile.extraData?.auto_detected_observations && dataFile.extraData.auto_detected_observations.length > 0 && (
-            <Link 
-              to="/devices/$deviceId/$dataFileId/observations"
-              params={{
-                deviceId: deviceId,
-                dataFileId: dataFile.id
-              }}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              View {dataFile.extraData.auto_detected_observations.length} Observations
-            </Link>
-          )}
+          <Link 
+            to="/devices/$deviceId/$dataFileId/observations"
+            params={{
+              deviceId: deviceId,
+              dataFileId: dataFile.id
+            }}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2"
+          >
+            <span>View</span>
+            {Array.isArray(dataFile.extraData?.auto_detected_observations) && dataFile.extraData.auto_detected_observations.length > 0 ? (
+              <>
+                <span className="font-semibold">{dataFile.extraData.auto_detected_observations.length}</span>
+                <span>Observations</span>
+              </>
+            ) : (
+              <span>Observations (None)</span>
+            )}
+          </Link>
         </div>
       </div>
 

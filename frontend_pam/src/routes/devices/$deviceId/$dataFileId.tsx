@@ -73,7 +73,10 @@ function RouteComponent() {
         qualityIssues: responseJson.quality_issues || [],
         qualityCheckDt: responseJson.quality_check_dt,
         qualityCheckStatus: responseJson.quality_check_status,
-        extraData: responseJson.extra_data,
+        extraData: responseJson.extra_data ? {
+          ...responseJson.extra_data,
+          auto_detected_observations: responseJson.extra_data.auto_detected_observations || []
+        } : null,
         thumbUrl: responseJson.thumb_url,
         localStorage: responseJson.local_storage,
         archived: responseJson.archived,

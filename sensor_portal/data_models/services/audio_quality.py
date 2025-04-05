@@ -47,6 +47,7 @@ class AudioQualityChecker:
         segments_info = []
         short_segments = 0
         low_amplitude_segments = 0
+        long_segments = 0  # Initialize the counter
         
         for i, segment in enumerate(non_silent_segments):
             start_time = float(segment[0] * hop_length / sr)

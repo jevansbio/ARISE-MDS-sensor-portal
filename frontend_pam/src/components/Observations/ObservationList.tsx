@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Route as ObservationsRoute } from "@/routes/devices/$deviceId/$dataFileId/observations";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -81,8 +81,8 @@ export default function ObservationList() {
   });
 
   // Query for observations
-  const { isLoading: isLoadingObs, error: obsError } = useQuery({
-    queryKey: ['observations', deviceId, dataFileId],
+  const { data: obsData, isLoading: isLoadingObs, error: obsError } = useQuery({
+    queryKey: ['observations', dataFileId],
     queryFn: async () => {
       if (!deviceId || !dataFileId || !authTokens?.access) {
         console.error('Missing parameters for observations query');
@@ -92,16 +92,24 @@ export default function ObservationList() {
       try {
         const data = await getData(`observation/?data_files=${dataFileId}`, authTokens.access);
         console.log('Observations data:', data);
-        setObservations(Array.isArray(data) ? data : data.results || []);
-        return data;
+        return Array.isArray(data) ? data : data.results || [];
       } catch (error) {
         console.error('Failed to fetch observations:', error);
         throw error;
       }
     },
     enabled: !!deviceId && !!dataFileId && !!authTokens?.access,
-    retry: 1
+    gcTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
+
+  // Update observations state when data changes
+  useEffect(() => {
+    if (obsData) {
+      setObservations(obsData as Observation[]);
+    }
+  }, [obsData]);
 
   const handleBack = () => {
     if (!deviceId || !dataFileId) return;
