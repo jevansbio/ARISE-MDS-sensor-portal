@@ -138,18 +138,17 @@ const DeploymentMap = ({ deployments }: Props) => {
 						const pinColor = getPinColor(deploymentData.last_upload);
 
 						return (
-							<>
-								<CompMarker
-									key={deploymentData.deployment_device_ID}
-									position={latLng}
-									icon={
-										<DeploymentIcon
-											borderColor={pinColor}
-											textColor={pinColor}
-										/>
-									}
-								>
-									<Popup>
+							<CompMarker
+								key={deploymentData.deployment_device_ID}
+								position={latLng}
+								icon={
+									<DeploymentIcon
+										borderColor={pinColor}
+										textColor={pinColor}
+									/>
+								}
+							>
+								<Popup>
 									<Link
 										to="/devices/$deviceId"
 										params={{ deviceId: deploymentData.extra_data.device_config.device_ID }}
@@ -162,9 +161,8 @@ const DeploymentMap = ({ deployments }: Props) => {
 											? new Date(deploymentData.last_upload).toLocaleDateString()
 											: 'Never'}
 									</div>
-									</Popup>
-								</CompMarker>
-							</>
+								</Popup>
+							</CompMarker>
 						);
 					})}
 				</FeatureGroup>
