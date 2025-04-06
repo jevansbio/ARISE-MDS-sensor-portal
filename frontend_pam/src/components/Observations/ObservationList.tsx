@@ -19,6 +19,7 @@ interface Observation {
   taxon: {
     species_name: string;
     species_common_name: string;
+    id: number;
   };
   source: string;
   needs_review: boolean;
@@ -79,7 +80,7 @@ export default function ObservationList() {
   });
 
   // Query for observations
-  const { data: obsData, isLoading: isLoadingObs, error: obsError } = useQuery({
+  const { data: obsData, isLoading: isLoadingObs, error: obsError, refetch: refetchObs } = useQuery({
     queryKey: ['observations', dataFileIdStr],
     queryFn: async () => {
       if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
@@ -100,10 +101,12 @@ export default function ObservationList() {
   // Update observations state when data changes
   useEffect(() => {
     if (obsData) {
-      // Convert string IDs to numbers
+      // Convert string IDs to numbers and ensure proper date formatting
       const processedData = (obsData as any[]).map(obs => ({
         ...obs,
-        id: Number(obs.id)
+        id: Number(obs.id),
+        obs_dt: obs.obs_dt || new Date().toISOString(), // Provide default if missing
+        needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review // Ensure auto-detected observations are marked for review
       }));
       setObservations(processedData);
     }
@@ -120,8 +123,18 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
-    if (obsData?.refetch) {
-      await obsData.refetch();
+    // Update the local state immediately
+    setObservations(prevObservations => 
+      prevObservations.map(obs => 
+        obs.id === updatedObservation.id ? updatedObservation : obs
+      )
+    );
+    
+    // Refetch to ensure consistency with server
+    try {
+      await refetchObs();
+    } catch (error) {
+      console.error('Failed to refetch observations:', error);
     }
     setIsEditModalOpen(false);
   };
@@ -198,7 +211,16 @@ export default function ObservationList() {
               <tbody>
                 {observations.map((observation) => (
                   <tr key={observation.id} className="border-b hover:bg-muted/50">
-                    <td className="p-2">{formatTime(observation.obs_dt)}</td>
+                    <td className="p-2">
+                      <div>
+                        <div className="font-medium">
+                          {formatTime(observation.extra_data.start_time)}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Duration: {observation.extra_data.duration.toFixed(2)}s
+                        </div>
+                      </div>
+                    </td>
                     <td className="p-2">
                       <div>
                         <div className="font-medium">{observation.taxon.species_name}</div>
@@ -212,7 +234,7 @@ export default function ObservationList() {
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-green-100 text-green-800'
                       }`}>
-                        {observation.needs_review ? 'Needs Review' : 'Reviewed'}
+                        {observation.needs_review ? 'Not Reviewed' : 'Reviewed'}
                       </span>
                     </td>
                     <td className="p-2">{observation.extra_data.duration.toFixed(2)}s</td>

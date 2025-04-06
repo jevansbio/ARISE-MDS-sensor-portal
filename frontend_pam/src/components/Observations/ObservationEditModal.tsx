@@ -13,6 +13,7 @@ interface Observation {
   taxon: {
     species_name: string;
     species_common_name: string;
+    id: number;
   };
   source: string;
   needs_review: boolean;
@@ -39,48 +40,102 @@ export default function ObservationEditModal({
   onSave
 }: ObservationEditModalProps) {
   const [editedObservation, setEditedObservation] = useState<Observation | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { authTokens } = useContext(AuthContext) as any;
 
   useEffect(() => {
     if (observation) {
-      // Always set needs_review to true for auto-detected observations
-      const defaultNeedsReview = observation.source === 'auto_detect' || observation.extra_data?.auto_detected;
+      // Set needs_review to true for auto-detected observations
+      const isAutoDetected = observation.source === 'auto_detect' || observation.extra_data?.auto_detected;
       setEditedObservation({
         ...observation,
-        needs_review: defaultNeedsReview
+        needs_review: isAutoDetected ? true : observation.needs_review
       });
+      setError(null);
     }
   }, [observation]);
 
   if (!editedObservation) return null;
 
   const handleSave = async () => {
+    if (!editedObservation) return;
+    setIsLoading(true);
+    setError(null);
+
     try {
+      // Log the data we're sending
+      const updateData = {
+        taxon: editedObservation.taxon.id,
+        needs_review: editedObservation.needs_review,
+        extra_data: {
+          ...editedObservation.extra_data,
+          needs_review: editedObservation.needs_review
+        }
+      };
+      console.log('Updating observation with data:', updateData);
+
       const response = await fetch(`/api/observation/${editedObservation.id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authTokens.access}`
         },
-        body: JSON.stringify({
-          taxon: {
-            species_name: editedObservation.taxon.species_name,
-            species_common_name: editedObservation.taxon.species_common_name
-          },
-          needs_review: editedObservation.needs_review,
-          extra_data: editedObservation.extra_data
-        })
+        body: JSON.stringify(updateData)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update observation');
+        let errorMessage = `Failed to update observation: ${response.status} ${response.statusText}`;
+        
+        // Read the response body only once
+        const responseText = await response.text();
+        console.error('Server error response:', responseText);
+        
+        try {
+          // Try to parse as JSON if possible
+          const errorData = JSON.parse(responseText);
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // If not JSON, check for specific error messages
+          if (responseText.includes('ImproperlyConfigured') && responseText.includes('permission')) {
+            errorMessage = 'Permission error: You do not have the required permissions to edit this observation.';
+          } else if (!responseText.includes('<!DOCTYPE html>')) {
+            errorMessage = responseText;
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       const updatedObservation = await response.json();
-      onSave(updatedObservation);
+      console.log('Successfully updated observation:', updatedObservation);
+
+      // Fetch the complete observation data to get the taxon details
+      const completeResponse = await fetch(`/api/observation/${editedObservation.id}/`, {
+        headers: {
+          'Authorization': `Bearer ${authTokens.access}`
+        }
+      });
+
+      if (!completeResponse.ok) {
+        console.error('Failed to fetch complete observation data');
+        onSave(updatedObservation); // Fallback to basic update data
+      } else {
+        const completeObservation = await completeResponse.json();
+        console.log('Fetched complete observation:', completeObservation);
+        onSave(completeObservation);
+      }
+
       onClose();
     } catch (error) {
       console.error('Error updating observation:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,6 +146,12 @@ export default function ObservationEditModal({
           <DialogTitle>Edit Observation</DialogTitle>
         </DialogHeader>
         <div className="grid gap-6 py-4">
+          {error && (
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="font-medium mb-2">Observation Details</h3>
@@ -192,10 +253,19 @@ export default function ObservationEditModal({
           </div>
         </div>
         <div className="flex justify-end gap-4">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Saving...</span>
+              </div>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

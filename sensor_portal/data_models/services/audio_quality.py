@@ -23,7 +23,7 @@ class AudioQualityChecker:
         # Configuration for observation detection
         MIN_DURATION = 1.0  # Minimum duration in seconds
         MAX_DURATION = 30.0  # Maximum duration in seconds
-        MIN_AMPLITUDE = 0.0042  # Minimum RMS amplitude
+        MIN_AMPLITUDE = 0.002  # Minimum RMS amplitude (lowered from 0.0042)
         MAX_GAP = 1.0  # Maximum gap between segments to merge in seconds
         MAX_OBSERVATIONS = 50  # Maximum number of observations per file
         
@@ -126,7 +126,8 @@ class AudioQualityChecker:
                 observation = Observation.objects.create(
                     source="auto_detect",
                     taxon=unknown_taxon,
-                    obs_dt=data_file.recording_dt + timedelta(seconds=segment['start_time']) if data_file.recording_dt else None,
+                    obs_dt=timezone.now() + timedelta(seconds=segment['start_time']),
+                    needs_review=True,  # Explicitly set needs_review to True
                     extra_data={
                         "start_time": segment['start_time'],
                         "end_time": segment['end_time'],

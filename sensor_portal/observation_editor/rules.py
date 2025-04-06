@@ -26,3 +26,6 @@ class CanViewObservationDataFile(R):
 
 # Define permission to view observations
 perms['observation_editor.view_observation'] = always_allow
+
+# Define permission to change observations - allow everyone to edit
+perms['observation_editor.change_observation'] = always_allow

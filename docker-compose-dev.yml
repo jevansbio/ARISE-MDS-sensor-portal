@@ -38,7 +38,7 @@ services:
       dockerfile: ./dockerfiles/sensor_portal_frontend_pam.dockerfile
     image: sensor_portal_frontend_pam_image
     ports:
-      - '3001'
+      - '3001:3001'
     volumes:
       - ./frontend_pam/src:/app/frontend_pam/src
       - ./frontend_pam/public:/app/frontend_pam/public
