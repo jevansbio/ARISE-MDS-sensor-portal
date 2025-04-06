@@ -6,7 +6,6 @@ export type Device = {
     batteryLevel: number;
     folder_size: number;
     action: string;
-    dataFile: DataFile[];
 };
 
 export type DataFile = {

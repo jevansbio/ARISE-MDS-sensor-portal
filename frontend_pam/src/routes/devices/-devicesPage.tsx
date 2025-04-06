@@ -43,7 +43,6 @@ export default function DevicesPage() {
       lastUpload: "",
       batteryLevel: 0,
       action: "",
-      dataFile: []
     }));
   
     return devices;
