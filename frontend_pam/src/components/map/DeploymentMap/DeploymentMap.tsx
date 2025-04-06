@@ -18,7 +18,7 @@ import { Link } from "@tanstack/react-router";
 
 interface Props {
 	//should be changed from any
-	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any, last_upload: string }];
+	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any, last_upload: string, country: string }];
 }
 
 interface IconProps {
@@ -152,7 +152,7 @@ const DeploymentMap = ({ deployments }: Props) => {
 									<Link
 										to="/devices/$deviceId"
 										params={{ deviceId: deploymentData.extra_data.device_config.device_ID }}
-										className="text-blue-500 hover:underline"
+										className="text-blue-500 hover:underline mt-2 text-sm"
 									>
 										View Device: {deploymentData.extra_data.device_config.device_ID}
 									</Link>
@@ -160,6 +160,9 @@ const DeploymentMap = ({ deployments }: Props) => {
 										Last Upload: {deploymentData.last_upload 
 											? new Date(deploymentData.last_upload).toLocaleDateString()
 											: 'Never'}
+									</div>
+									<div className="mt-2 text-sm">
+										Country: {deploymentData.country}
 									</div>
 								</Popup>
 							</CompMarker>
