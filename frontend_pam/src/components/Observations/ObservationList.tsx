@@ -8,7 +8,7 @@ import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformP
 import { formatTime } from "@/utils/timeFormat";
 import { useContext } from 'react';
 import AuthContext from "@/auth/AuthContext";
-import { getData } from "@/utils/FetchFunctions";
+import { getData, postData, patchData } from "@/utils/FetchFunctions";
 import { useQuery } from "@tanstack/react-query";
 import { FaPlay } from "react-icons/fa";
 import ObservationEditModal from './ObservationEditModal';
@@ -52,6 +52,7 @@ export default function ObservationList() {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [taxonCache, setTaxonCache] = useState<Record<number, { id: number; species_name: string; species_common_name: string }>>({});
 
   console.log('ObservationList mounted with params:', { deviceId, dataFileId });
 
@@ -87,26 +88,74 @@ export default function ObservationList() {
       try {
         const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
         const observations = Array.isArray(data) ? data : data.results || [];
-        // Process the observations to ensure taxon data is properly structured
-        return observations.map(obs => {
-          // If taxon is a number (ID), fetch the full taxon data
-          if (typeof obs.taxon === 'number') {
+        
+        // Process observations first to extract taxon data
+        const processedObservations = observations.map(obs => {
+          // If taxon is already an object, use it directly and cache it
+          if (obs.taxon && typeof obs.taxon === 'object') {
+            const taxonId = obs.taxon.id;
+            if (taxonId) {
+              setTaxonCache(prev => ({ ...prev, [taxonId]: obs.taxon }));
+            }
             return {
               ...obs,
               id: Number(obs.id),
               obs_dt: obs.obs_dt || new Date().toISOString(),
-              needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
-              taxon: { id: obs.taxon, species_name: '', species_common_name: '' }
+              needs_review: obs.needs_review,
+              taxon: obs.taxon
             };
           }
-          // If taxon is already an object, use it as is
+          
+          // If taxon is a number (ID), try to use cached data first
+          const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
+          if (taxonId && taxonCache[taxonId]) {
+            return {
+              ...obs,
+              id: Number(obs.id),
+              obs_dt: obs.obs_dt || new Date().toISOString(),
+              needs_review: obs.needs_review,
+              taxon: taxonCache[taxonId]
+            };
+          }
+          
+          // Default case for missing taxon data
           return {
             ...obs,
             id: Number(obs.id),
             obs_dt: obs.obs_dt || new Date().toISOString(),
-            needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
-            taxon: obs.taxon || { id: 0, species_name: '', species_common_name: '' }
+            needs_review: obs.needs_review,
+            taxon: { id: taxonId || 0, species_name: 'Unknown', species_common_name: 'Unknown' }
           };
+        });
+        
+        // Only fetch taxon data for observations that need it
+        const taxonFetchPromises = processedObservations
+          .filter(obs => typeof obs.taxon === 'number' && !taxonCache[obs.taxon])
+          .map(async obs => {
+            const taxonId = obs.taxon as number;
+            try {
+              const taxonData = await getData(`taxon/${taxonId}/`, authTokens.access);
+              setTaxonCache(prev => ({ ...prev, [taxonId]: taxonData }));
+              return { taxonId, taxonData };
+            } catch (error) {
+              console.error(`Failed to fetch taxon data for ID ${taxonId}:`, error);
+              return { taxonId, taxonData: null };
+            }
+          });
+        
+        // Wait for taxon fetches to complete
+        await Promise.all(taxonFetchPromises);
+        
+        // Update observations with fetched taxon data
+        return processedObservations.map(obs => {
+          const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
+          if (taxonId && taxonCache[taxonId]) {
+            return {
+              ...obs,
+              taxon: taxonCache[taxonId]
+            };
+          }
+          return obs;
         });
       } catch (error) {
         console.error('Failed to fetch observations:', error);
@@ -122,7 +171,10 @@ export default function ObservationList() {
   // Update observations state when data changes
   useEffect(() => {
     if (obsData) {
-      setObservations(obsData);
+      // Only update if we don't have any observations yet
+      if (observations.length === 0) {
+        setObservations(obsData);
+      }
     }
   }, [obsData]);
 
@@ -137,73 +189,112 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
-    // Store the current state of observations
-    const currentState = observations;
+    try {
+      // First, update the backend
+      const updateData = {
+        taxon: updatedObservation.taxon.id,
+        needs_review: updatedObservation.needs_review,
+        extra_data: {
+          start_time: Number(updatedObservation.extra_data.start_time),
+          end_time: Number(updatedObservation.extra_data.end_time),
+          duration: Number(updatedObservation.extra_data.duration),
+          avg_amplitude: Number(updatedObservation.extra_data.avg_amplitude),
+          auto_detected: Boolean(updatedObservation.extra_data.auto_detected)
+        }
+      };
 
-    // Ensure taxon is an object with the full structure
-    const processedObservation = {
-      ...updatedObservation,
-      taxon: typeof updatedObservation.taxon === 'number'
-        ? { id: updatedObservation.taxon, species_name: '', species_common_name: '' }
-        : updatedObservation.taxon || { id: 0, species_name: '', species_common_name: '' }
-    };
+      console.log('Sending update data:', JSON.stringify(updateData, null, 2));
+      console.log('API endpoint:', `observation/${updatedObservation.id}/`);
+      console.log('Auth token:', authTokens.access);
 
-    // Update the local state immediately
-    setObservations(prevObservations => 
-      prevObservations.map(obs => 
-        obs.id === processedObservation.id ? processedObservation : obs
-      )
-    );
-    
-    // Close the modal first
-    setIsEditModalOpen(false);
-    
-    // Then refetch after a short delay to ensure the UI updates
-    setTimeout(async () => {
-      try {
-        const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
-        const newObservations = Array.isArray(data) ? data : data.results || [];
-        
-        // Process the observations to ensure taxon data is properly structured
-        const processedData = newObservations.map(obs => {
-          // If this is the observation we just updated, use the processed observation
-          if (obs.id === processedObservation.id) {
-            return processedObservation;
-          }
-          
-          // Find the existing observation in our stored state
-          const existingObs = currentState.find(o => o.id === obs.id);
-          
-          // If we have an existing observation, use its taxon and review status
-          if (existingObs) {
-            return {
-              ...obs,
-              id: Number(obs.id),
-              obs_dt: obs.obs_dt || new Date().toISOString(),
-              needs_review: existingObs.needs_review, // Preserve the review status
-              taxon: existingObs.taxon && typeof existingObs.taxon === 'object' 
-                ? existingObs.taxon 
-                : { id: 0, species_name: '', species_common_name: '' }
-            };
-          }
-          
-          // Otherwise, process the taxon data as usual
+      // Use PATCH for updating existing observations
+      const response = await patchData(`observation/${updatedObservation.id}/`, authTokens.access, updateData);
+      console.log('Update response:', response);
+
+      // Update the taxon cache with the current taxon data
+      setTaxonCache(prev => ({
+        ...prev,
+        [updatedObservation.taxon.id]: updatedObservation.taxon
+      }));
+
+      // Close the modal
+      setIsEditModalOpen(false);
+      
+      // Update the local state with just the edited observation
+      setObservations(prev => prev.map(obs => 
+        obs.id === updatedObservation.id ? {
+          ...obs,
+          taxon: updatedObservation.taxon,
+          needs_review: updatedObservation.needs_review,
+          extra_data: updatedObservation.extra_data
+        } : obs
+      ));
+
+      // Refetch observations to ensure we have the latest data
+      const refetchedData = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
+      const refetchedObservations = Array.isArray(refetchedData) ? refetchedData : refetchedData.results || [];
+      
+      // Process the refetched observations using our cached taxon data
+      const processedRefetchedObservations = refetchedObservations.map(obs => {
+        // If this is the observation we just edited, use its taxon data
+        if (obs.id === updatedObservation.id) {
           return {
             ...obs,
             id: Number(obs.id),
             obs_dt: obs.obs_dt || new Date().toISOString(),
-            needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
-            taxon: typeof obs.taxon === 'number' 
-              ? { id: obs.taxon, species_name: '', species_common_name: '' }
-              : obs.taxon || { id: 0, species_name: '', species_common_name: '' }
+            needs_review: obs.needs_review,
+            taxon: updatedObservation.taxon
           };
-        });
+        }
         
-        setObservations(processedData);
-      } catch (error) {
-        console.error('Failed to refetch observations:', error);
+        // For other observations, use their original taxon data
+        const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
+        const originalObservation = observations.find(o => o.id === obs.id);
+        
+        if (originalObservation) {
+          return {
+            ...obs,
+            id: Number(obs.id),
+            obs_dt: obs.obs_dt || new Date().toISOString(),
+            needs_review: obs.needs_review,
+            taxon: originalObservation.taxon
+          };
+        }
+        
+        // If we can't find the original observation, use cached data
+        if (taxonId && taxonCache[taxonId]) {
+          return {
+            ...obs,
+            id: Number(obs.id),
+            obs_dt: obs.obs_dt || new Date().toISOString(),
+            needs_review: obs.needs_review,
+            taxon: taxonCache[taxonId]
+          };
+        }
+        
+        // Default case for missing taxon data
+        return {
+          ...obs,
+          id: Number(obs.id),
+          obs_dt: obs.obs_dt || new Date().toISOString(),
+          needs_review: obs.needs_review,
+          taxon: { id: taxonId || 0, species_name: 'Unknown', species_common_name: 'Unknown' }
+        };
+      });
+      
+      // Update the observations state with the processed data
+      setObservations(processedRefetchedObservations);
+
+      // Force a refetch of the observations query
+      await refetchObs();
+    } catch (error) {
+      console.error('Failed to update observation:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', error.message);
+        // Show error message to user
+        alert('Failed to update observation. Please try again.');
       }
-    }, 100);
+    }
   };
 
   const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
