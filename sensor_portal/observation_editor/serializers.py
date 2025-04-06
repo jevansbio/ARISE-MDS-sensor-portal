@@ -45,30 +45,12 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
                                                read_only=False)
 
     def to_representation(self, instance):
-        initial_rep = super(ObservationSerializer,
-                            self).to_representation(instance)
+        initial_rep = super(ObservationSerializer, self).to_representation(instance)
         initial_rep.pop("species_name")
         original_taxon_obj = initial_rep.pop("taxon_obj")
-        if (target_taxon_level := self.context.get("target_taxon_level")) is not None:
-            target_taxon_level = int(target_taxon_level)
-
-            if original_taxon_obj["taxonomic_level"] == target_taxon_level:
-                initial_rep.update(original_taxon_obj)
-            else:
-                try:
-                    new_taxon_obj = Taxon.objects.get(
-                        pk=instance.parent_taxon_pk)
-                except Taxon.DoesNotExist:
-                    new_taxon_obj = None
-
-                if new_taxon_obj is not None:
-                    new_taxon_dict = ShortTaxonSerializer(new_taxon_obj).data
-                    initial_rep.update(new_taxon_dict)
-                else:
-                    return None
-
-        else:
-            initial_rep.update(original_taxon_obj)
+        
+        # Always include the full taxon object in the response
+        initial_rep.update(original_taxon_obj)
         return initial_rep
 
     def validate(self, data):
@@ -86,6 +68,5 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
         return data
 
     class Meta:
-
         model = Observation
         exclude = []

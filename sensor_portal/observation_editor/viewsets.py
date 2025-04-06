@@ -39,6 +39,17 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
                     raise PermissionDenied(
                         f"You don't have permission to add an observation to {data_file_object.file_name}")
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Fetch the complete observation with taxon details
+        updated_instance = self.get_object()
+        response_serializer = self.get_serializer(updated_instance)
+        return Response(response_serializer.data)
+
 
 class TaxonAutocompleteViewset(viewsets.ReadOnlyModelViewSet):
     http_method_names = ['get']

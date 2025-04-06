@@ -46,12 +46,24 @@ export default function ObservationEditModal({
 
   useEffect(() => {
     if (observation) {
+      console.log('Original observation data:', observation);
+      
+      // Handle case where taxon is just an ID
+      const taxon = typeof observation.taxon === 'number' 
+        ? { id: observation.taxon, species_name: '', species_common_name: '' }
+        : observation.taxon || { id: 0, species_name: '', species_common_name: '' };
+      
+      console.log('Initialized taxon data:', taxon);
+      
       // Set needs_review to true for auto-detected observations
       const isAutoDetected = observation.source === 'auto_detect' || observation.extra_data?.auto_detected;
-      setEditedObservation({
+      const newObservation = {
         ...observation,
+        taxon,
         needs_review: isAutoDetected ? true : observation.needs_review
-      });
+      };
+      console.log('Setting edited observation to:', newObservation);
+      setEditedObservation(newObservation);
       setError(null);
     }
   }, [observation]);
@@ -64,9 +76,22 @@ export default function ObservationEditModal({
     setError(null);
 
     try {
+      console.log('Current edited observation:', editedObservation);
+      console.log('Current taxon data:', editedObservation.taxon);
+      
+      // Handle both cases where taxon is an object or just an ID
+      const taxonId = typeof editedObservation.taxon === 'number' 
+        ? editedObservation.taxon 
+        : editedObservation.taxon?.id;
+
+      if (!taxonId) {
+        console.error('Missing taxon ID:', editedObservation.taxon);
+        throw new Error('A valid taxon ID is required to update the observation');
+      }
+
       // Log the data we're sending
       const updateData = {
-        taxon: editedObservation.taxon.id,
+        taxon: taxonId,
         needs_review: editedObservation.needs_review,
         extra_data: {
           ...editedObservation.extra_data,
@@ -114,22 +139,17 @@ export default function ObservationEditModal({
       const updatedObservation = await response.json();
       console.log('Successfully updated observation:', updatedObservation);
 
-      // Fetch the complete observation data to get the taxon details
-      const completeResponse = await fetch(`/api/observation/${editedObservation.id}/`, {
-        headers: {
-          'Authorization': `Bearer ${authTokens.access}`
+      // Create a complete observation object with the taxon data
+      const completeObservation = {
+        ...updatedObservation,
+        taxon: {
+          id: taxonId,
+          species_name: editedObservation.taxon.species_name,
+          species_common_name: editedObservation.taxon.species_common_name
         }
-      });
-
-      if (!completeResponse.ok) {
-        console.error('Failed to fetch complete observation data');
-        onSave(updatedObservation); // Fallback to basic update data
-      } else {
-        const completeObservation = await completeResponse.json();
-        console.log('Fetched complete observation:', completeObservation);
-        onSave(completeObservation);
-      }
-
+      };
+      
+      onSave(completeObservation);
       onClose();
     } catch (error) {
       console.error('Error updating observation:', error);

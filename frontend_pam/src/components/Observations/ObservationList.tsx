@@ -86,7 +86,28 @@ export default function ObservationList() {
       if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
       try {
         const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
-        return Array.isArray(data) ? data : data.results || [];
+        const observations = Array.isArray(data) ? data : data.results || [];
+        // Process the observations to ensure taxon data is properly structured
+        return observations.map(obs => {
+          // If taxon is a number (ID), fetch the full taxon data
+          if (typeof obs.taxon === 'number') {
+            return {
+              ...obs,
+              id: Number(obs.id),
+              obs_dt: obs.obs_dt || new Date().toISOString(),
+              needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
+              taxon: { id: obs.taxon, species_name: '', species_common_name: '' }
+            };
+          }
+          // If taxon is already an object, use it as is
+          return {
+            ...obs,
+            id: Number(obs.id),
+            obs_dt: obs.obs_dt || new Date().toISOString(),
+            needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
+            taxon: obs.taxon || { id: 0, species_name: '', species_common_name: '' }
+          };
+        });
       } catch (error) {
         console.error('Failed to fetch observations:', error);
         throw error;
@@ -101,14 +122,7 @@ export default function ObservationList() {
   // Update observations state when data changes
   useEffect(() => {
     if (obsData) {
-      // Convert string IDs to numbers and ensure proper date formatting
-      const processedData = (obsData as any[]).map(obs => ({
-        ...obs,
-        id: Number(obs.id),
-        obs_dt: obs.obs_dt || new Date().toISOString(), // Provide default if missing
-        needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review // Ensure auto-detected observations are marked for review
-      }));
-      setObservations(processedData);
+      setObservations(obsData);
     }
   }, [obsData]);
 
@@ -123,20 +137,51 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
+    // Ensure taxon is an object with the full structure
+    const processedObservation = {
+      ...updatedObservation,
+      taxon: typeof updatedObservation.taxon === 'number'
+        ? { id: updatedObservation.taxon, species_name: '', species_common_name: '' }
+        : updatedObservation.taxon || { id: 0, species_name: '', species_common_name: '' }
+    };
+
     // Update the local state immediately
     setObservations(prevObservations => 
       prevObservations.map(obs => 
-        obs.id === updatedObservation.id ? updatedObservation : obs
+        obs.id === processedObservation.id ? processedObservation : obs
       )
     );
     
-    // Refetch to ensure consistency with server
-    try {
-      await refetchObs();
-    } catch (error) {
-      console.error('Failed to refetch observations:', error);
-    }
+    // Close the modal first
     setIsEditModalOpen(false);
+    
+    // Then refetch after a short delay to ensure the UI updates
+    setTimeout(async () => {
+      try {
+        const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
+        const observations = Array.isArray(data) ? data : data.results || [];
+        // Process the observations to ensure taxon data is properly structured
+        const processedData = observations.map(obs => {
+          // If this is the observation we just updated, use the processed observation
+          if (obs.id === processedObservation.id) {
+            return processedObservation;
+          }
+          // Otherwise, process the taxon data as usual
+          return {
+            ...obs,
+            id: Number(obs.id),
+            obs_dt: obs.obs_dt || new Date().toISOString(),
+            needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
+            taxon: typeof obs.taxon === 'number' 
+              ? { id: obs.taxon, species_name: '', species_common_name: '' }
+              : obs.taxon || { id: 0, species_name: '', species_common_name: '' }
+          };
+        });
+        setObservations(processedData);
+      } catch (error) {
+        console.error('Failed to refetch observations:', error);
+      }
+    }, 100);
   };
 
   const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
