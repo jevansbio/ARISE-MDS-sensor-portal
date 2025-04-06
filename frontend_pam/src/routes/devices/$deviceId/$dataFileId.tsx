@@ -10,6 +10,38 @@ import { Link } from "@tanstack/react-router";
 import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
+export interface ExtraData {
+  quality_metrics?: Record<string, any>;
+  temporal_evolution?: Record<string, any>;
+  observations?: string[];
+  auto_detected_observations: number[];
+}
+
+export interface DataFile {
+  id: string;
+  deployment: string;
+  fileName: string;
+  fileFormat: string;
+  fileSize: number;
+  fileType: string;
+  path: string;
+  localPath: string;
+  uploadDt: string;
+  recordingDt: string;
+  config: string | null;
+  sampleRate: number | null;
+  fileLength: string | null;
+  qualityScore: number | null;
+  qualityIssues: string[];
+  qualityCheckDt: string | null;
+  qualityCheckStatus: string;
+  extraData: ExtraData | null;
+  thumbUrl?: string;
+  localStorage?: boolean;
+  archived?: boolean;
+  favourite?: boolean;
+}
+
 export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
   component: RouteComponent,
   beforeLoad: ({ location }) => {
@@ -55,7 +87,10 @@ function RouteComponent() {
     queryFn: async () => {
       if (!authTokens?.access) return null;
       const responseJson = await getData(apiURL, authTokens.access);
-      return {
+      console.log('Raw API response:', responseJson);
+      
+      // Transform the response data
+      const transformedData: DataFile = {
         id: responseJson.id,
         deployment: responseJson.deployment,
         fileName: responseJson.file_name,
@@ -73,15 +108,25 @@ function RouteComponent() {
         qualityIssues: responseJson.quality_issues || [],
         qualityCheckDt: responseJson.quality_check_dt,
         qualityCheckStatus: responseJson.quality_check_status,
-        extraData: responseJson.extra_data ? {
-          ...responseJson.extra_data,
-          auto_detected_observations: responseJson.extra_data.auto_detected_observations || []
-        } : null,
+        extraData: null,
         thumbUrl: responseJson.thumb_url,
         localStorage: responseJson.local_storage,
         archived: responseJson.archived,
         favourite: responseJson.is_favourite
       };
+
+      // Handle extra_data separately to ensure proper typing
+      if (responseJson.extra_data) {
+        transformedData.extraData = {
+          quality_metrics: responseJson.extra_data.quality_metrics || {},
+          temporal_evolution: responseJson.extra_data.temporal_evolution || {},
+          observations: responseJson.extra_data.observations || [],
+          auto_detected_observations: responseJson.extra_data.auto_detected_observations || []
+        };
+      }
+
+      console.log('Transformed data:', transformedData);
+      return transformedData;
     },
     enabled: !!authTokens?.access,
   });

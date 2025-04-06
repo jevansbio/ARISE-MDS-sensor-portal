@@ -1,6 +1,6 @@
-import React from 'react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import { DataFile } from "@/routes/devices/$deviceId/$dataFileId";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +10,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions
 } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
@@ -23,32 +24,24 @@ ChartJS.register(
   Legend
 );
 
-interface DataFile {
-  id: string;
-  deployment: string;
-  deviceId?: string;
-  sampleRate: number | null;
-  fileLength: string | null;
-  config: string | null;
-  qualityCheckStatus: string;
-  qualityScore: number | null;
-  qualityIssues: string[];
-  qualityCheckDt: string | null;
-  extraData: {
-    quality_metrics?: any;
-    temporal_evolution?: any;
-    observations?: string[];
-    auto_detected_observations: number[];
-  } | null;
-}
-
-interface Props {
+interface AudioQualityCardProps {
   dataFile: DataFile;
   deviceId: string;
   onCheckQuality: () => void;
 }
 
-const AudioQualityCard: React.FC<Props> = ({ dataFile, deviceId, onCheckQuality }) => {
+const AudioQualityCard: React.FC<AudioQualityCardProps> = ({ dataFile, deviceId, onCheckQuality }) => {
+  const getObservationCount = (dataFile: DataFile): number => {
+    if (!dataFile.extraData?.auto_detected_observations) return 0;
+    return dataFile.extraData.auto_detected_observations.length;
+  };
+
+  console.log('AudioQualityCard data:', {
+    extraData: dataFile.extraData,
+    observations: dataFile.extraData?.auto_detected_observations,
+    count: getObservationCount(dataFile)
+  });
+
   const getQualityColor = (score: number | null) => {
     if (score === null) return 'bg-gray-200';
     if (score >= 80) return 'bg-green-100';
@@ -77,13 +70,23 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, deviceId, onCheckQuality 
 
   const renderTemporalEvolution = () => {
     if (!dataFile.extraData?.temporal_evolution) return null;
-
+    
     const temporalData = dataFile.extraData.temporal_evolution;
+    if (!temporalData.times || !Array.isArray(temporalData.times)) return null;
+
     const metrics = [
       { key: 'rms_energy' as const, label: 'RMS Energy', color: 'rgb(75, 192, 192)' },
       { key: 'spectral_centroid' as const, label: 'Spectral Centroid', color: 'rgb(255, 99, 132)' },
       { key: 'zero_crossing_rate' as const, label: 'Zero Crossing Rate', color: 'rgb(54, 162, 235)' }
     ];
+
+    // Check if all required data arrays exist
+    const hasAllData = metrics.every(metric => 
+      Array.isArray(temporalData[metric.key]) && 
+      temporalData[metric.key].length > 0
+    );
+
+    if (!hasAllData) return null;
 
     return (
       <div className="mt-6">
@@ -170,15 +173,7 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, deviceId, onCheckQuality 
             }}
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2"
           >
-            <span>View</span>
-            {Array.isArray(dataFile.extraData?.auto_detected_observations) && dataFile.extraData.auto_detected_observations.length > 0 ? (
-              <>
-                <span className="font-semibold">{dataFile.extraData.auto_detected_observations.length}</span>
-                <span>Observations</span>
-              </>
-            ) : (
-              <span>Observations (None)</span>
-            )}
+            <span>View Observations</span>
           </Link>
         </div>
       </div>
@@ -228,8 +223,10 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, deviceId, onCheckQuality 
         <div className="mt-4">
           <h4 className="text-sm font-semibold text-gray-600 mb-2">Issues Found:</h4>
           <ul className="list-disc list-inside space-y-1">
-            {dataFile.qualityIssues.map((issue, index) => (
-              <li key={index} className="text-sm text-red-600">{issue}</li>
+            {dataFile.qualityIssues.map((issue: string, index: number) => (
+              <div key={index} className="flex items-center space-x-2">
+                <span className="text-sm text-red-600">⚠️ {issue}</span>
+              </div>
             ))}
           </ul>
         </div>

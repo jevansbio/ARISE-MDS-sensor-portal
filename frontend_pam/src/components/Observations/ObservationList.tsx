@@ -166,59 +166,65 @@ export default function ObservationList() {
         <Button onClick={handleBack}>Back to File</Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Time</TableHead>
-            <TableHead>Species</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Amplitude</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {observations.map((observation) => (
-            <TableRow key={observation.id}>
-              <TableCell>{new Date(observation.obs_dt).toLocaleString()}</TableCell>
-              <TableCell>
-                {observation.taxon.species_common_name || observation.taxon.species_name}
-              </TableCell>
-              <TableCell>{observation.source}</TableCell>
-              <TableCell>
-                <span className={`px-2 py-1 rounded ${
-                  observation.needs_review ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                }`}>
-                  {observation.needs_review ? 'Needs Review' : 'Reviewed'}
-                </span>
-              </TableCell>
-              <TableCell>{formatTime(observation.extra_data.duration)}</TableCell>
-              <TableCell>{observation.extra_data.avg_amplitude.toFixed(2)}</TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  {deviceId && dataFileId && dataFile && (
-                    <>
-                      <AudioPlayer
-                        deviceId={deviceId}
-                        fileId={dataFileId}
-                        fileFormat={dataFile.file_format}
-                      />
-                      <AudioWaveformPlayer
-                        deviceId={deviceId}
-                        fileId={dataFileId}
-                        fileFormat={dataFile.file_format}
-                        startTime={observation.extra_data.start_time}
-                        endTime={observation.extra_data.end_time}
-                      />
-                    </>
-                  )}
-                </div>
-              </TableCell>
+      {observations.length === 0 ? (
+        <div className="text-center py-8 bg-gray-50 rounded-lg">
+          <p className="text-gray-500 text-lg">No observations found</p>
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Time</TableHead>
+              <TableHead>Species</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Amplitude</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {observations.map((observation) => (
+              <TableRow key={observation.id}>
+                <TableCell>{new Date(observation.obs_dt).toLocaleString()}</TableCell>
+                <TableCell>
+                  {observation.taxon.species_common_name || observation.taxon.species_name}
+                </TableCell>
+                <TableCell>{observation.source}</TableCell>
+                <TableCell>
+                  <span className={`px-2 py-1 rounded ${
+                    observation.needs_review ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                  }`}>
+                    {observation.needs_review ? 'Needs Review' : 'Reviewed'}
+                  </span>
+                </TableCell>
+                <TableCell>{formatTime(observation.extra_data.duration)}</TableCell>
+                <TableCell>{observation.extra_data.avg_amplitude.toFixed(2)}</TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    {deviceId && dataFileId && dataFile && (
+                      <>
+                        <AudioPlayer
+                          deviceId={deviceId}
+                          fileId={dataFileId}
+                          fileFormat={dataFile.file_format}
+                        />
+                        <AudioWaveformPlayer
+                          deviceId={deviceId}
+                          fileId={dataFileId}
+                          fileFormat={dataFile.file_format}
+                          startTime={observation.extra_data.start_time}
+                          endTime={observation.extra_data.end_time}
+                        />
+                      </>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 } 
