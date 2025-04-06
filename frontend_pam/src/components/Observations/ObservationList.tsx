@@ -12,6 +12,7 @@ import { getData, postData, patchData } from "@/utils/FetchFunctions";
 import { useQuery } from "@tanstack/react-query";
 import { FaPlay } from "react-icons/fa";
 import ObservationEditModal from './ObservationEditModal';
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Observation {
   id: number;
@@ -53,6 +54,7 @@ export default function ObservationList() {
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [taxonCache, setTaxonCache] = useState<Record<number, { id: number; species_name: string; species_common_name: string }>>({});
+  const queryClient = useQueryClient();
 
   console.log('ObservationList mounted with params:', { deviceId, dataFileId });
 
@@ -90,7 +92,7 @@ export default function ObservationList() {
         const observations = Array.isArray(data) ? data : data.results || [];
         
         // Process observations first to extract taxon data
-        const processedObservations = observations.map(obs => {
+        const processedObservations = observations.map((obs: any) => {
           // If taxon is already an object, use it directly and cache it
           if (obs.taxon && typeof obs.taxon === 'object') {
             const taxonId = obs.taxon.id;
@@ -130,8 +132,8 @@ export default function ObservationList() {
         
         // Only fetch taxon data for observations that need it
         const taxonFetchPromises = processedObservations
-          .filter(obs => typeof obs.taxon === 'number' && !taxonCache[obs.taxon])
-          .map(async obs => {
+          .filter((obs: any) => typeof obs.taxon === 'number' && !taxonCache[obs.taxon])
+          .map(async (obs: any) => {
             const taxonId = obs.taxon as number;
             try {
               const taxonData = await getData(`taxon/${taxonId}/`, authTokens.access);
@@ -147,7 +149,7 @@ export default function ObservationList() {
         await Promise.all(taxonFetchPromises);
         
         // Update observations with fetched taxon data
-        return processedObservations.map(obs => {
+        return processedObservations.map((obs: any) => {
           const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
           if (taxonId && taxonCache[taxonId]) {
             return {
@@ -170,11 +172,11 @@ export default function ObservationList() {
 
   // Update observations state when data changes
   useEffect(() => {
+    console.log('=== Observations useEffect triggered ===');
+    console.log('Current obsData:', obsData);
     if (obsData) {
-      // Only update if we don't have any observations yet
-      if (observations.length === 0) {
-        setObservations(obsData);
-      }
+      console.log('Setting observations state with:', obsData);
+      setObservations(obsData);
     }
   }, [obsData]);
 
@@ -189,108 +191,67 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
+    console.log('=== Starting handleSaveObservation ===');
+    console.log('Updated observation received:', updatedObservation);
+    
     try {
-      // First, update the backend
-      const updateData = {
-        taxon: updatedObservation.taxon.id,
-        needs_review: updatedObservation.needs_review,
-        extra_data: {
-          start_time: Number(updatedObservation.extra_data.start_time),
-          end_time: Number(updatedObservation.extra_data.end_time),
-          duration: Number(updatedObservation.extra_data.duration),
-          avg_amplitude: Number(updatedObservation.extra_data.avg_amplitude),
-          auto_detected: Boolean(updatedObservation.extra_data.auto_detected)
-        }
-      };
+      // Update the taxon cache first
+      console.log('Updating taxon cache with:', updatedObservation.taxon);
+      setTaxonCache(prev => {
+        const newCache = {
+          ...prev,
+          [updatedObservation.taxon.id]: {
+            id: updatedObservation.taxon.id,
+            species_name: updatedObservation.taxon.species_name,
+            species_common_name: updatedObservation.taxon.species_common_name
+          }
+        };
+        console.log('New taxon cache:', newCache);
+        return newCache;
+      });
 
-      console.log('Sending update data:', JSON.stringify(updateData, null, 2));
-      console.log('API endpoint:', `observation/${updatedObservation.id}/`);
-      console.log('Auth token:', authTokens.access);
-
-      // Use PATCH for updating existing observations
-      const response = await patchData(`observation/${updatedObservation.id}/`, authTokens.access, updateData);
-      console.log('Update response:', response);
-
-      // Update the taxon cache with the current taxon data
-      setTaxonCache(prev => ({
-        ...prev,
-        [updatedObservation.taxon.id]: updatedObservation.taxon
-      }));
+      // Update the local state immediately
+      console.log('Updating local state with:', updatedObservation);
+      setObservations(prev => {
+        const newObservations = prev.map(obs => 
+          obs.id === updatedObservation.id ? {
+            ...updatedObservation,
+            taxon: {
+              id: updatedObservation.taxon.id,
+              species_name: updatedObservation.taxon.species_name,
+              species_common_name: updatedObservation.taxon.species_common_name
+            }
+          } : obs
+        );
+        console.log('New observations state:', newObservations);
+        return newObservations;
+      });
 
       // Close the modal
       setIsEditModalOpen(false);
-      
-      // Update the local state with just the edited observation
-      setObservations(prev => prev.map(obs => 
-        obs.id === updatedObservation.id ? {
-          ...obs,
-          taxon: updatedObservation.taxon,
-          needs_review: updatedObservation.needs_review,
-          extra_data: updatedObservation.extra_data
-        } : obs
-      ));
+      console.log('Modal closed');
 
-      // Refetch observations to ensure we have the latest data
-      const refetchedData = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
-      const refetchedObservations = Array.isArray(refetchedData) ? refetchedData : refetchedData.results || [];
-      
-      // Process the refetched observations using our cached taxon data
-      const processedRefetchedObservations = refetchedObservations.map(obs => {
-        // If this is the observation we just edited, use its taxon data
-        if (obs.id === updatedObservation.id) {
-          return {
-            ...obs,
-            id: Number(obs.id),
-            obs_dt: obs.obs_dt || new Date().toISOString(),
-            needs_review: obs.needs_review,
-            taxon: updatedObservation.taxon
-          };
-        }
-        
-        // For other observations, use their original taxon data
-        const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
-        const originalObservation = observations.find(o => o.id === obs.id);
-        
-        if (originalObservation) {
-          return {
-            ...obs,
-            id: Number(obs.id),
-            obs_dt: obs.obs_dt || new Date().toISOString(),
-            needs_review: obs.needs_review,
-            taxon: originalObservation.taxon
-          };
-        }
-        
-        // If we can't find the original observation, use cached data
-        if (taxonId && taxonCache[taxonId]) {
-          return {
-            ...obs,
-            id: Number(obs.id),
-            obs_dt: obs.obs_dt || new Date().toISOString(),
-            needs_review: obs.needs_review,
-            taxon: taxonCache[taxonId]
-          };
-        }
-        
-        // Default case for missing taxon data
-        return {
-          ...obs,
-          id: Number(obs.id),
-          obs_dt: obs.obs_dt || new Date().toISOString(),
-          needs_review: obs.needs_review,
-          taxon: { id: taxonId || 0, species_name: 'Unknown', species_common_name: 'Unknown' }
-        };
+      // Update the query cache instead of refetching
+      queryClient.setQueryData(['observations', dataFileIdStr], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.map((obs: any) => 
+          obs.id === updatedObservation.id ? {
+            ...updatedObservation,
+            taxon: {
+              id: updatedObservation.taxon.id,
+              species_name: updatedObservation.taxon.species_name,
+              species_common_name: updatedObservation.taxon.species_common_name
+            }
+          } : obs
+        );
       });
-      
-      // Update the observations state with the processed data
-      setObservations(processedRefetchedObservations);
 
-      // Force a refetch of the observations query
-      await refetchObs();
+      console.log('=== handleSaveObservation completed successfully ===');
     } catch (error) {
-      console.error('Failed to update observation:', error);
+      console.error('=== Error in handleSaveObservation ===');
+      console.error('Error details:', error);
       if (error instanceof Error) {
-        console.error('Error details:', error.message);
+        console.error('Error message:', error.message);
         // Show error message to user
         alert('Failed to update observation. Please try again.');
       }

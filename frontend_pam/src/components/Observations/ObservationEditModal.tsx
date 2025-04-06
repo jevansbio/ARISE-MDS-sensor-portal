@@ -71,35 +71,37 @@ export default function ObservationEditModal({
   if (!editedObservation) return null;
 
   const handleSave = async () => {
-    if (!editedObservation) return;
-    setIsLoading(true);
-    setError(null);
+    console.log('=== Starting handleSave in ObservationEditModal ===');
+    console.log('Current edited observation:', editedObservation);
+    console.log('Current taxon data:', editedObservation.taxon);
+
+    if (!editedObservation || !editedObservation.taxon.id) {
+      console.error('Missing required data for save');
+      return;
+    }
 
     try {
-      console.log('Current edited observation:', editedObservation);
-      console.log('Current taxon data:', editedObservation.taxon);
-      
-      // Handle both cases where taxon is an object or just an ID
-      const taxonId = typeof editedObservation.taxon === 'number' 
-        ? editedObservation.taxon 
-        : editedObservation.taxon?.id;
-
-      if (!taxonId) {
-        console.error('Missing taxon ID:', editedObservation.taxon);
-        throw new Error('A valid taxon ID is required to update the observation');
-      }
-
-      // Log the data we're sending
+      // Prepare the update data with species information
       const updateData = {
-        taxon: taxonId,
+        taxon: {
+          id: editedObservation.taxon.id,
+          species_name: editedObservation.taxon.species_name,
+          species_common_name: editedObservation.taxon.species_common_name
+        },
         needs_review: editedObservation.needs_review,
         extra_data: {
-          ...editedObservation.extra_data,
-          needs_review: editedObservation.needs_review
+          start_time: Number(editedObservation.extra_data.start_time),
+          end_time: Number(editedObservation.extra_data.end_time),
+          duration: Number(editedObservation.extra_data.duration),
+          avg_amplitude: Number(editedObservation.extra_data.avg_amplitude),
+          auto_detected: Boolean(editedObservation.extra_data.auto_detected)
         }
       };
-      console.log('Updating observation with data:', updateData);
 
+      console.log('Preparing to send update data:', JSON.stringify(updateData, null, 2));
+      console.log('API endpoint:', `observation/${editedObservation.id}/`);
+
+      // Send the update to the backend
       const response = await fetch(`/api/observation/${editedObservation.id}/`, {
         method: 'PATCH',
         headers: {
@@ -110,52 +112,34 @@ export default function ObservationEditModal({
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to update observation: ${response.status} ${response.statusText}`;
-        
-        // Read the response body only once
-        const responseText = await response.text();
-        console.error('Server error response:', responseText);
-        
-        try {
-          // Try to parse as JSON if possible
-          const errorData = JSON.parse(responseText);
-          if (errorData.detail) {
-            errorMessage = errorData.detail;
-          } else if (errorData.message) {
-            errorMessage = errorData.message;
-          }
-        } catch (e) {
-          // If not JSON, check for specific error messages
-          if (responseText.includes('ImproperlyConfigured') && responseText.includes('permission')) {
-            errorMessage = 'Permission error: You do not have the required permissions to edit this observation.';
-          } else if (!responseText.includes('<!DOCTYPE html>')) {
-            errorMessage = responseText;
-          }
-        }
-
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to update observation');
       }
 
       const updatedObservation = await response.json();
-      console.log('Successfully updated observation:', updatedObservation);
+      console.log('Server returned updated observation:', updatedObservation);
 
       // Create a complete observation object with the taxon data
       const completeObservation = {
         ...updatedObservation,
         taxon: {
-          id: taxonId,
+          id: editedObservation.taxon.id,
           species_name: editedObservation.taxon.species_name,
           species_common_name: editedObservation.taxon.species_common_name
         }
       };
-      
+
+      console.log('Calling onSave with complete observation:', completeObservation);
       onSave(completeObservation);
       onClose();
+      console.log('=== handleSave completed successfully ===');
     } catch (error) {
-      console.error('Error updating observation:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error occurred');
-    } finally {
-      setIsLoading(false);
+      console.error('=== Error in handleSave ===');
+      console.error('Error details:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        alert('Failed to save observation. Please try again.');
+      }
     }
   };
 

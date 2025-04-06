@@ -53,6 +53,16 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
         initial_rep.update(original_taxon_obj)
         return initial_rep
 
+    def to_internal_value(self, data):
+        # Handle nested taxon data
+        if 'taxon' in data and isinstance(data['taxon'], dict):
+            taxon_data = data['taxon']
+            if 'id' in taxon_data:
+                data['taxon'] = taxon_data['id']
+            elif 'species_name' in taxon_data:
+                data['species_name'] = taxon_data['species_name']
+        return super().to_internal_value(data)
+
     def validate(self, data):
         data = super().validate(data)
         if not self.partial:

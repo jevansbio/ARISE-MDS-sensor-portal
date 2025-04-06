@@ -41,6 +41,20 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
+        
+        # Handle nested taxon data
+        if 'taxon' in request.data and isinstance(request.data['taxon'], dict):
+            taxon_data = request.data['taxon']
+            if 'id' in taxon_data:
+                request.data['taxon'] = taxon_data['id']
+            elif 'species_name' in taxon_data:
+                # Create or get taxon by species name
+                taxon, created = Taxon.objects.get_or_create(
+                    species_name=taxon_data['species_name'],
+                    defaults={'species_common_name': taxon_data.get('species_common_name', '')}
+                )
+                request.data['taxon'] = taxon.id
+        
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
