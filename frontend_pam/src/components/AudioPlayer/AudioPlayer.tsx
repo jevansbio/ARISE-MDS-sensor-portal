@@ -4,8 +4,8 @@ import { useContext, useRef, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 
 interface AudioPlayerProps {
-  deviceId: string;
-  fileId: string;
+  deviceId: string | number;
+  fileId: string | number;
   fileFormat?: string;
   className?: string;
 }

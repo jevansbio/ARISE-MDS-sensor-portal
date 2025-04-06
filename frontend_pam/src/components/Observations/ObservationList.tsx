@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Route as ObservationsRoute } from "@/routes/devices/$deviceId/$dataFileId/observations";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
@@ -10,6 +10,8 @@ import { useContext } from 'react';
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import { useQuery } from "@tanstack/react-query";
+import { FaPlay } from "react-icons/fa";
+import ObservationEditModal from './ObservationEditModal';
 
 interface Observation {
   id: number;
@@ -30,76 +32,67 @@ interface Observation {
 }
 
 interface DataFile {
-  id: string;
+  id: string | number;
   file_name: string;
   file_format: string;
 }
 
 interface Device {
-  id: string;
+  id: string | number;
   name: string;
 }
 
 export default function ObservationList() {
-  const { deviceId, dataFileId } = ObservationsRoute.useParams();
+  const { deviceId: deviceIdStr, dataFileId: dataFileIdStr } = useParams({ from: '/devices/$deviceId/$dataFileId' });
+  const deviceId = deviceIdStr;  // Keep as string for API calls
+  const dataFileId = dataFileIdStr;  // Keep as string for API calls
   const navigate = useNavigate();
   const { authTokens } = useContext(AuthContext) as any;
   const [observations, setObservations] = useState<Observation[]>([]);
+  const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   console.log('ObservationList mounted with params:', { deviceId, dataFileId });
 
   // Query for device details
   const { data: device, isLoading: isLoadingDevice } = useQuery({
-    queryKey: ['device', deviceId],
+    queryKey: ['device', deviceIdStr],
     queryFn: async () => {
-      if (!deviceId || !authTokens?.access) {
-        console.error('Missing deviceId or auth token for device query');
-        return null;
-      }
-      console.log('Fetching device:', deviceId);
-      const data = await getData(`devices/${deviceId}`, authTokens.access);
+      if (!deviceIdStr || !authTokens?.access) return null;
+      const data = await getData(`devices/${deviceIdStr}`, authTokens.access);
       return data as Device;
     },
-    enabled: !!deviceId && !!authTokens?.access,
+    enabled: !!deviceIdStr && !!authTokens?.access,
     retry: 1
   });
 
   // Query for data file details
   const { data: dataFile, isLoading: isLoadingFile, error: fileError } = useQuery({
-    queryKey: ['dataFile', deviceId, dataFileId],
+    queryKey: ['dataFile', deviceIdStr, dataFileIdStr],
     queryFn: async () => {
-      if (!deviceId || !dataFileId || !authTokens?.access) {
-        console.error('Missing deviceId, dataFileId, or auth token for file query');
-        return null;
-      }
-      console.log('Fetching data file:', { deviceId, dataFileId });
-      const data = await getData(`devices/${deviceId}/datafiles/${dataFileId}`, authTokens.access);
+      if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
+      const data = await getData(`devices/${deviceIdStr}/datafiles/${dataFileIdStr}`, authTokens.access);
       return data as DataFile;
     },
-    enabled: !!deviceId && !!dataFileId && !!authTokens?.access,
+    enabled: !!deviceIdStr && !!dataFileIdStr && !!authTokens?.access,
     retry: 1
   });
 
   // Query for observations
   const { data: obsData, isLoading: isLoadingObs, error: obsError } = useQuery({
-    queryKey: ['observations', dataFileId],
+    queryKey: ['observations', dataFileIdStr],
     queryFn: async () => {
-      if (!deviceId || !dataFileId || !authTokens?.access) {
-        console.error('Missing parameters for observations query');
-        return null;
-      }
-      console.log('Fetching observations:', { deviceId, dataFileId });
+      if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
       try {
-        const data = await getData(`observation/?data_files=${dataFileId}`, authTokens.access);
-        console.log('Observations data:', data);
+        const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
         return Array.isArray(data) ? data : data.results || [];
       } catch (error) {
         console.error('Failed to fetch observations:', error);
         throw error;
       }
     },
-    enabled: !!deviceId && !!dataFileId && !!authTokens?.access,
-    gcTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: !!deviceIdStr && !!dataFileIdStr && !!authTokens?.access,
+    gcTime: 5 * 60 * 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true
   });
@@ -107,13 +100,30 @@ export default function ObservationList() {
   // Update observations state when data changes
   useEffect(() => {
     if (obsData) {
-      setObservations(obsData as Observation[]);
+      // Convert string IDs to numbers
+      const processedData = (obsData as any[]).map(obs => ({
+        ...obs,
+        id: Number(obs.id)
+      }));
+      setObservations(processedData);
     }
   }, [obsData]);
 
   const handleBack = () => {
-    if (!deviceId || !dataFileId) return;
-    navigate({ to: "/devices/$deviceId/$dataFileId", params: { deviceId, dataFileId } });
+    if (!deviceIdStr || !dataFileIdStr) return;
+    navigate({ to: "/devices/$deviceId/$dataFileId", params: { deviceId: deviceIdStr, dataFileId: dataFileIdStr } });
+  };
+
+  const handleEditClick = (observation: Observation) => {
+    setSelectedObservation(observation);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveObservation = async (updatedObservation: Observation) => {
+    if (obsData?.refetch) {
+      await obsData.refetch();
+    }
+    setIsEditModalOpen(false);
   };
 
   const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
@@ -171,60 +181,73 @@ export default function ObservationList() {
           <p className="text-gray-500 text-lg">No observations found</p>
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Time</TableHead>
-              <TableHead>Species</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Amplitude</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {observations.map((observation) => (
-              <TableRow key={observation.id}>
-                <TableCell>{new Date(observation.obs_dt).toLocaleString()}</TableCell>
-                <TableCell>
-                  {observation.taxon.species_common_name || observation.taxon.species_name}
-                </TableCell>
-                <TableCell>{observation.source}</TableCell>
-                <TableCell>
-                  <span className={`px-2 py-1 rounded ${
-                    observation.needs_review ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                  }`}>
-                    {observation.needs_review ? 'Needs Review' : 'Reviewed'}
-                  </span>
-                </TableCell>
-                <TableCell>{formatTime(observation.extra_data.duration)}</TableCell>
-                <TableCell>{observation.extra_data.avg_amplitude.toFixed(2)}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    {deviceId && dataFileId && dataFile && (
-                      <>
+        <>
+          <div className="rounded-md border">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-muted/50 text-sm">
+                  <th className="p-2 text-left">Time</th>
+                  <th className="p-2 text-left">Species</th>
+                  <th className="p-2 text-left">Source</th>
+                  <th className="p-2 text-left">Review Status</th>
+                  <th className="p-2 text-left">Duration</th>
+                  <th className="p-2 text-left">Amplitude</th>
+                  <th className="p-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {observations.map((observation) => (
+                  <tr key={observation.id} className="border-b hover:bg-muted/50">
+                    <td className="p-2">{formatTime(observation.obs_dt)}</td>
+                    <td className="p-2">
+                      <div>
+                        <div className="font-medium">{observation.taxon.species_name}</div>
+                        <div className="text-sm text-gray-500">{observation.taxon.species_common_name}</div>
+                      </div>
+                    </td>
+                    <td className="p-2">{observation.source}</td>
+                    <td className="p-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        observation.needs_review
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {observation.needs_review ? 'Needs Review' : 'Reviewed'}
+                      </span>
+                    </td>
+                    <td className="p-2">{observation.extra_data.duration.toFixed(2)}s</td>
+                    <td className="p-2">{observation.extra_data.avg_amplitude.toFixed(4)}</td>
+                    <td className="p-2">
+                      <div className="flex items-center gap-2">
                         <AudioPlayer
                           deviceId={deviceId}
                           fileId={dataFileId}
-                          fileFormat={dataFile.file_format}
+                          className="ml-2"
                         />
-                        <AudioWaveformPlayer
-                          deviceId={deviceId}
-                          fileId={dataFileId}
-                          fileFormat={dataFile.file_format}
-                          startTime={observation.extra_data.start_time}
-                          endTime={observation.extra_data.end_time}
-                        />
-                      </>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditClick(observation)}
+                          className="flex items-center gap-1"
+                        >
+                          <span>Edit</span>
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <ObservationEditModal
+            observation={selectedObservation}
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSave={handleSaveObservation}
+          />
+        </>
       )}
     </div>
   );
-} 
+}

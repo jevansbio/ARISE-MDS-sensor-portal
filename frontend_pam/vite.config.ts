@@ -14,8 +14,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['@radix-ui/react-switch', '@radix-ui/react-dialog'],
+  },
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 3001,
+    strictPort: true,
+    watch: {
+      usePolling: true,
+    },
   },
 })
