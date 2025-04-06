@@ -174,14 +174,16 @@ export default function ObservationList() {
           // Find the existing observation in our stored state
           const existingObs = currentState.find(o => o.id === obs.id);
           
-          // If we have an existing observation with taxon data, use that
-          if (existingObs && existingObs.taxon && typeof existingObs.taxon === 'object') {
+          // If we have an existing observation, use its taxon and review status
+          if (existingObs) {
             return {
               ...obs,
               id: Number(obs.id),
               obs_dt: obs.obs_dt || new Date().toISOString(),
-              needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
-              taxon: existingObs.taxon
+              needs_review: existingObs.needs_review, // Preserve the review status
+              taxon: existingObs.taxon && typeof existingObs.taxon === 'object' 
+                ? existingObs.taxon 
+                : { id: 0, species_name: '', species_common_name: '' }
             };
           }
           
