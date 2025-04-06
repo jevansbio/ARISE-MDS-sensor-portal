@@ -147,7 +147,11 @@ function RouteComponent() {
 
   // Early returns after all hooks are called
   if (location.pathname.endsWith('/observations')) {
-    return <Outlet />
+    return (
+      <div className="w-full h-full">
+        <Outlet />
+      </div>
+    )
   }
 
   if (!authTokens) {

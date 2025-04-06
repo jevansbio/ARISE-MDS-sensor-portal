@@ -137,6 +137,9 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
+    // Store the current state of observations
+    const currentState = observations;
+
     // Ensure taxon is an object with the full structure
     const processedObservation = {
       ...updatedObservation,
@@ -159,13 +162,29 @@ export default function ObservationList() {
     setTimeout(async () => {
       try {
         const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
-        const observations = Array.isArray(data) ? data : data.results || [];
+        const newObservations = Array.isArray(data) ? data : data.results || [];
+        
         // Process the observations to ensure taxon data is properly structured
-        const processedData = observations.map(obs => {
+        const processedData = newObservations.map(obs => {
           // If this is the observation we just updated, use the processed observation
           if (obs.id === processedObservation.id) {
             return processedObservation;
           }
+          
+          // Find the existing observation in our stored state
+          const existingObs = currentState.find(o => o.id === obs.id);
+          
+          // If we have an existing observation with taxon data, use that
+          if (existingObs && existingObs.taxon && typeof existingObs.taxon === 'object') {
+            return {
+              ...obs,
+              id: Number(obs.id),
+              obs_dt: obs.obs_dt || new Date().toISOString(),
+              needs_review: obs.source === 'auto_detect' || obs.extra_data?.auto_detected || obs.needs_review,
+              taxon: existingObs.taxon
+            };
+          }
+          
           // Otherwise, process the taxon data as usual
           return {
             ...obs,
@@ -177,6 +196,7 @@ export default function ObservationList() {
               : obs.taxon || { id: 0, species_name: '', species_common_name: '' }
           };
         });
+        
         setObservations(processedData);
       } catch (error) {
         console.error('Failed to refetch observations:', error);
@@ -283,22 +303,10 @@ export default function ObservationList() {
                       </span>
                     </td>
                     <td className="p-2">{observation.extra_data.duration.toFixed(2)}s</td>
-                    <td className="p-2">{observation.extra_data.avg_amplitude.toFixed(4)}</td>
+                    <td className="p-2">{observation.extra_data.avg_amplitude.toFixed(2)}</td>
                     <td className="p-2">
-                      <div className="flex items-center gap-2">
-                        <AudioPlayer
-                          deviceId={deviceId}
-                          fileId={dataFileId}
-                          className="ml-2"
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditClick(observation)}
-                          className="flex items-center gap-1"
-                        >
-                          <span>Edit</span>
-                        </Button>
+                      <div className="flex space-x-2">
+                        <Button onClick={() => handleEditClick(observation)}>Edit</Button>
                       </div>
                     </td>
                   </tr>
