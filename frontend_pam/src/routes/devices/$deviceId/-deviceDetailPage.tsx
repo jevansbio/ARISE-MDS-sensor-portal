@@ -1,8 +1,33 @@
-import { useParams } from "@tanstack/react-router";
+//import { useParams } from "@tanstack/react-router";
 import { bytesToMegabytes } from "@/utils/convertion";
 import { Route } from "./index";
+import AuthContext from "@/auth/AuthContext";
+import { useContext } from "react";
+import { getData } from "@/utils/FetchFunctions";
+import { useQuery } from "@tanstack/react-query";
 
 export default function DeviceDetailPage() {
+
+  const { deviceId } = Route.useParams();
+
+  const authContext = useContext(AuthContext) as any;
+  const { authTokens } = authContext || { authTokens: null };
+
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
+
+  const apiURL = `devices/${deviceId}`;
+
+  const getDeviceFunc = async () => {
+    if (!authTokens?.access) return null;
+
+    const responseJson = await getData(apiURL, authTokens.access);
+
+    return responseJson;
+  }
+
+  /*
   const { deviceId } = useParams({ from: "/devices/$deviceId/" });
   const device = {
     device_ID: deviceId,
@@ -18,7 +43,28 @@ export default function DeviceDetailPage() {
     batteryLevel: 85,
     lastUpload: "2024-04-04",
     folder_size: 1024,
-  };
+  };*/
+  const {
+    data: device,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [apiURL],
+    queryFn: getDeviceFunc,
+    enabled: !!authTokens?.access,
+  });
+
+  console.log(device);
+  
+  if (isLoading) {
+    return <p>Loading device...</p>;
+  }
+  if (error) {
+    return <p>Error: {(error as Error).message}</p>;
+  }
+  if (!device) {
+    return <p>No device found</p>;
+  }
 
   return (
     <div className="p-6">
