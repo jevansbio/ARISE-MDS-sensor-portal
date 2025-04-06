@@ -9,6 +9,7 @@ import { Map as LeafletMap, FeatureGroup as LeafletFeatureGroup} from "leaflet";
 import { Icon } from "leaflet";
 import "../../../misc/BeautifyMarker/leaflet-beautify-marker-icon.css";
 import { Marker as CompMarker } from "@adamscybot/react-leaflet-component-marker";
+import { differenceInDays } from 'date-fns';
 
 //import logo from "../snyper4g.png";
 import UserLocationMarker from "../MapUserLocationMarker";
@@ -17,7 +18,7 @@ import { Link } from "@tanstack/react-router";
 
 interface Props {
 	//should be changed from any
-	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any }];
+	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any, last_upload: string }];
 }
 
 interface IconProps {
@@ -99,6 +100,16 @@ const DeploymentMap = ({ deployments }: Props) => {
 
 	console.log(deployments.map((deploymentData) => deploymentData.extra_data.device_config.device_ID));
 
+	const getPinColor = (lastUpload: string | null): string => {
+		if (!lastUpload) return 'red'; // No upload date means red
+
+		const lastUploadDate = new Date(lastUpload);
+		const today = new Date();
+		const daysSinceLastUpload = differenceInDays(today, lastUploadDate);
+
+		return daysSinceLastUpload > 3 ? 'red' : 'green'; // red if > 3 days, green otherwise
+	};
+
 	return (
 		<div>
 			<MapContainer
@@ -124,14 +135,17 @@ const DeploymentMap = ({ deployments }: Props) => {
 							lat: deploymentData.latitude,
 							lng: deploymentData.longitude,
 						};
+						const pinColor = getPinColor(deploymentData.last_upload);
+
 						return (
 							<>
 								<CompMarker
+									key={deploymentData.deployment_device_ID}
 									position={latLng}
 									icon={
 										<DeploymentIcon
-											borderColor="red"
-											textColor="red"
+											borderColor={pinColor}
+											textColor={pinColor}
 										/>
 									}
 								>
@@ -143,6 +157,11 @@ const DeploymentMap = ({ deployments }: Props) => {
 									>
 										View Device: {deploymentData.extra_data.device_config.device_ID}
 									</Link>
+									<div className="mt-2 text-sm">
+										Last Upload: {deploymentData.last_upload 
+											? new Date(deploymentData.last_upload).toLocaleDateString()
+											: 'Never'}
+									</div>
 									</Popup>
 								</CompMarker>
 							</>

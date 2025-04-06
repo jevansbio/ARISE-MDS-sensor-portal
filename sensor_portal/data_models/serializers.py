@@ -60,6 +60,13 @@ class DeploymentFieldsMixIn(InstanceGetMixIn, OwnerMixIn, ManagerMixIn, CreatedM
 
     # check project permissions here or in viewpoint
 
+    # Add new field for last_upload
+    last_upload = serializers.SerializerMethodField()
+
+    def get_last_upload(self, instance):
+        """Get the datetime of the most recent file upload for this deployment"""
+        return instance.get_last_upload()
+
     def to_representation(self, instance):
         initial_rep = super(DeploymentFieldsMixIn,
                             self).to_representation(instance)

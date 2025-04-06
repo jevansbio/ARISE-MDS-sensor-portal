@@ -27,7 +27,7 @@ function RouteComponent() {
   const {
 		isLoading,
 		isPending,
-		data,
+		data: deployments,
 		error,
 		isRefetching,
 		isPlaceholderData,
@@ -46,7 +46,8 @@ function RouteComponent() {
     return <div>Error occurred: {(error as any).message}</div>;
   }
 
+  console.log("deployments data: ", deployments);
   return (
-    <DeploymentMap deployments={data} />
+    <DeploymentMap deployments={deployments} />
   );
 }
