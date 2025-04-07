@@ -95,18 +95,17 @@ class Taxon(BaseModel):
 
     def save(self, *args, **kwargs):
         self.get_taxon_code()
-        try:
-            existing = Taxon.objects.get(
-                species_name__iexact=self.species_name.lower())
-            if existing != self:
-                if self.pk is not None:
-                    # get all existing observations and change them, then delete this instance
-                    Observation.objects.filter(
-                        taxon=self).update(taxon=existing)
-                    self.delete()
-                    return
-        except Taxon.DoesNotExist:
-            pass
+        # Only check for existing taxa if this is a new taxon being created
+        if self.pk is None:
+            try:
+                existing = Taxon.objects.get(
+                    species_name__iexact=self.species_name.lower())
+                # If we found an existing taxon, use it instead of creating a new one
+                self.pk = existing.pk
+                self.id = existing.id
+            except Taxon.DoesNotExist:
+                pass
+        # Never merge taxa - each taxon should be unique
         super().save(*args, **kwargs)
 
 

@@ -30,18 +30,22 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
     console.log('Current edited observation:', editedObservation);
     console.log('Current taxon data:', editedObservation.taxon);
 
-    if (!editedObservation || !editedObservation.taxon.id) {
+    if (!editedObservation) {
       console.error('Missing required data for save');
       return;
     }
 
     try {
-      // Prepare the update data with species information
+      // Check if species name has changed
+      const speciesNameChanged = editedObservation.taxon.species_name !== observation.taxon.species_name;
+      
+      // Prepare the update data
       const updateData = {
-        taxon: {
-          id: editedObservation.taxon.id,
+        taxon: speciesNameChanged ? {
           species_name: editedObservation.taxon.species_name,
           species_common_name: editedObservation.taxon.species_common_name
+        } : {
+          id: editedObservation.taxon.id
         },
         needs_review: editedObservation.needs_review,
         extra_data: {
@@ -68,8 +72,23 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to update observation');
+        let errorMessage = 'Failed to update observation';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.detail || errorMessage;
+          } else {
+            if (response.status === 500) {
+              errorMessage = 'Server error occurred. Please try again later.';
+            } else {
+              errorMessage = `Server returned status ${response.status}. Please try again.`;
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+        }
+        throw new Error(errorMessage);
       }
 
       const updatedObservation = await response.json();
@@ -79,7 +98,7 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
       const completeObservation = {
         ...updatedObservation,
         taxon: {
-          id: editedObservation.taxon.id,
+          id: updatedObservation.taxon,
           species_name: editedObservation.taxon.species_name,
           species_common_name: editedObservation.taxon.species_common_name
         }
@@ -94,7 +113,9 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
       console.error('Error details:', error);
       if (error instanceof Error) {
         console.error('Error message:', error.message);
-        alert('Failed to save observation. Please try again.');
+        alert(error.message);
+      } else {
+        alert('An unexpected error occurred. Please try again.');
       }
     }
   };

@@ -46,18 +46,40 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
         if 'taxon' in request.data and isinstance(request.data['taxon'], dict):
             taxon_data = request.data['taxon']
             if 'id' in taxon_data:
+                # If we have an ID, just use it directly
                 request.data['taxon'] = taxon_data['id']
             elif 'species_name' in taxon_data:
-                # Create or get taxon by species name
-                taxon, created = Taxon.objects.get_or_create(
-                    species_name=taxon_data['species_name'],
-                    defaults={'species_common_name': taxon_data.get('species_common_name', '')}
-                )
-                request.data['taxon'] = taxon.id
+                # For new species names, try to find an existing taxon first
+                try:
+                    existing_taxon = Taxon.objects.filter(
+                        species_name__iexact=taxon_data['species_name'].lower()
+                    ).first()
+                    
+                    if existing_taxon:
+                        # Use the existing taxon
+                        request.data['taxon'] = existing_taxon.id
+                    else:
+                        # Create a new taxon
+                        taxon = Taxon.objects.create(
+                            species_name=taxon_data['species_name'],
+                            species_common_name=taxon_data.get('species_common_name', '')
+                        )
+                        request.data['taxon'] = taxon.id
+                except Exception as e:
+                    return Response(
+                        {'detail': f'Error handling taxon: {str(e)}'}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
         
         serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+        except Exception as e:
+            return Response(
+                {'detail': f'Error updating observation: {str(e)}'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Fetch the complete observation with taxon details
         updated_instance = self.get_object()
