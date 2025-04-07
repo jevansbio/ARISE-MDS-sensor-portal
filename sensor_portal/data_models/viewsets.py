@@ -185,6 +185,63 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         else:
             return Response({'last_upload': None}, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['post'])
+    def check_quality_bulk(self, request, pk=None):
+        """
+        Trigger quality check for all audio files in a deployment
+        """
+        try:
+            deployment = self.get_object()
+            if not request.user.has_perm('data_models.change_deployment', deployment):
+                raise PermissionDenied("You don't have permission to check quality for this deployment")
+
+            # Get all audio files for this deployment
+            audio_files = DataFile.objects.filter(
+                deployment=deployment,
+                file_format__in=['.wav', '.WAV', '.mp3', '.MP3']  # Common audio formats
+            )
+
+            if not audio_files.exists():
+                return Response({
+                    "error": "No audio files found in this deployment"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Start quality checks for each file
+            results = []
+            for data_file in audio_files:
+                try:
+                    quality_data = AudioQualityChecker.update_file_quality(data_file)
+                    results.append({
+                        'file_id': data_file.id,
+                        'file_name': data_file.file_name,
+                        'status': 'completed',
+                        'quality_score': quality_data.get('quality_score')
+                    })
+                except Exception as e:
+                    results.append({
+                        'file_id': data_file.id,
+                        'file_name': data_file.file_name,
+                        'status': 'failed',
+                        'error': str(e)
+                    })
+
+            return Response({
+                'deployment_id': pk,
+                'total_files': len(audio_files),
+                'results': results
+            }, status=status.HTTP_200_OK)
+
+        except PermissionDenied as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     serializer_class = ProjectSerializer

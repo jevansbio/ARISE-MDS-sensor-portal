@@ -23,8 +23,8 @@ class AudioQualityChecker:
         # Configuration for observation detection
         MIN_DURATION = 1.0  # Minimum duration in seconds
         MAX_DURATION = 30.0  # Maximum duration in seconds
-        MIN_AMPLITUDE = 0.002  # Minimum RMS amplitude (lowered from 0.0042)
-        MAX_GAP = 1.0  # Maximum gap between segments to merge in seconds
+        MIN_AMPLITUDE = 0.0005  # Minimum RMS amplitude 
+        MAX_GAP = 5.0  # Maximum gap between segments to merge in seconds
         MAX_OBSERVATIONS = 50  # Maximum number of observations per file
         
         logger.info(f"Starting observation creation with {len(non_silent_segments)} segments")

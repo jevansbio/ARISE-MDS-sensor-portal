@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ObservationsImport } from './routes/observations'
 import { Route as MapImport } from './routes/map'
 import { Route as LoginImport } from './routes/login'
 import { Route as CallImport } from './routes/call'
@@ -21,6 +22,12 @@ import { Route as DevicesDeviceIdDataFileIdImport } from './routes/devices/$devi
 import { Route as DevicesDeviceIdDataFileIdObservationsImport } from './routes/devices/$deviceId/$dataFileId/observations'
 
 // Create/Update Routes
+
+const ObservationsRoute = ObservationsImport.update({
+  id: '/observations',
+  path: '/observations',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const MapRoute = MapImport.update({
   id: '/map',
@@ -103,6 +110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapImport
       parentRoute: typeof rootRoute
     }
+    '/observations': {
+      id: '/observations'
+      path: '/observations'
+      fullPath: '/observations'
+      preLoaderRoute: typeof ObservationsImport
+      parentRoute: typeof rootRoute
+    }
     '/devices/': {
       id: '/devices/'
       path: '/devices'
@@ -156,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/call': typeof CallRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
+  '/observations': typeof ObservationsRoute
   '/devices': typeof DevicesIndexRoute
   '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRouteWithChildren
   '/devices/$deviceId': typeof DevicesDeviceIdIndexRoute
@@ -167,6 +182,7 @@ export interface FileRoutesByTo {
   '/call': typeof CallRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
+  '/observations': typeof ObservationsRoute
   '/devices': typeof DevicesIndexRoute
   '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRouteWithChildren
   '/devices/$deviceId': typeof DevicesDeviceIdIndexRoute
@@ -179,6 +195,7 @@ export interface FileRoutesById {
   '/call': typeof CallRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
+  '/observations': typeof ObservationsRoute
   '/devices/': typeof DevicesIndexRoute
   '/devices/$deviceId/$dataFileId': typeof DevicesDeviceIdDataFileIdRouteWithChildren
   '/devices/$deviceId/': typeof DevicesDeviceIdIndexRoute
@@ -192,6 +209,7 @@ export interface FileRouteTypes {
     | '/call'
     | '/login'
     | '/map'
+    | '/observations'
     | '/devices'
     | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId'
@@ -202,6 +220,7 @@ export interface FileRouteTypes {
     | '/call'
     | '/login'
     | '/map'
+    | '/observations'
     | '/devices'
     | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId'
@@ -212,6 +231,7 @@ export interface FileRouteTypes {
     | '/call'
     | '/login'
     | '/map'
+    | '/observations'
     | '/devices/'
     | '/devices/$deviceId/$dataFileId'
     | '/devices/$deviceId/'
@@ -224,6 +244,7 @@ export interface RootRouteChildren {
   CallRoute: typeof CallRoute
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
+  ObservationsRoute: typeof ObservationsRoute
   DevicesIndexRoute: typeof DevicesIndexRoute
   DevicesDeviceIdDataFileIdRoute: typeof DevicesDeviceIdDataFileIdRouteWithChildren
   DevicesDeviceIdIndexRoute: typeof DevicesDeviceIdIndexRoute
@@ -234,6 +255,7 @@ const rootRouteChildren: RootRouteChildren = {
   CallRoute: CallRoute,
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
+  ObservationsRoute: ObservationsRoute,
   DevicesIndexRoute: DevicesIndexRoute,
   DevicesDeviceIdDataFileIdRoute: DevicesDeviceIdDataFileIdRouteWithChildren,
   DevicesDeviceIdIndexRoute: DevicesDeviceIdIndexRoute,
@@ -253,6 +275,7 @@ export const routeTree = rootRoute
         "/call",
         "/login",
         "/map",
+        "/observations",
         "/devices/",
         "/devices/$deviceId/$dataFileId",
         "/devices/$deviceId/"
@@ -269,6 +292,9 @@ export const routeTree = rootRoute
     },
     "/map": {
       "filePath": "map.tsx"
+    },
+    "/observations": {
+      "filePath": "observations.tsx"
     },
     "/devices/": {
       "filePath": "devices/index.tsx"
