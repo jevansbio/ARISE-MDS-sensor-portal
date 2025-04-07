@@ -80,14 +80,9 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
     
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
     def by_site(self, request, site_name=None):
-        """
-        Hent deployments basert på site_name.
-        Eksempel URL: /api/deployment/by_site/<sitename>/
-        """
         if site_name is None:
             return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Filtrer på site_name, evt. bruk case-insensitive match
         deployments = self.queryset.filter(site_name__iexact=site_name)
         
         serializer = self.get_serializer(deployments, many=True)
@@ -285,13 +280,27 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         else:
             serializer = DeviceSerializer(device)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
+    def by_site(self, request, site_name=None):
+        if not site_name:
+            return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
         
+        deployment = Deployment.objects.filter(site_name__iexact=site_name).first()
+        if not deployment:
+            return Response({"error": "No deployment found for site"}, status=status.HTTP_404_NOT_FOUND)
+        
+        device = deployment.device
+        if not device:
+            return Response({"error": "No device linked to the deployment"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(device)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
     @action(detail=True, methods=['get'])
     def datafiles(self, request, device_ID=None):
-        """
-        Returnerer alle DataFile-objekter som er knyttet til dette Device-objektet
-        gjennom Deployment.
-        """
+   
         device = self.get_object()
         user = request.user
 

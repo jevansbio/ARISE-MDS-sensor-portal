@@ -13,11 +13,12 @@ export default function DeviceDetailPage() {
     return <p>Loading authentication...</p>;
   }
 
-  const apiURL = `devices/${site_name}`;
+  const apiURL = `devices/by_site/${site_name}/`;
 
   const getDeviceFunc = async () => {
     if (!authTokens?.access) return null;
     const responseJson = await getData(apiURL, authTokens.access);
+    console.log(responseJson)
     return responseJson;
   };
 

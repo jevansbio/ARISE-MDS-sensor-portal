@@ -5,7 +5,7 @@ import DeviceDetailPage from './-deviceDetailPage';
 import SiteDetailPage from './-SiteDetailPage';
 
 export default function DevicePage() {
-  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails'>('details'); 
+  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails'>('siteDetails'); 
 
   return (
     <div>
