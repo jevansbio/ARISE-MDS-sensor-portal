@@ -5,7 +5,7 @@ import { getData } from "@/utils/FetchFunctions";
 import { useContext } from "react";
 
 export default function DeviceDetailPage() {
-  const { deviceId } = Route.useParams();
+  const { site_name } = Route.useParams();
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
 
@@ -13,7 +13,7 @@ export default function DeviceDetailPage() {
     return <p>Loading authentication...</p>;
   }
 
-  const apiURL = `devices/${deviceId}`;
+  const apiURL = `devices/${site_name}`;
 
   const getDeviceFunc = async () => {
     if (!authTokens?.access) return null;

@@ -16,7 +16,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { TbArrowsUpDown } from "react-icons/tb";
-import { Device } from "@/types";
+import { Deployment } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -27,29 +27,40 @@ import Modal from "@/components/Modal/Modal";
 import DeviceForm from "@/components/DeviceForm";
 
 export default function DeploymentsPage() {
-  // const { data } = useSuspenseQuery(devicesQueryOptions);
 
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
-  const apiURL = "devices/";
+  const apiURL = "deployment/";
 
-  const getDataFunc = async (): Promise<Device[]> => {
+  const getDataFunc = async (): Promise<Deployment[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
   
-    const devices: Device[] = response_json.map((device: any): Device => ({
-      id: device.device_ID,
-      startDate: device.start_date,
-      endDate: device.end_date,
-      folder_size: device.folder_size,
+    const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
+      deploymentId: deployment.Deployment_ID,
+      startDate: deployment.start_date,
+      endDate: deployment.end_date,
+      folder_size: deployment.folder_size,
       lastUpload: "",
       batteryLevel: 0,
       action: "",
-      site: device.site_name,
-      dataFile: []
+      site_name: deployment.site_name,
+      dataFile: [],
+      coordinate_uncertainty: deployment.coordinate_uncertainty,
+      gps_device: deployment.gps_device,
+      mic_height: deployment.mic_height,
+      mic_direction: deployment.mic_direction,
+      habitat: deployment.habitat,
+      protocol_checklist: deployment.protocol_checklist,
+      score: 0,
+      comment: deployment.comment,
+      user_email: deployment.user_email,
+      country: deployment.country,
+      longitude: deployment.longitude,
+      latitude: deployment.latitude
     }));
-  
-    return devices;
+    console.log(deployments)
+    return deployments;
   };
 
   const { data = [] } = useQuery({
@@ -60,7 +71,7 @@ export default function DeploymentsPage() {
 
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const columns: ColumnDef<Device>[] = [
+  const columns: ColumnDef<Deployment>[] = [
     {
       accessorKey: "site",
       header: ({ column }) => (
@@ -75,11 +86,11 @@ export default function DeploymentsPage() {
       ),
       cell: ({ row }) => (
         <Link
-          to="/deployments/$deviceId"
-          params={{ deviceId: row.original.id }}
+          to="/deployments/$site_name"
+          params={{ site_name: row.original.site_name }}
            className="text-blue-500 hover:underline"
         >
-          {row.original.site}
+          {row.original.site_name}
         </Link>
       ),
     },
@@ -95,7 +106,7 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => row.original.id,
+      cell: ({ row }) => row.original.deploymentId,
 
     },
     {

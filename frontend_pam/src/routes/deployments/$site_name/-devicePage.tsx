@@ -14,17 +14,16 @@ export default function DevicePage() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-
-      {activeTab === 'details' && (
-        <DeviceDetailPage />
-      )}
-
-      {activeTab === 'datafiles' && (
-        <DeviceDataFilesPage />
-      )}
       {activeTab === 'siteDetails' && (
         <SiteDetailPage />
       )}
+      {activeTab === 'details' && (
+        <DeviceDetailPage />
+      )}
+      {activeTab === 'datafiles' && (
+        <DeviceDataFilesPage />
+      )}
+
     </div>
   );
 }

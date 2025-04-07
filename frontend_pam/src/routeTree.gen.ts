@@ -16,8 +16,8 @@ import { Route as LoginImport } from './routes/login'
 import { Route as CallImport } from './routes/call'
 import { Route as IndexImport } from './routes/index'
 import { Route as DeploymentsIndexImport } from './routes/deployments/index'
-import { Route as DeploymentsDeviceIdIndexImport } from './routes/deployments/$deviceId/index'
-import { Route as DeploymentsDeviceIdDataFileIdImport } from './routes/deployments/$deviceId/$dataFileId'
+import { Route as DeploymentsSitenameIndexImport } from './routes/deployments/$site_name/index'
+import { Route as DeploymentsSitenameDataFileIdImport } from './routes/deployments/$site_name/$dataFileId'
 
 // Create/Update Routes
 
@@ -51,16 +51,16 @@ const DeploymentsIndexRoute = DeploymentsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const DeploymentsDeviceIdIndexRoute = DeploymentsDeviceIdIndexImport.update({
-  id: '/deployments/$deviceId/',
-  path: '/deployments/$deviceId/',
+const DeploymentsSitenameIndexRoute = DeploymentsSitenameIndexImport.update({
+  id: '/deployments/$site_name/',
+  path: '/deployments/$site_name/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const DeploymentsDeviceIdDataFileIdRoute =
-  DeploymentsDeviceIdDataFileIdImport.update({
-    id: '/deployments/$deviceId/$dataFileId',
-    path: '/deployments/$deviceId/$dataFileId',
+const DeploymentsSitenameDataFileIdRoute =
+  DeploymentsSitenameDataFileIdImport.update({
+    id: '/deployments/$site_name/$dataFileId',
+    path: '/deployments/$site_name/$dataFileId',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -103,18 +103,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeploymentsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/deployments/$deviceId/$dataFileId': {
-      id: '/deployments/$deviceId/$dataFileId'
-      path: '/deployments/$deviceId/$dataFileId'
-      fullPath: '/deployments/$deviceId/$dataFileId'
-      preLoaderRoute: typeof DeploymentsDeviceIdDataFileIdImport
+    '/deployments/$site_name/$dataFileId': {
+      id: '/deployments/$site_name/$dataFileId'
+      path: '/deployments/$site_name/$dataFileId'
+      fullPath: '/deployments/$site_name/$dataFileId'
+      preLoaderRoute: typeof DeploymentsSitenameDataFileIdImport
       parentRoute: typeof rootRoute
     }
-    '/deployments/$deviceId/': {
-      id: '/deployments/$deviceId/'
-      path: '/deployments/$deviceId'
-      fullPath: '/deployments/$deviceId'
-      preLoaderRoute: typeof DeploymentsDeviceIdIndexImport
+    '/deployments/$site_name/': {
+      id: '/deployments/$site_name/'
+      path: '/deployments/$site_name'
+      fullPath: '/deployments/$site_name'
+      preLoaderRoute: typeof DeploymentsSitenameIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -128,8 +128,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/deployments': typeof DeploymentsIndexRoute
-  '/deployments/$deviceId/$dataFileId': typeof DeploymentsDeviceIdDataFileIdRoute
-  '/deployments/$deviceId': typeof DeploymentsDeviceIdIndexRoute
+  '/deployments/$site_name/$dataFileId': typeof DeploymentsSitenameDataFileIdRoute
+  '/deployments/$site_name': typeof DeploymentsSitenameIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -138,8 +138,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/deployments': typeof DeploymentsIndexRoute
-  '/deployments/$deviceId/$dataFileId': typeof DeploymentsDeviceIdDataFileIdRoute
-  '/deployments/$deviceId': typeof DeploymentsDeviceIdIndexRoute
+  '/deployments/$site_name/$dataFileId': typeof DeploymentsSitenameDataFileIdRoute
+  '/deployments/$site_name': typeof DeploymentsSitenameIndexRoute
 }
 
 export interface FileRoutesById {
@@ -149,8 +149,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/deployments/': typeof DeploymentsIndexRoute
-  '/deployments/$deviceId/$dataFileId': typeof DeploymentsDeviceIdDataFileIdRoute
-  '/deployments/$deviceId/': typeof DeploymentsDeviceIdIndexRoute
+  '/deployments/$site_name/$dataFileId': typeof DeploymentsSitenameDataFileIdRoute
+  '/deployments/$site_name/': typeof DeploymentsSitenameIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -161,8 +161,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/map'
     | '/deployments'
-    | '/deployments/$deviceId/$dataFileId'
-    | '/deployments/$deviceId'
+    | '/deployments/$site_name/$dataFileId'
+    | '/deployments/$site_name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -170,8 +170,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/map'
     | '/deployments'
-    | '/deployments/$deviceId/$dataFileId'
-    | '/deployments/$deviceId'
+    | '/deployments/$site_name/$dataFileId'
+    | '/deployments/$site_name'
   id:
     | '__root__'
     | '/'
@@ -179,8 +179,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/map'
     | '/deployments/'
-    | '/deployments/$deviceId/$dataFileId'
-    | '/deployments/$deviceId/'
+    | '/deployments/$site_name/$dataFileId'
+    | '/deployments/$site_name/'
   fileRoutesById: FileRoutesById
 }
 
@@ -190,8 +190,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   DeploymentsIndexRoute: typeof DeploymentsIndexRoute
-  DeploymentsDeviceIdDataFileIdRoute: typeof DeploymentsDeviceIdDataFileIdRoute
-  DeploymentsDeviceIdIndexRoute: typeof DeploymentsDeviceIdIndexRoute
+  DeploymentsSitenameDataFileIdRoute: typeof DeploymentsSitenameDataFileIdRoute
+  DeploymentsSitenameIndexRoute: typeof DeploymentsSitenameIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -200,8 +200,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   DeploymentsIndexRoute: DeploymentsIndexRoute,
-  DeploymentsDeviceIdDataFileIdRoute: DeploymentsDeviceIdDataFileIdRoute,
-  DeploymentsDeviceIdIndexRoute: DeploymentsDeviceIdIndexRoute,
+  DeploymentsSitenameDataFileIdRoute: DeploymentsSitenameDataFileIdRoute,
+  DeploymentsSitenameIndexRoute: DeploymentsSitenameIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -219,8 +219,8 @@ export const routeTree = rootRoute
         "/login",
         "/map",
         "/deployments/",
-        "/deployments/$deviceId/$dataFileId",
-        "/deployments/$deviceId/"
+        "/deployments/$site_name/$dataFileId",
+        "/deployments/$site_name/"
       ]
     },
     "/": {
@@ -238,11 +238,11 @@ export const routeTree = rootRoute
     "/deployments/": {
       "filePath": "deployments/index.tsx"
     },
-    "/deployments/$deviceId/$dataFileId": {
-      "filePath": "deployments/$deviceId/$dataFileId.tsx"
+    "/deployments/$site_name/$dataFileId": {
+      "filePath": "deployments/$site_name/$dataFileId.tsx"
     },
-    "/deployments/$deviceId/": {
-      "filePath": "deployments/$deviceId/index.tsx"
+    "/deployments/$site_name/": {
+      "filePath": "deployments/$site_name/index.tsx"
     }
   }
 }

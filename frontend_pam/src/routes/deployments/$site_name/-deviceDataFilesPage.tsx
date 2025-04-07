@@ -29,7 +29,7 @@ import { bytesToMegabytes } from "@/utils/convertion";
 
 
 export default function DeviceDataFilesPage() {
-  const { deviceId } = Route.useParams();
+  const { siteName } = Route.useParams();
 
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
@@ -38,7 +38,7 @@ export default function DeviceDataFilesPage() {
     return <p>Loading authentication...</p>;
   }
 
-  const apiURL = `devices/${deviceId}/datafiles`;
+  const apiURL = `devices/${siteName}/datafiles`;
 
   const getDataFunc = async (): Promise<DataFile[]> => {
     if (!authTokens?.access) return [];

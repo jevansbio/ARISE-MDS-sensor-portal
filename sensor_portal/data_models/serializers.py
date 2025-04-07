@@ -74,6 +74,7 @@ class DeploymentFieldsMixIn(InstanceGetMixIn, OwnerMixIn, ManagerMixIn, CreatedM
     def __init__(self, *args, **kwargs):
         self.clear_project = False
         self.management_perm = 'data_models.change_deployment'
+        self.form_submission = False
         super(DeploymentFieldsMixIn, self).__init__(*args, **kwargs)
 
     def create(self, *args, **kwargs):
@@ -87,7 +88,7 @@ class DeploymentFieldsMixIn(InstanceGetMixIn, OwnerMixIn, ManagerMixIn, CreatedM
         return instance
 
     def validate(self, data):
-        if self.form_submission & (data.get('project') is None):
+        if self.form_submission and (data.get('project') is None):
             data['project'] = []
 
         data = super().validate(data)
@@ -114,16 +115,16 @@ class DeploymentFieldsMixIn(InstanceGetMixIn, OwnerMixIn, ManagerMixIn, CreatedM
             if not result:
                 raise serializers.ValidationError(message)
 
-            # check if a site has been attached (via either method)
-            result, message, data = check_two_keys(
-                'site',
-                'site_ID',
-                data,
-                Site,
-                self.form_submission
-            )
-            if not result:
-                raise serializers.ValidationError(message)
+            # # check if a site has been attached (via either method)
+            # result, message, data = check_two_keys(
+            #     'site',
+            #     'site_ID',
+            #     data,
+            #     Site,
+            #     self.form_submission
+            # )
+            # if not result:
+            #     raise serializers.ValidationError(message)
         print(data)
         result, message = validators.deployment_check_type(self.instance_get('device_type', data),
                                                            self.instance_get('device', data))

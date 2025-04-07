@@ -57,17 +57,29 @@ export default function DeviceForm({ onSave }: DeviceFormProps) {
       if (!token) {
         throw new Error("Authentication token is missing");
       }
-      const payload = {
+      
+      const devicePayload = {
         device_ID: values.deviceId,
+        configuration: values.configuration,
+        sim_card_icc: values.simCardICC,
+        sim_card_batch: values.simCardBatch,
+        sd_card_size: values.sdCardSize,
+      };
+  
+      const deploymentPayload = {
+        deployment_ID: values.deploymentId,
+        start_date: values.date,
+        // Hvis du har et eget felt for end_date i skjemaet kan du legge det til her, ellers kan du sende en standardverdi
+        end_date: "", 
+        // Last upload og folder size blir satt til default eller oppdateres senere hvis de beregnes
+        lastUpload: "",
+        folder_size: 0,
         country: values.country,
         site_name: values.site,
-        start_date: values.date,
-        time: values.time,
         latitude: values.latitude,
         longitude: values.longitude,
         coordinate_uncertainty: values.coordUncertainty,
         gps_device: values.gpsDevice,
-        deployment_ID: values.deploymentId,
         mic_height: values.micHeight,
         mic_direction: values.micDirection,
         habitat: values.habitat,
@@ -75,23 +87,29 @@ export default function DeviceForm({ onSave }: DeviceFormProps) {
         protocol_checklist: values.protocolChecklist,
         user_email: values.email,
         comment: values.comment,
-        sim_card_icc: values.simCardICC,
-        sim_card_batch: values.simCardBatch,
-        sd_card_size: values.sdCardSize,
-        configuration: values.configuration,
       };
-      console.log("Payload being sent:", payload);
-      const url = `devices/${values.deviceId}/update_form_info/`;
-      const response = await postData(url, token, payload);
-      console.log("Response received:", response);
-      if (!response.ok) {
-        throw new Error(response.statusText);
+  
+      console.log("Device payload:", devicePayload);
+      console.log("Deployment payload:", deploymentPayload);
+  
+      const deviceUrl = `devices/upsert_device/`;
+      const deviceResponse = await postData(deviceUrl, token, devicePayload);
+      console.log("Device response:", deviceResponse);
+  
+      const deploymentUrl = `deployment/upsert_deployment/`;
+      const deploymentResponse = await postData(deploymentUrl, token, deploymentPayload);
+      console.log("Deployment response:", deploymentResponse);
+  
+      if (!deviceResponse.ok || !deploymentResponse.ok) {
+        throw new Error("Failed to update device or deployment info");
       }
+  
       onSave();
     } catch (error) {
-      console.error("Error updating device info:", error);
+      console.error("Error updating info:", error);
     }
   };
+  
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
