@@ -31,11 +31,11 @@ function Sidebar() {
           </Link>
           
           <Link 
-            to="/devices" 
+            to="/deployments" 
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 ${isDevicesActive ? 'font-bold bg-gray-100' : ''} ${isCollapsed ? 'justify-center' : ''}`}
           >
             <FaMicrochip className="h-5 w-5" />
-            {!isCollapsed && <span>Devices</span>}
+            {!isCollapsed && <span>Deployments</span>}
           </Link>
 
           <Link 

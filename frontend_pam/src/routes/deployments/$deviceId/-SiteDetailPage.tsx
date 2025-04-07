@@ -16,9 +16,7 @@ export default function DeviceDetailPage() {
   if (!authTokens) {
     return <p>Loading authentication...</p>;
   }
-
   const apiURL = `devices/${deviceId}`;
-
   const getDeviceFunc = async () => {
     if (!authTokens?.access) return null;
 
