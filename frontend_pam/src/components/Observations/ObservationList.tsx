@@ -13,30 +13,14 @@ import { useQuery } from "@tanstack/react-query";
 import { FaPlay } from "react-icons/fa";
 import ObservationEditModal from './ObservationEditModal';
 import { useQueryClient } from "@tanstack/react-query";
-
-interface Observation {
-  id: number;
-  obs_dt: string;
-  taxon: {
-    species_name: string;
-    species_common_name: string;
-    id: number;
-  };
-  source: string;
-  needs_review: boolean;
-  extra_data: {
-    start_time: number;
-    end_time: number;
-    duration: number;
-    avg_amplitude: number;
-    auto_detected: boolean;
-  };
-}
+import { ObservationTable } from './ObservationTable';
+import { type Observation } from './types';
 
 interface DataFile {
   id: string | number;
   file_name: string;
   file_format: string;
+  file_length: number;
 }
 
 interface Device {
@@ -313,69 +297,24 @@ export default function ObservationList() {
           <p className="text-gray-500 text-lg">No observations found</p>
         </div>
       ) : (
-        <>
-          <div className="rounded-md border">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50 text-sm">
-                  <th className="p-2 text-left">Time</th>
-                  <th className="p-2 text-left">Species</th>
-                  <th className="p-2 text-left">Source</th>
-                  <th className="p-2 text-left">Review Status</th>
-                  <th className="p-2 text-left">Duration</th>
-                  <th className="p-2 text-left">Amplitude</th>
-                  <th className="p-2 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {observations.map((observation) => (
-                  <tr key={observation.id} className="border-b hover:bg-muted/50">
-                    <td className="p-2">
-                      <div>
-                        <div className="font-medium">
-                          {formatTime(observation.extra_data.start_time)}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          Duration: {observation.extra_data.duration.toFixed(2)}s
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-2">
-                      <div>
-                        <div className="font-medium">{observation.taxon.species_name}</div>
-                        <div className="text-sm text-gray-500">{observation.taxon.species_common_name}</div>
-                      </div>
-                    </td>
-                    <td className="p-2">{observation.source}</td>
-                    <td className="p-2">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        observation.needs_review
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {observation.needs_review ? 'Not Reviewed' : 'Reviewed'}
-                      </span>
-                    </td>
-                    <td className="p-2">{observation.extra_data.duration.toFixed(2)}s</td>
-                    <td className="p-2">{observation.extra_data.avg_amplitude.toFixed(2)}</td>
-                    <td className="p-2">
-                      <div className="flex space-x-2">
-                        <Button onClick={() => handleEditClick(observation)}>Edit</Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <ObservationTable
+          deviceId={deviceId}
+          fileId={dataFileId}
+          fileFormat={dataFile?.file_format || 'wav'}
+          fileDuration={dataFile?.file_length || 0}
+          observations={observations}
+          onDelete={(id: number) => console.log('Delete observation:', id)}
+          onEdit={handleEditClick}
+        />
+      )}
 
-          <ObservationEditModal
-            observation={selectedObservation}
-            isOpen={isEditModalOpen}
-            onClose={() => setIsEditModalOpen(false)}
-            onSave={handleSaveObservation}
-          />
-        </>
+      {selectedObservation && (
+        <ObservationEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          observation={selectedObservation}
+          onSave={handleSaveObservation}
+        />
       )}
     </div>
   );

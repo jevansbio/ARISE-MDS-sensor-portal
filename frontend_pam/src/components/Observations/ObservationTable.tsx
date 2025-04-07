@@ -5,24 +5,7 @@ import { Trash2, Edit2, Play, Pause, Volume2 } from "lucide-react";
 import { formatTime } from "@/utils/timeFormat";
 import AudioWaveformPlayer from "../AudioWaveformPlayer/AudioWaveformPlayer";
 import { Badge } from "@/components/ui/badge";
-
-interface Observation {
-  id: number;
-  obs_dt: string;
-  source: string;
-  extra_data: {
-    start_time?: number;
-    end_time?: number;
-    duration?: number;
-    avg_amplitude?: number;
-    auto_detected?: boolean;
-    needs_review?: boolean;
-  };
-  taxon?: {
-    species_name: string;
-    species_common_name: string;
-  };
-}
+import { type Observation } from './types';
 
 interface ObservationTableProps {
   deviceId: string;
