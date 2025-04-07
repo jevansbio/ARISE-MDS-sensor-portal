@@ -1,6 +1,6 @@
 interface DeviceNavProps {
-  activeTab: 'details' | 'datafiles';
-  setActiveTab: (tab: 'details' | 'datafiles') => void;
+  activeTab: 'details' | 'datafiles' | 'map';
+  setActiveTab: (tab: 'details' | 'datafiles' | 'map') => void;
 }
 
 function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
@@ -25,6 +25,16 @@ function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
             }`}
           >
             Data Files
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={() => setActiveTab('map')}
+            className={`inline-block py-4 text-lg hover:text-gray-600 ${
+              activeTab === 'map' ? 'border-b-2 border-black' : ''
+            }`}
+          >
+            Map
           </button>
         </li>
       </ul>
