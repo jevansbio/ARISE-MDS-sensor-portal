@@ -81,9 +81,7 @@ export default function DeviceForm({ onSave }: DeviceFormProps) {
       const deploymentPayload = {
         deployment_ID: values.deploymentId,
         start_date: values.date,
-        // Hvis du har et eget felt for end_date i skjemaet kan du legge det til her, ellers kan du sende en standardverdi
         end_date: "",
-        // Last upload og folder size blir satt til default eller oppdateres senere hvis de beregnes
         lastUpload: "",
         folder_size: 0,
         country: values.country,
