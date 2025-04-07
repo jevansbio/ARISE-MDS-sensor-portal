@@ -39,18 +39,18 @@ export default function SiteDetailPage() {
   console.log(deployment);
 
   if (isLoading) {
-    return <p>Loading device...</p>;
+    return <p>Loading deployment...</p>;
   }
   if (error) {
     return <p>Error: {(error as Error).message}</p>;
   }
   if (!deployment) {
-    return <p>No device found</p>;
+    return <p>No deployment found</p>;
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Device Details</h2>
+      <h2 className="text-2xl font-bold mb-4">Site Details</h2>
         <div
           key={deployment.deploymentId}
           className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6"
