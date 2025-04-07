@@ -37,9 +37,9 @@ export default function DeploymentsPage() {
     const response_json = await getData(apiURL, authTokens.access);
   
     const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
-      deploymentId: deployment.Deployment_ID,
-      startDate: deployment.start_date,
-      endDate: deployment.end_date,
+      deploymentId: deployment.deployment_ID,
+      startDate: deployment.deployment_start,
+      endDate: deployment.deployment_end,
       folder_size: deployment.folder_size,
       lastUpload: "",
       batteryLevel: 0,
@@ -52,7 +52,7 @@ export default function DeploymentsPage() {
       mic_direction: deployment.mic_direction,
       habitat: deployment.habitat,
       protocol_checklist: deployment.protocol_checklist,
-      score: 0,
+      score: deployment,
       comment: deployment.comment,
       user_email: deployment.user_email,
       country: deployment.country,
@@ -121,6 +121,8 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.original.startDate,
+
     },
     {
       accessorKey: "endDate",
@@ -134,6 +136,8 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => row.original.endDate,
+
     },
     {
       accessorKey: "lastUpload",

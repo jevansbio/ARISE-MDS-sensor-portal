@@ -6,7 +6,7 @@ import SiteDetailPage from './-SiteDetailPage';
 import DeploymentMapPage from './-deploymentMapPage';
 
 export default function DevicePage() {
-  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails' | 'map'>('details'); 
+  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails' | 'map'>('siteDetails'); 
 
   return (
     <div>
