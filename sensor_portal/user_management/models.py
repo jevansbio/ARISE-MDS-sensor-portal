@@ -57,8 +57,8 @@ def post_save_device(sender, instance, created, **kwargs):
         device_user = DeviceUser(username=user_name,
                                  device=instance,
                                  is_active=True)
-        if (instance.password is not None) and (instance.password != ""):
-            device_user.password = instance.password
+        # if (instance.password is not None) and (instance.password != ""):
+        #     device_user.password = instance.password
         if instance.owner:
             device_user.email = instance.owner.email
         device_user.save()

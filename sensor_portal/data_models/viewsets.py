@@ -37,12 +37,59 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
     filterset_class = DeploymentFilter
     filter_backends = viewsets.ModelViewSet.filter_backends + \
         [filters_gis.InBBoxFilter]
-
     def get_serializer_class(self):
         if 'geoJSON' in self.request.GET.keys():
             return DeploymentSerializer_GeoJSON
         else:
             return DeploymentSerializer
+
+    @action(detail=False, methods=['post'])
+    def upsert_deployment(self, request):
+        data = request.data
+        deployment_id = data.get('deployment_ID')
+        if not deployment_id:
+            return Response({"error": "deployment_ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        deployment_data = {
+            'start_date': data.get('start_date'),
+            'end_date': data.get('end_date'),
+            'country': data.get('country'),
+            'site_name': data.get('site_name'),
+            'latitude': data.get('latitude'),
+            'longitude': data.get('longitude'),
+            'coordinate_uncertainty': data.get('coordinate_uncertainty'),
+            'gps_device': data.get('gps_device'),
+            'mic_height': data.get('mic_height'),
+            'mic_direction': data.get('mic_direction'),
+            'habitat': data.get('habitat'),
+            'score': data.get('score'),
+            'protocol_checklist': data.get('protocol_checklist'),
+            'user_email': data.get('user_email'),
+            'comment': data.get('comment'),
+        }
+        
+        deployment, created = Deployment.objects.get_or_create(deployment_ID=deployment_id, defaults=deployment_data)
+        if not created:
+            serializer = DeploymentSerializer(deployment, data=deployment_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            serializer = DeploymentSerializer(deployment)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
+    def by_site(self, request, site_name=None):
+        if site_name is None:
+            return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        deployment = self.queryset.filter(site_name__iexact=site_name).first()
+        
+        if not deployment:
+            return Response({"error": "Deployment not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(deployment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'])
     def metrics(self, request, pk=None):
@@ -210,16 +257,53 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     filterset_class = DeviceFilter
     search_fields = ['device_ID', 'name', 'model__name', 'country', 'site_name', 'habitat']
 
-    # Legg til disse to linjene:
-    lookup_field = 'device_ID'          # Forteller DRF at detaljvisning bruker device_ID
-    lookup_url_kwarg = 'device_ID'      # Valgfritt: URL-parameteret blir <device_ID>
+    lookup_field = 'device_ID'          
+    lookup_url_kwarg = 'device_ID'      
+
+    @action(detail=False, methods=['post'])
+    def upsert_device(self, request):
+        data = request.data
+        device_id = data.get('device_ID')
+        if not device_id:
+            return Response({"error": "device_ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        device_data = {
+            'configuration': data.get('configuration'),
+            'sim_card_icc': data.get('sim_card_icc'),
+            'sim_card_batch': data.get('sim_card_batch'),
+            'sd_card_size': data.get('sd_card_size'),
+        }
+        
+        device, created = Device.objects.get_or_create(device_ID=device_id, defaults=device_data)
+        if not created:
+            serializer = DeviceSerializer(device, data=device_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            serializer = DeviceSerializer(device)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
+    def by_site(self, request, site_name=None):
+        if not site_name:
+            return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        deployment = Deployment.objects.filter(site_name__iexact=site_name).first()
+        if not deployment:
+            return Response({"error": "No deployment found for site"}, status=status.HTTP_404_NOT_FOUND)
+        
+        device = deployment.device
+        if not device:
+            return Response({"error": "No device linked to the deployment"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(device)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     @action(detail=True, methods=['get'])
     def datafiles(self, request, device_ID=None):
-        """
-        Returnerer alle DataFile-objekter som er knyttet til dette Device-objektet
-        gjennom Deployment.
-        """
+   
         device = self.get_object()
         user = request.user
 
@@ -345,30 +429,26 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         return Response(response_data, status=status.HTTP_200_OK)
         
     @action(detail=True, methods=['post'])
-    def update_form_info(self, request, pk=None):
+    def update_device_info(self, request, pk=None):
         device = self.get_object()
         user = request.user
-        
+
         if not user.has_perm('data_models.change_device', device):
             raise PermissionDenied("You don't have permission to update this device information")
             
-        form_fields = [
-            'country', 'site_name', 'coordinate_uncertainty', 'gps_device',
-            'mic_height', 'mic_direction', 'habitat', 'score',
-            'protocol_checklist', 'user_email', 'comment'
-        ]
-        
+        # Kun device-feltene
+        device_fields = ['device_ID', 'configuration', 'sim_card_icc', 'sim_card_batch', 'sd_card_size']
         updates = {}
-        for field in form_fields:
+        for field in device_fields:
             if field in request.data:
                 updates[field] = request.data[field]
-                
+        
         for key, value in updates.items():
             setattr(device, key, value)
             
         device.save()
         return Response(DeviceSerializer(device).data, status=status.HTTP_200_OK)
-        
+
     @action(detail=False, methods=['post'])
     def create_from_json(self, request):
         user = request.user
