@@ -43,6 +43,20 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
                                                allow_null=True,
                                                required=False,
                                                read_only=False)
+    data_files = serializers.SerializerMethodField()
+
+    def get_data_files(self, obj):
+        data_files = obj.data_files.all()
+        return [{
+            'id': df.id,
+            'file_name': df.file_name,
+            'deployment': {
+                'name': df.deployment.deployment_device_ID if df.deployment else None,
+                'device': {
+                    'name': df.deployment.device.name if df.deployment and df.deployment.device else None
+                }
+            } if df.deployment else None
+        } for df in data_files]
 
     def to_representation(self, instance):
         initial_rep = super(ObservationSerializer, self).to_representation(instance)

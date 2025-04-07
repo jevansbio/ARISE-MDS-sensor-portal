@@ -27,6 +27,12 @@ interface Observation {
   data_files: Array<{
     id: number;
     file_name: string;
+    deployment?: {
+      name: string;
+      device: {
+        name: string;
+      };
+    };
   }>;
 }
 
@@ -46,7 +52,8 @@ export default function AllObservationsList() {
     queryFn: async () => {
       if (!authTokens?.access) return { results: [], count: 0 };
       try {
-        const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}`, authTokens.access);
+        // Fetch observations with expanded data_files information
+        const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}&expand=data_files.deployment.device`, authTokens.access);
         const observations = data.results || [];
         const totalCount = data.count || 0;
         setTotalPages(Math.ceil(totalCount / pageSize));
@@ -314,6 +321,7 @@ export default function AllObservationsList() {
                 <TableHead>Source</TableHead>
                 <TableHead>Review Status</TableHead>
                 <TableHead>Duration</TableHead>
+                <TableHead>Device</TableHead>
                 <TableHead>File</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -332,7 +340,19 @@ export default function AllObservationsList() {
                       "N/A"}
                   </TableCell>
                   <TableCell>
-                    {observation.data_files?.map(df => df.file_name).join(', ') || "N/A"}
+                    {observation.data_files?.map(df => 
+                      df.deployment?.device?.name || "Unknown"
+                    ).filter((value, index, self) => self.indexOf(value) === index).join(', ')}
+                  </TableCell>
+                  <TableCell>
+                    {observation.data_files?.map(df => (
+                      <div key={`${observation.id}-${df.id}`} className="text-sm">
+                        <div>{df.file_name || "Unknown file"}</div>
+                        <div className="text-gray-500 text-xs">
+                          {df.deployment?.name || "Unknown deployment"}
+                        </div>
+                      </div>
+                    ))}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

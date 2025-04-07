@@ -19,5 +19,11 @@ export interface Observation {
   data_files: Array<{
     id: number;
     file_name: string;
+    deployment?: {
+      name: string;
+      device: {
+        name: string;
+      };
+    };
   }>;
 } 
