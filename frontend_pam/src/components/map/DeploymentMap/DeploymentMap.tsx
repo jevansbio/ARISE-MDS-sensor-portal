@@ -128,7 +128,7 @@ const DeploymentMap = ({ deployments }: Props) => {
 
 						return (
 							<CompMarker
-								key={deploymentData.deployment_device_ID}
+								key={deploymentData.site_name}
 								position={latLng}
 								icon={
 									<DeploymentIcon
