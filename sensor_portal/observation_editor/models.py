@@ -147,7 +147,7 @@ class Observation(BaseModel):
                               on_delete=models.SET_NULL, null=True)
     label = models.CharField(max_length=300, blank=True, editable=False)
     taxon = models.ForeignKey(
-        Taxon, on_delete=models.PROTECT, related_name="observations", null=True)
+        Taxon, on_delete=models.SET_NULL, related_name="observations", null=True)
 
     data_files = models.ManyToManyField(
         DataFile, related_name="observations")

@@ -242,6 +242,163 @@ export default function ObservationList() {
     }
   };
 
+  const handleDeleteObservation = async (id: number) => {
+    if (!authTokens?.access) return;
+    
+    if (!window.confirm('Are you sure you want to delete this observation?')) {
+      return;
+    }
+
+    try {
+      // First, get the observation details to get the taxon information
+      const observationResponse = await fetch(`/api/observation/${id}/`, {
+        headers: {
+          'Authorization': `Bearer ${authTokens.access}`
+        }
+      });
+
+      if (!observationResponse.ok) {
+        throw new Error('Failed to fetch observation details');
+      }
+
+      const observation = await observationResponse.json();
+      const speciesName = observation.taxon.species_name;
+
+      // Create a temporary observation with the same taxon
+      const tempObservationResponse = await fetch('/api/observation/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authTokens.access}`
+        },
+        body: JSON.stringify({
+          taxon: observation.taxon.id,
+          source: 'human',
+          data_files: observation.data_files.map((df: any) => df.id),
+          extra_data: {
+            start_time: observation.extra_data.start_time,
+            end_time: observation.extra_data.end_time,
+            duration: observation.extra_data.duration,
+            avg_amplitude: observation.extra_data.avg_amplitude,
+            auto_detected: false
+          }
+        })
+      });
+
+      if (!tempObservationResponse.ok) {
+        let errorMessage = 'Failed to create temporary observation';
+        try {
+          const contentType = tempObservationResponse.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await tempObservationResponse.json();
+            errorMessage = errorData.detail || errorMessage;
+          } else {
+            // If it's not JSON, it's likely an HTML error page
+            if (tempObservationResponse.status === 500) {
+              errorMessage = `Cannot delete this observation because it is the last one referencing the species "${speciesName}". Please contact an administrator to delete the species record.`;
+            } else {
+              errorMessage = 'Server error occurred. Please try again later.';
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+        }
+        throw new Error(errorMessage);
+      }
+
+      const tempObservation = await tempObservationResponse.json();
+
+      // Now delete the original observation
+      const deleteResponse = await fetch(`/api/observation/${id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authTokens.access}`
+        }
+      });
+
+      if (!deleteResponse.ok) {
+        // If deletion fails, clean up the temporary observation
+        await fetch(`/api/observation/${tempObservation.id}/`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authTokens.access}`
+          }
+        });
+        throw new Error('Failed to delete observation');
+      }
+
+      // Delete the temporary observation
+      await fetch(`/api/observation/${tempObservation.id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authTokens.access}`
+        }
+      });
+
+      // Update local state
+      setObservations(prev => prev.filter(obs => obs.id !== id));
+
+      // Update query cache
+      queryClient.setQueryData(['observations', dataFileIdStr], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.filter((obs: any) => obs.id !== id);
+      });
+
+    } catch (error) {
+      console.error('Error deleting observation:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete observation. Please try again.');
+    }
+  };
+
+  const handleDownloadObservations = () => {
+    // Create CSV header
+    const headers = [
+      'ID',
+      'Species Name',
+      'Common Name',
+      'Source',
+      'Date',
+      'Start Time',
+      'End Time',
+      'Duration',
+      'Average Amplitude',
+      'Auto Detected',
+      'Needs Review'
+    ];
+
+    // Create CSV rows
+    const rows = observations.map(obs => [
+      obs.id,
+      obs.taxon.species_name,
+      obs.taxon.species_common_name,
+      obs.source,
+      obs.obs_dt,
+      obs.extra_data.start_time,
+      obs.extra_data.end_time,
+      obs.extra_data.duration,
+      obs.extra_data.avg_amplitude,
+      obs.extra_data.auto_detected,
+      obs.needs_review
+    ]);
+
+    // Combine header and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `observations_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
   const error = fileError || obsError;
 
@@ -289,7 +446,10 @@ export default function ObservationList() {
             </p>
           )}
         </div>
-        <Button onClick={handleBack}>Back to File</Button>
+        <div className="flex gap-2">
+          <Button onClick={handleBack}>Back to File</Button>
+          <Button onClick={handleDownloadObservations}>Download Table</Button>
+        </div>
       </div>
 
       {observations.length === 0 ? (
@@ -303,7 +463,7 @@ export default function ObservationList() {
           fileFormat={dataFile?.file_format || 'wav'}
           fileDuration={dataFile?.file_length || 0}
           observations={observations}
-          onDelete={(id: number) => console.log('Delete observation:', id)}
+          onDelete={handleDeleteObservation}
           onEdit={handleEditClick}
         />
       )}
