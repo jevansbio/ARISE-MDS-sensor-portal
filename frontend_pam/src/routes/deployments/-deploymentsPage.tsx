@@ -52,7 +52,7 @@ export default function DeploymentsPage() {
       mic_direction: deployment.mic_direction,
       habitat: deployment.habitat,
       protocol_checklist: deployment.protocol_checklist,
-      score: 0,
+      score: deployment,
       comment: deployment.comment,
       user_email: deployment.user_email,
       country: deployment.country,

@@ -83,9 +83,12 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         if site_name is None:
             return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        deployments = self.queryset.filter(site_name__iexact=site_name)
+        deployment = self.queryset.filter(site_name__iexact=site_name).first()
         
-        serializer = self.get_serializer(deployments, many=True)
+        if not deployment:
+            return Response({"error": "Deployment not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(deployment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'])
