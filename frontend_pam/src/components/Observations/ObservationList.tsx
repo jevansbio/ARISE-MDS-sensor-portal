@@ -72,7 +72,8 @@ export default function ObservationList() {
     queryFn: async () => {
       if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
       try {
-        const data = await getData(`observation/?data_files=${dataFileIdStr}`, authTokens.access);
+        // Fetch all observations without pagination
+        const data = await getData(`observation/?data_files=${dataFileIdStr}&page_size=1000`, authTokens.access);
         const observations = Array.isArray(data) ? data : data.results || [];
         
         // Process observations first to extract taxon data

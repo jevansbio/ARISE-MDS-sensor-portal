@@ -6,69 +6,24 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useContext } from 'react';
 import AuthContext from "@/auth/AuthContext";
-
-interface Observation {
-  id: number;
-  obs_dt: string;
-  taxon: {
-    species_name: string;
-    species_common_name: string;
-    id: number;
-  };
-  source: string;
-  needs_review: boolean;
-  extra_data: {
-    start_time: number;
-    end_time: number;
-    duration: number;
-    avg_amplitude: number;
-    auto_detected: boolean;
-  };
-}
+import { type Observation } from './types';
 
 interface ObservationEditModalProps {
-  observation: Observation | null;
   isOpen: boolean;
   onClose: () => void;
+  observation: Observation;
   onSave: (updatedObservation: Observation) => void;
 }
 
-export default function ObservationEditModal({
-  observation,
-  isOpen,
-  onClose,
-  onSave
-}: ObservationEditModalProps) {
-  const [editedObservation, setEditedObservation] = useState<Observation | null>(null);
+export default function ObservationEditModal({ isOpen, onClose, observation, onSave }: ObservationEditModalProps) {
+  const [editedObservation, setEditedObservation] = useState<Observation>(observation);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { authTokens } = useContext(AuthContext) as any;
 
   useEffect(() => {
-    if (observation) {
-      console.log('Original observation data:', observation);
-      
-      // Handle case where taxon is just an ID
-      const taxon = typeof observation.taxon === 'number' 
-        ? { id: observation.taxon, species_name: '', species_common_name: '' }
-        : observation.taxon || { id: 0, species_name: '', species_common_name: '' };
-      
-      console.log('Initialized taxon data:', taxon);
-      
-      // Set needs_review to true for auto-detected observations
-      const isAutoDetected = observation.source === 'auto_detect' || observation.extra_data?.auto_detected;
-      const newObservation = {
-        ...observation,
-        taxon,
-        needs_review: isAutoDetected ? true : observation.needs_review
-      };
-      console.log('Setting edited observation to:', newObservation);
-      setEditedObservation(newObservation);
-      setError(null);
-    }
+    setEditedObservation(observation);
   }, [observation]);
-
-  if (!editedObservation) return null;
 
   const handleSave = async () => {
     console.log('=== Starting handleSave in ObservationEditModal ===');
@@ -95,7 +50,8 @@ export default function ObservationEditModal({
           duration: Number(editedObservation.extra_data.duration),
           avg_amplitude: Number(editedObservation.extra_data.avg_amplitude),
           auto_detected: Boolean(editedObservation.extra_data.auto_detected)
-        }
+        },
+        data_files: observation.data_files // Preserve the original data_files
       };
 
       console.log('Preparing to send update data:', JSON.stringify(updateData, null, 2));

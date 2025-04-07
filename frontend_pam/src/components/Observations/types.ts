@@ -16,4 +16,8 @@ export interface Observation {
     species_common_name: string;
     id: number;
   };
+  data_files: Array<{
+    id: number;
+    file_name: string;
+  }>;
 } 
