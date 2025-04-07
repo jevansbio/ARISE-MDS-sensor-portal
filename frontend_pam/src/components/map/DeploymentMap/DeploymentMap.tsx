@@ -15,10 +15,11 @@ import UserLocationMarker from "../MapUserLocationMarker";
 import ResetLocation from "../MapControlResetLocation";
 import { Link } from "@tanstack/react-router";
 import { getPinColor } from "@/utils/timeFormat";
+import { Deployment } from "@/types";
 
 interface Props {
 	//should be changed from any
-	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any, last_upload: string, country: string }];
+	deployments: Deployment[];
 }
 
 interface IconProps {
@@ -98,10 +99,6 @@ const DeploymentMap = ({ deployments }: Props) => {
 		setBounds();
 	}, [map, setBounds]);
 
-	console.log(deployments.map((deploymentData) => deploymentData.extra_data.device_config.device_ID));
-
-	
-
 	return (
 		<div>
 			<MapContainer
@@ -127,7 +124,7 @@ const DeploymentMap = ({ deployments }: Props) => {
 							lat: deploymentData.latitude,
 							lng: deploymentData.longitude,
 						};
-						const pinColor = getPinColor(deploymentData.last_upload);
+						const pinColor = getPinColor(deploymentData.lastUpload);
 
 						return (
 							<CompMarker
@@ -142,7 +139,7 @@ const DeploymentMap = ({ deployments }: Props) => {
 							>
 								<Popup>
 									<Link
-										to="/devices/$deviceId"
+										to="/deployments/$site_name"
 										params={{ deviceId: deploymentData.extra_data.device_config.device_ID }}
 										className="text-blue-500 hover:underline mt-2 text-sm"
 									>

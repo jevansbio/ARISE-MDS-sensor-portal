@@ -3,9 +3,10 @@ import DeviceNav from '@/components/pagenav/DeviceNav';
 import DeviceDataFilesPage from './-deviceDataFilesPage';
 import DeviceDetailPage from './-deviceDetailPage';
 import SiteDetailPage from './-SiteDetailPage';
+import DeploymentMapPage from './-deploymentMapPage';
 
 export default function DevicePage() {
-  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails'>('details'); 
+  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails' | 'map'>('details'); 
 
   return (
     <div>
@@ -23,7 +24,9 @@ export default function DevicePage() {
       {activeTab === 'datafiles' && (
         <DeviceDataFilesPage />
       )}
-
+      {activeTab === 'map' && (
+        <DeploymentMapPage />
+      )}
     </div>
   );
 }
