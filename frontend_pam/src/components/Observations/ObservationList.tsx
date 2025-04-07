@@ -66,25 +66,30 @@ export default function ObservationList() {
   });
 
   // Query for observations
-  const { data: observations = [], isLoading: isLoadingObs, error: obsError } = useQuery({
+  const { data: observations = [], isLoading: isLoadingObs, error: obsError } = useQuery<Observation[]>({
     queryKey: ['observations', dataFileIdStr],
     queryFn: async () => {
       if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return [];
       try {
+        console.log('Fetching observations for data file:', dataFileIdStr);
         // Fetch all pages of observations
         let allObservations: any[] = [];
         let page = 1;
         let hasMore = true;
         
         while (hasMore) {
+          console.log(`Fetching page ${page} of observations...`);
           const data = await getData(`observation/?data_files=${dataFileIdStr}&page=${page}&page_size=50`, authTokens.access);
           const pageObservations = Array.isArray(data) ? data : data.results || [];
+          console.log(`Retrieved ${pageObservations.length} observations from page ${page}`);
           allObservations = [...allObservations, ...pageObservations];
           
           // Check if there are more pages
           hasMore = data.next !== null;
           page++;
         }
+        
+        console.log(`Total observations fetched: ${allObservations.length}`);
         
         // Process observations first to extract taxon data
         const processedObservations: Observation[] = allObservations.map((obs: any) => {
@@ -142,6 +147,76 @@ export default function ObservationList() {
           };
         });
         
+        // Fetch missing taxon data
+        const missingTaxonIds = new Set(
+          processedObservations
+            .filter(obs => typeof obs.taxon === 'number' || (obs.taxon?.id && !taxonCache[obs.taxon.id]))
+            .map(obs => typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id)
+            .filter((id): id is number => id !== undefined && id !== 0)
+        );
+
+        if (missingTaxonIds.size > 0) {
+          console.log(`Fetching ${missingTaxonIds.size} missing taxon records...`);
+          const taxonFetchPromises = Array.from(missingTaxonIds).map(async (taxonId) => {
+            try {
+              const taxonData = await getData(`taxon/${taxonId}/`, authTokens.access);
+              if (!taxonData || !taxonData.species_name) {
+                console.warn(`Invalid taxon data received for ID ${taxonId}`);
+                return { taxonId, taxonData: null };
+              }
+              setTaxonCache(prev => ({
+                ...prev,
+                [taxonId]: {
+                  id: taxonId,
+                  species_name: taxonData.species_name,
+                  species_common_name: taxonData.species_common_name || 'Unknown'
+                }
+              }));
+              return { taxonId, taxonData };
+            } catch (error) {
+              console.error(`Failed to fetch taxon data for ID ${taxonId}:`, error);
+              // Retry once after a short delay
+              try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const retryData = await getData(`taxon/${taxonId}/`, authTokens.access);
+                if (retryData && retryData.species_name) {
+                  setTaxonCache(prev => ({
+                    ...prev,
+                    [taxonId]: {
+                      id: taxonId,
+                      species_name: retryData.species_name,
+                      species_common_name: retryData.species_common_name || 'Unknown'
+                    }
+                  }));
+                  return { taxonId, taxonData: retryData };
+                }
+              } catch (retryError) {
+                console.error(`Retry failed for taxon ID ${taxonId}:`, retryError);
+              }
+              return { taxonId, taxonData: null };
+            }
+          });
+
+          await Promise.all(taxonFetchPromises);
+          
+          // Update observations with fetched taxon data
+          return processedObservations.map(obs => {
+            const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
+            if (taxonId && taxonCache[taxonId]) {
+              return {
+                ...obs,
+                taxon: {
+                  id: taxonId,
+                  species_name: taxonCache[taxonId].species_name,
+                  species_common_name: taxonCache[taxonId].species_common_name
+                }
+              };
+            }
+            return obs;
+          });
+        }
+        
+        console.log('Processed observations:', processedObservations.length);
         return processedObservations;
       } catch (error) {
         console.error('Failed to fetch observations:', error);
@@ -150,11 +225,65 @@ export default function ObservationList() {
     },
     enabled: !!deviceIdStr && !!dataFileIdStr && !!authTokens?.access,
     gcTime: 5 * 60 * 1000, // Keep cache for 5 minutes
-    staleTime: 1 * 60 * 1000, // Consider data fresh for 1 minute
+    staleTime: 0, // Always consider data stale to force refetch
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchOnReconnect: true
+    refetchOnReconnect: true,
+    retry: 3, // Retry failed requests up to 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000) // Exponential backoff
   });
+
+  // Add a mount effect to ensure proper data fetching on initial load and refresh
+  useEffect(() => {
+    if (dataFileIdStr && authTokens?.access) {
+      console.log('Initial mount - triggering observations refetch...');
+      // Clear any existing cache for this query
+      queryClient.removeQueries({ queryKey: ['observations', dataFileIdStr] });
+      // Force a fresh fetch
+      queryClient.fetchQuery({
+        queryKey: ['observations', dataFileIdStr],
+        queryFn: async () => {
+          if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return [];
+          try {
+            console.log('Fetching observations for data file:', dataFileIdStr);
+            // Fetch all pages of observations
+            let allObservations: any[] = [];
+            let page = 1;
+            let hasMore = true;
+            
+            while (hasMore) {
+              console.log(`Fetching page ${page} of observations...`);
+              const data = await getData(`observation/?data_files=${dataFileIdStr}&page=${page}&page_size=50`, authTokens.access);
+              const pageObservations = Array.isArray(data) ? data : data.results || [];
+              console.log(`Retrieved ${pageObservations.length} observations from page ${page}`);
+              allObservations = [...allObservations, ...pageObservations];
+              
+              // Check if there are more pages
+              hasMore = data.next !== null;
+              page++;
+            }
+            
+            console.log(`Total observations fetched: ${allObservations.length}`);
+            return allObservations;
+          } catch (error) {
+            console.error('Failed to fetch observations:', error);
+            throw error;
+          }
+        }
+      });
+    }
+  }, [dataFileIdStr, authTokens?.access, queryClient, deviceIdStr]);
+
+  // Add a refetch effect that runs when dataFileIdStr changes
+  useEffect(() => {
+    if (dataFileIdStr && authTokens?.access) {
+      console.log('Data file changed - triggering observations refetch...');
+      queryClient.invalidateQueries({ 
+        queryKey: ['observations', dataFileIdStr],
+        refetchType: 'active'
+      });
+    }
+  }, [dataFileIdStr, authTokens?.access, queryClient]);
 
   const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
   const error = fileError || obsError;
@@ -224,62 +353,65 @@ export default function ObservationList() {
     setIsEditModalOpen(false);
     console.log('Edit modal closed');
     
-    // Optimistically update the query cache
-    queryClient.setQueryData(['observations', dataFileIdStr], (old: any) => {
-      if (!old) return [updatedObservation];
-      return old.map((obs: Observation) => 
-        obs.id === updatedObservation.id ? updatedObservation : obs
-      );
-    });
-    
-    // Invalidate and refetch observations query
-    console.log('Invalidating queries...');
-    await queryClient.invalidateQueries({ 
-      queryKey: ['observations', dataFileIdStr],
-      refetchType: 'active'
-    });
-    
-    // Wait for the refetch to complete
-    console.log('Waiting for refetch to complete...');
-    await queryClient.refetchQueries({ 
-      queryKey: ['observations', dataFileIdStr],
-      type: 'active'
-    });
-    
-    // Get the current data after refetch
-    const newData = queryClient.getQueryData(['observations', dataFileIdStr]) as Observation[];
-    console.log('Current data after refetch:', newData);
-    
-    if (!newData) {
-      console.error('No data available after refetch');
-      return;
-    }
-    
-    // Log all observation IDs for debugging
-    console.log('All observation IDs:', newData.map(obs => obs.id));
-    
-    // Find the updated observation
-    const updatedObs = newData.find((obs) => obs.id === updatedObservation.id);
-    console.log('Updated observation found:', updatedObs);
-    
-    if (!updatedObs) {
-      console.error('Updated observation not found in current data');
-      // Try to find the observation in the original data
-      const originalObs = currentData?.find(obs => obs.id === updatedObservation.id);
-      console.log('Original observation:', originalObs);
-      return;
-    }
-    
-    // Verify the species name matches
-    if (updatedObs.taxon?.species_name !== updatedObservation.taxon?.species_name) {
-      console.error('Species name mismatch:', {
-        expected: updatedObservation.taxon?.species_name,
-        actual: updatedObs.taxon?.species_name
+    try {
+      // Optimistically update the query cache
+      queryClient.setQueryData(['observations', dataFileIdStr], (old: any) => {
+        if (!old) return [updatedObservation];
+        return old.map((obs: Observation) => 
+          obs.id === updatedObservation.id ? updatedObservation : obs
+        );
       });
-      return;
+      
+      // Invalidate and refetch observations query
+      console.log('Invalidating queries...');
+      await queryClient.invalidateQueries({ 
+        queryKey: ['observations', dataFileIdStr],
+        refetchType: 'active'
+      });
+      
+      // Force a refetch of the observations
+      console.log('Forcing refetch...');
+      await queryClient.refetchQueries({ 
+        queryKey: ['observations', dataFileIdStr],
+        type: 'active',
+        exact: true
+      });
+      
+      // Get the current data after refetch
+      const newData = queryClient.getQueryData(['observations', dataFileIdStr]) as Observation[];
+      console.log('Current data after refetch:', newData);
+      
+      if (!newData) {
+        console.error('No data available after refetch');
+        return;
+      }
+      
+      // Verify the update was successful
+      const updatedObs = newData.find((obs) => obs.id === updatedObservation.id);
+      if (!updatedObs) {
+        console.error('Updated observation not found in current data');
+        // Restore previous data if update failed
+        queryClient.setQueryData(['observations', dataFileIdStr], currentData);
+        return;
+      }
+      
+      // Verify the species name matches
+      if (updatedObs.taxon?.species_name !== updatedObservation.taxon?.species_name) {
+        console.error('Species name mismatch:', {
+          expected: updatedObservation.taxon?.species_name,
+          actual: updatedObs.taxon?.species_name
+        });
+        // Restore previous data if update failed
+        queryClient.setQueryData(['observations', dataFileIdStr], currentData);
+        return;
+      }
+      
+      console.log('Observation update verified successfully');
+    } catch (error) {
+      console.error('Error during observation update:', error);
+      // Restore previous data if update failed
+      queryClient.setQueryData(['observations', dataFileIdStr], currentData);
     }
-    
-    console.log('Observation update verified successfully');
   };
 
   const handleDeleteObservation = async (id: number) => {

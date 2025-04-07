@@ -3,11 +3,14 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from utils.viewsets import (AddOwnerViewSetMixIn, CheckAttachmentViewSetMixIn,
                             OptionalPaginationViewSetMixIn)
+import logging
 
 from .GBIF_functions import GBIF_species_search
 from .models import Observation, Taxon
 from .serializers import EvenShorterTaxonSerialier, ObservationSerializer
 from .filtersets import ObservationFilterSet
+
+logger = logging.getLogger(__name__)
 
 
 class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
@@ -151,21 +154,14 @@ class TaxonViewSet(viewsets.ReadOnlyModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
         except Taxon.DoesNotExist:
-            # If taxon doesn't exist, try to find it by name in the observation
-            try:
-                observation = Observation.objects.filter(taxon_id=kwargs['pk']).first()
-                if observation and observation.taxon:
-                    serializer = self.get_serializer(observation.taxon)
-                    return Response(serializer.data)
-            except Exception:
-                pass
+            logger.warning(f"Taxon with ID {kwargs['pk']} not found")
             return Response(
                 {'detail': 'Taxon not found'}, 
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            logger.error(f"Error retrieving taxon: {str(e)}")
+            logger.error(f"Error retrieving taxon {kwargs['pk']}: {str(e)}", exc_info=True)
             return Response(
-                {'detail': str(e)}, 
+                {'detail': 'Internal server error'}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
