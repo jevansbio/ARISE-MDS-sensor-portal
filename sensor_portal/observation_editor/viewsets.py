@@ -64,6 +64,8 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
                             species_name=taxon_data['species_name'],
                             species_common_name=taxon_data.get('species_common_name', '')
                         )
+                        # Save the taxon to ensure it's created
+                        taxon.save()
                         request.data['taxon'] = taxon.id
                 except Exception as e:
                     return Response(
@@ -84,7 +86,18 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
         # Fetch the complete observation with taxon details
         updated_instance = self.get_object()
         response_serializer = self.get_serializer(updated_instance)
-        return Response(response_serializer.data)
+        
+        # Ensure we have complete taxon data in the response
+        response_data = response_serializer.data
+        if isinstance(response_data['taxon'], int):
+            taxon = Taxon.objects.get(id=response_data['taxon'])
+            response_data['taxon'] = {
+                'id': taxon.id,
+                'species_name': taxon.species_name,
+                'species_common_name': taxon.species_common_name
+            }
+        
+        return Response(response_data)
 
 
 class TaxonAutocompleteViewset(viewsets.ReadOnlyModelViewSet):
@@ -126,3 +139,33 @@ class TaxonAutocompleteViewset(viewsets.ReadOnlyModelViewSet):
             serializer_data += new_gbif_results
 
         return self.get_paginated_response(serializer_data)
+
+
+class TaxonViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Taxon.objects.all()
+    serializer_class = EvenShorterTaxonSerialier
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        except Taxon.DoesNotExist:
+            # If taxon doesn't exist, try to find it by name in the observation
+            try:
+                observation = Observation.objects.filter(taxon_id=kwargs['pk']).first()
+                if observation and observation.taxon:
+                    serializer = self.get_serializer(observation.taxon)
+                    return Response(serializer.data)
+            except Exception:
+                pass
+            return Response(
+                {'detail': 'Taxon not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error retrieving taxon: {str(e)}")
+            return Response(
+                {'detail': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

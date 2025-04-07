@@ -31,9 +31,17 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
     console.log('Current taxon data:', editedObservation.taxon);
 
     if (!editedObservation) {
-      console.error('Missing required data for save');
+      setError('Missing required data for save');
       return;
     }
+
+    if (!editedObservation.taxon?.species_name) {
+      setError('Species name is required');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
 
     try {
       // Check if species name has changed
@@ -57,6 +65,15 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
         },
         data_files: observation.data_files // Preserve the original data_files
       };
+
+      // Validate the update data
+      if (isNaN(updateData.extra_data.start_time) || isNaN(updateData.extra_data.end_time)) {
+        throw new Error('Invalid time values');
+      }
+
+      if (updateData.extra_data.start_time >= updateData.extra_data.end_time) {
+        throw new Error('Start time must be before end time');
+      }
 
       console.log('Preparing to send update data:', JSON.stringify(updateData, null, 2));
       console.log('API endpoint:', `observation/${editedObservation.id}/`);
@@ -98,9 +115,9 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
       const completeObservation = {
         ...updatedObservation,
         taxon: {
-          id: updatedObservation.taxon,
-          species_name: editedObservation.taxon.species_name,
-          species_common_name: editedObservation.taxon.species_common_name
+          id: updatedObservation.taxon.id,
+          species_name: updatedObservation.taxon.species_name,
+          species_common_name: updatedObservation.taxon.species_common_name
         }
       };
 
@@ -112,11 +129,13 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
       console.error('=== Error in handleSave ===');
       console.error('Error details:', error);
       if (error instanceof Error) {
+        setError(error.message);
         console.error('Error message:', error.message);
-        alert(error.message);
       } else {
-        alert('An unexpected error occurred. Please try again.');
+        setError('An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 

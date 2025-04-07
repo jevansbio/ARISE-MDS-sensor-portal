@@ -69,15 +69,36 @@ export default function ObservationList() {
   const { data: observations = [], isLoading: isLoadingObs, error: obsError } = useQuery({
     queryKey: ['observations', dataFileIdStr],
     queryFn: async () => {
-      if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
+      if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return [];
       try {
-        const data = await getData(`observation/?data_files=${dataFileIdStr}&page_size=1000`, authTokens.access);
-        const observations = Array.isArray(data) ? data : data.results || [];
+        // Fetch all pages of observations
+        let allObservations: any[] = [];
+        let page = 1;
+        let hasMore = true;
+        
+        while (hasMore) {
+          const data = await getData(`observation/?data_files=${dataFileIdStr}&page=${page}&page_size=50`, authTokens.access);
+          const pageObservations = Array.isArray(data) ? data : data.results || [];
+          allObservations = [...allObservations, ...pageObservations];
+          
+          // Check if there are more pages
+          hasMore = data.next !== null;
+          page++;
+        }
         
         // Process observations first to extract taxon data
-        const processedObservations = observations.map((obs: any) => {
-          // If taxon is already an object, use it directly
-          if (obs.taxon && typeof obs.taxon === 'object') {
+        const processedObservations: Observation[] = allObservations.map((obs: any) => {
+          // If taxon is already an object with complete data, use it directly
+          if (obs.taxon && typeof obs.taxon === 'object' && obs.taxon.species_name) {
+            // Update taxon cache with this data
+            setTaxonCache(prev => ({
+              ...prev,
+              [obs.taxon.id]: {
+                id: obs.taxon.id,
+                species_name: obs.taxon.species_name,
+                species_common_name: obs.taxon.species_common_name
+              }
+            }));
             return {
               ...obs,
               id: Number(obs.id),
@@ -115,8 +136,8 @@ export default function ObservationList() {
             needs_review: obs.needs_review,
             taxon: { 
               id: taxonId || 0, 
-              species_name: 'Unknown', 
-              species_common_name: 'Unknown' 
+              species_name: obs.taxon?.species_name || 'Unknown', 
+              species_common_name: obs.taxon?.species_common_name || 'Unknown' 
             }
           };
         });
@@ -128,9 +149,11 @@ export default function ObservationList() {
       }
     },
     enabled: !!deviceIdStr && !!dataFileIdStr && !!authTokens?.access,
-    gcTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000, // Keep cache for 5 minutes
+    staleTime: 1 * 60 * 1000, // Consider data fresh for 1 minute
     refetchOnMount: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true
   });
 
   const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
@@ -180,72 +203,83 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
-    console.log('=== Starting handleSaveObservation ===');
-    console.log('Updated observation received:', updatedObservation);
+    console.log('handleSaveObservation called with:', updatedObservation);
     
-    // Store the current data for potential rollback
-    const previousData = queryClient.getQueryData(['observations', dataFileIdStr]);
+    // Store current data for potential rollback
+    const currentData = queryClient.getQueryData(['observations', dataFileIdStr]) as Observation[];
     
-    try {
-      // Update the taxon cache first
-      console.log('Updating taxon cache with:', updatedObservation.taxon);
-      setTaxonCache(prev => {
-        const newCache = {
-          ...prev,
-          [updatedObservation.taxon.id]: {
-            id: updatedObservation.taxon.id,
-            species_name: updatedObservation.taxon.species_name,
-            species_common_name: updatedObservation.taxon.species_common_name
-          }
-        };
-        console.log('New taxon cache:', newCache);
-        return newCache;
-      });
-
-      // Close the modal
-      setIsEditModalOpen(false);
-      console.log('Modal closed');
-
-      // Update the query cache optimistically
-      queryClient.setQueryData(['observations', dataFileIdStr], (oldData: any) => {
-        if (!oldData) return oldData;
-        return oldData.map((obs: any) => {
-          if (obs.id === updatedObservation.id) {
-            // Only update the specific observation being edited
-            return {
-              ...obs,
-              taxon: {
-                id: updatedObservation.taxon.id,
-                species_name: updatedObservation.taxon.species_name,
-                species_common_name: updatedObservation.taxon.species_common_name
-              },
-              needs_review: updatedObservation.needs_review,
-              extra_data: {
-                ...obs.extra_data,
-                start_time: updatedObservation.extra_data.start_time,
-                end_time: updatedObservation.extra_data.end_time,
-                duration: updatedObservation.extra_data.duration,
-                avg_amplitude: updatedObservation.extra_data.avg_amplitude,
-                auto_detected: updatedObservation.extra_data.auto_detected
-              }
-            };
-          }
-          // Keep other observations completely unchanged
-          return { ...obs };
-        });
-      });
-
-      // Invalidate and refetch the observations query immediately
-      await queryClient.invalidateQueries({ queryKey: ['observations', dataFileIdStr] });
-      await queryClient.refetchQueries({ queryKey: ['observations', dataFileIdStr] });
-
-      console.log('=== handleSaveObservation completed successfully ===');
-    } catch (error) {
-      console.error('Error in handleSaveObservation:', error);
-      // Rollback to previous data
-      queryClient.setQueryData(['observations', dataFileIdStr], previousData);
-      throw error;
+    // Update taxon cache with the new taxon data
+    if (updatedObservation.taxon) {
+      setTaxonCache(prev => ({
+        ...prev,
+        [updatedObservation.taxon.id]: {
+          id: updatedObservation.taxon.id,
+          species_name: updatedObservation.taxon.species_name,
+          species_common_name: updatedObservation.taxon.species_common_name
+        }
+      }));
     }
+    
+    // Close edit modal
+    setIsEditModalOpen(false);
+    console.log('Edit modal closed');
+    
+    // Optimistically update the query cache
+    queryClient.setQueryData(['observations', dataFileIdStr], (old: any) => {
+      if (!old) return [updatedObservation];
+      return old.map((obs: Observation) => 
+        obs.id === updatedObservation.id ? updatedObservation : obs
+      );
+    });
+    
+    // Invalidate and refetch observations query
+    console.log('Invalidating queries...');
+    await queryClient.invalidateQueries({ 
+      queryKey: ['observations', dataFileIdStr],
+      refetchType: 'active'
+    });
+    
+    // Wait for the refetch to complete
+    console.log('Waiting for refetch to complete...');
+    await queryClient.refetchQueries({ 
+      queryKey: ['observations', dataFileIdStr],
+      type: 'active'
+    });
+    
+    // Get the current data after refetch
+    const newData = queryClient.getQueryData(['observations', dataFileIdStr]) as Observation[];
+    console.log('Current data after refetch:', newData);
+    
+    if (!newData) {
+      console.error('No data available after refetch');
+      return;
+    }
+    
+    // Log all observation IDs for debugging
+    console.log('All observation IDs:', newData.map(obs => obs.id));
+    
+    // Find the updated observation
+    const updatedObs = newData.find((obs) => obs.id === updatedObservation.id);
+    console.log('Updated observation found:', updatedObs);
+    
+    if (!updatedObs) {
+      console.error('Updated observation not found in current data');
+      // Try to find the observation in the original data
+      const originalObs = currentData?.find(obs => obs.id === updatedObservation.id);
+      console.log('Original observation:', originalObs);
+      return;
+    }
+    
+    // Verify the species name matches
+    if (updatedObs.taxon?.species_name !== updatedObservation.taxon?.species_name) {
+      console.error('Species name mismatch:', {
+        expected: updatedObservation.taxon?.species_name,
+        actual: updatedObs.taxon?.species_name
+      });
+      return;
+    }
+    
+    console.log('Observation update verified successfully');
   };
 
   const handleDeleteObservation = async (id: number) => {
