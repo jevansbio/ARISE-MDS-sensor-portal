@@ -14,7 +14,7 @@ import { Marker as CompMarker } from "@adamscybot/react-leaflet-component-marker
 import UserLocationMarker from "../MapUserLocationMarker";
 import ResetLocation from "../MapControlResetLocation";
 import { Link } from "@tanstack/react-router";
-import { getPinColor } from "@/utils/timeFormat";
+import { getPinColor, timeSinceLastUpload } from "@/utils/timeFormat";
 import { Deployment } from "@/types";
 
 interface Props {
@@ -124,6 +124,7 @@ const DeploymentMap = ({ deployments }: Props) => {
 							lat: deploymentData.latitude,
 							lng: deploymentData.longitude,
 						};
+						console.log("Deploymentdata.lastUpload: ", deploymentData.lastUpload)
 						const pinColor = getPinColor(deploymentData.lastUpload);
 
 						return (
@@ -140,14 +141,14 @@ const DeploymentMap = ({ deployments }: Props) => {
 								<Popup>
 									<Link
 										to="/deployments/$site_name"
-										params={{ deviceId: deploymentData.extra_data.device_config.device_ID }}
+										params={{ site_name: deploymentData.site_name }}
 										className="text-blue-500 hover:underline mt-2 text-sm"
 									>
-										View Device: {deploymentData.extra_data.device_config.device_ID}
+										View Site: {deploymentData.site_name}
 									</Link>
 									<div className="mt-2 text-sm">
-										Last Upload: {deploymentData.last_upload 
-											? new Date(deploymentData.last_upload).toLocaleDateString()
+										Last Upload: {deploymentData.lastUpload
+											? timeSinceLastUpload(deploymentData.lastUpload)
 											: 'Never'}
 									</div>
 									<div className="mt-2 text-sm">

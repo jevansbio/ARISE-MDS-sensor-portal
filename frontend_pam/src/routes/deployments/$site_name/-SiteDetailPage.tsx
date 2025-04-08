@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { getData } from "@/utils/FetchFunctions";
 import { useQuery } from "@tanstack/react-query";
 import { Deployment } from "@/types";
+import { timeSinceLastUpload } from "@/utils/timeFormat";
 
 export default function SiteDetailPage() {
   const { site_name } = Route.useParams();
@@ -65,7 +66,7 @@ export default function SiteDetailPage() {
             <strong>End Date:</strong> {deployment.deployment_end}
           </p>
           <p>
-            <strong>Last Upload:</strong> {deployment.lastUpload}
+            <strong>Last Upload:</strong> {timeSinceLastUpload(deployment.last_upload)}
           </p>
           <p>
             <strong>Folder Size:</strong> {bytesToMegabytes(deployment.folder_size)}
