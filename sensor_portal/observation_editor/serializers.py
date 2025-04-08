@@ -61,10 +61,18 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
     def to_representation(self, instance):
         initial_rep = super(ObservationSerializer, self).to_representation(instance)
         initial_rep.pop("species_name")
-        original_taxon_obj = initial_rep.pop("taxon_obj")
         
-        # Always include the full taxon object in the response
-        initial_rep.update(original_taxon_obj)
+        # Get the taxon object
+        taxon = instance.taxon
+        if taxon:
+            initial_rep['taxon'] = {
+                'id': taxon.id,
+                'species_name': taxon.species_name,
+                'species_common_name': taxon.species_common_name
+            }
+        else:
+            initial_rep['taxon'] = None
+            
         return initial_rep
 
     def to_internal_value(self, data):

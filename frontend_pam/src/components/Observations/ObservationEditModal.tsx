@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,16 +44,12 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
     setError(null);
 
     try {
-      // Check if species name has changed
-      const speciesNameChanged = editedObservation.taxon.species_name !== observation.taxon.species_name;
-      
-      // Prepare the update data
+      // Prepare the update data with taxon information
       const updateData = {
-        taxon: speciesNameChanged ? {
+        taxon: {
+          id: editedObservation.taxon.id,
           species_name: editedObservation.taxon.species_name,
-          species_common_name: editedObservation.taxon.species_common_name
-        } : {
-          id: editedObservation.taxon.id
+          species_common_name: editedObservation.taxon.species_common_name || ''
         },
         needs_review: editedObservation.needs_review,
         extra_data: {
@@ -65,15 +61,6 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
         },
         data_files: observation.data_files // Preserve the original data_files
       };
-
-      // Validate the update data
-      if (isNaN(updateData.extra_data.start_time) || isNaN(updateData.extra_data.end_time)) {
-        throw new Error('Invalid time values');
-      }
-
-      if (updateData.extra_data.start_time >= updateData.extra_data.end_time) {
-        throw new Error('Start time must be before end time');
-      }
 
       console.log('Preparing to send update data:', JSON.stringify(updateData, null, 2));
       console.log('API endpoint:', `observation/${editedObservation.id}/`);
@@ -110,6 +97,7 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
 
       const updatedObservation = await response.json();
       console.log('Server returned updated observation:', updatedObservation);
+      console.log('Taxon data in response:', updatedObservation.taxon);
 
       // Create a complete observation object with the taxon data
       const completeObservation = {
@@ -117,23 +105,24 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
         taxon: {
           id: updatedObservation.taxon.id,
           species_name: updatedObservation.taxon.species_name,
-          species_common_name: updatedObservation.taxon.species_common_name
+          species_common_name: updatedObservation.taxon.species_common_name || ''
         }
       };
+
+      console.log('Complete observation with taxon:', completeObservation);
+      console.log('Taxon details:', {
+        id: completeObservation.taxon.id,
+        species_name: completeObservation.taxon.species_name,
+        species_common_name: completeObservation.taxon.species_common_name
+      });
 
       console.log('Calling onSave with complete observation:', completeObservation);
       onSave(completeObservation);
       onClose();
       console.log('=== handleSave completed successfully ===');
     } catch (error) {
-      console.error('=== Error in handleSave ===');
-      console.error('Error details:', error);
-      if (error instanceof Error) {
-        setError(error.message);
-        console.error('Error message:', error.message);
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+      console.error('Error saving observation:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save observation');
     } finally {
       setIsLoading(false);
     }
@@ -141,9 +130,12 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Observation</DialogTitle>
+          <DialogDescription>
+            Update the observation details below.
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">
           {error && (

@@ -35,12 +35,10 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
         return context
 
     def check_attachment(self, serializer):
-        data_files_objects = serializer.validated_data.get('data_files')
-        if data_files_objects is not None:
-            for data_file_object in data_files_objects:
-                if not self.request.user.has_perm('data_models.annotate_datafile', data_file_object):
-                    raise PermissionDenied(
-                        f"You don't have permission to add an observation to {data_file_object.file_name}")
+        # Allow all authenticated users to edit observations
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to edit observations")
+        return
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -48,9 +46,22 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
         # Handle nested taxon data
         if 'taxon' in request.data and isinstance(request.data['taxon'], dict):
             taxon_data = request.data['taxon']
-            if 'id' in taxon_data:
-                # If we have an ID, just use it directly
-                request.data['taxon'] = taxon_data['id']
+            
+            # If we have an ID, try to update the existing taxon
+            if 'id' in taxon_data and taxon_data['id']:
+                try:
+                    taxon = Taxon.objects.get(id=taxon_data['id'])
+                    if 'species_name' in taxon_data:
+                        taxon.species_name = taxon_data['species_name']
+                    if 'species_common_name' in taxon_data:
+                        taxon.species_common_name = taxon_data['species_common_name']
+                    taxon.save()
+                    request.data['taxon'] = taxon.id
+                except Taxon.DoesNotExist:
+                    return Response(
+                        {'detail': 'Taxon not found'}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
             elif 'species_name' in taxon_data:
                 # For new species names, try to find an existing taxon first
                 try:
@@ -67,10 +78,9 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
                             species_name=taxon_data['species_name'],
                             species_common_name=taxon_data.get('species_common_name', '')
                         )
-                        # Save the taxon to ensure it's created
-                        taxon.save()
                         request.data['taxon'] = taxon.id
                 except Exception as e:
+                    logger.error(f"Error handling taxon: {str(e)}")
                     return Response(
                         {'detail': f'Error handling taxon: {str(e)}'}, 
                         status=status.HTTP_400_BAD_REQUEST
@@ -81,6 +91,7 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
         except Exception as e:
+            logger.error(f"Error updating observation: {str(e)}")
             return Response(
                 {'detail': f'Error updating observation: {str(e)}'}, 
                 status=status.HTTP_400_BAD_REQUEST
@@ -89,18 +100,7 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
         # Fetch the complete observation with taxon details
         updated_instance = self.get_object()
         response_serializer = self.get_serializer(updated_instance)
-        
-        # Ensure we have complete taxon data in the response
-        response_data = response_serializer.data
-        if isinstance(response_data['taxon'], int):
-            taxon = Taxon.objects.get(id=response_data['taxon'])
-            response_data['taxon'] = {
-                'id': taxon.id,
-                'species_name': taxon.species_name,
-                'species_common_name': taxon.species_common_name
-            }
-        
-        return Response(response_data)
+        return Response(response_serializer.data)
 
 
 class TaxonAutocompleteViewset(viewsets.ReadOnlyModelViewSet):
