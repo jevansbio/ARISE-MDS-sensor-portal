@@ -5,7 +5,7 @@ import DeviceDetailPage from './-deviceDetailPage';
 import DeploymentMapPage from './-deploymentMapPage';
 import SiteDetailPage from './-siteDetailPage';
 
-export default function DevicePage() {
+export default function DeploymentPage() {
   const [activeTab, setActiveTab] = useState<'deviceDetails' | 'datafiles' | 'siteDetails' | 'map'>('siteDetails'); 
 
   return (

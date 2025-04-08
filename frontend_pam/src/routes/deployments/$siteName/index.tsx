@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import DevicePage from './-devicePage'
+import DeploymentPage from './-deploymentPage'
 
 export const Route = createFileRoute('/deployments/$siteName/')({
-  component: DevicePage,
+  component: DeploymentPage,
 })
