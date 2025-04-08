@@ -10,7 +10,7 @@ import { Link } from "@tanstack/react-router";
 import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
-export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
+export const Route = createFileRoute('/deployments/$site_name/$dataFileId')({
   component: RouteComponent,
   errorComponent: ({ error }) => {
     console.error('Route error:', error);
@@ -119,7 +119,7 @@ function RouteComponent() {
             fileId={dataFileId}
             fileFormat={dataFile.fileFormat}
           />
-          <Link to="/devices/$deviceId" params={{ deviceId }}>
+          <Link to="/deployments/$deviceId" params={{ deviceId }}>
             <Button variant="outline">Back to Device</Button>
           </Link>
         </div>

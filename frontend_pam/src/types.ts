@@ -6,8 +6,33 @@ export type Device = {
     batteryLevel: number;
     folder_size: number;
     action: string;
+    site: string;
     dataFile: DataFile[];
 };
+
+export type Deployment = {
+    deploymentId: string;
+    startDate: string;
+    endDate: string;
+    lastUpload: string;
+    batteryLevel: number;
+    site_name: string;
+    folder_size: number;
+    coordinate_uncertainty: string;
+    gps_device: string;
+    mic_height: number;
+    mic_direction: string;
+    latitude: number;
+    longitude: number;
+    habitat: string;
+    protocol_checklist: string;
+    score: number;
+    comment: string;
+    action: string;
+    user_email: string;
+    country: string;
+    dataFile: DataFile[];
+}
 
 export type DataFile = {
     id: string;
