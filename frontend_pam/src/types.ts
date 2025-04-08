@@ -17,7 +17,7 @@ export type Deployment = {
     lastUpload: string;
     batteryLevel: number;
     site_name: string;
-    folder_size: number;
+    folderSize: number;
     coordinate_uncertainty: string;
     gps_device: string;
     mic_height: number;

@@ -205,9 +205,9 @@ class Device(BaseModel):
         if all_files.exists():
             return all_files.aggregate(last_upload=models.Max('upload_dt'))['last_upload']
         return None
-
+    
     def save(self, *args, **kwargs):
-        if not self.type:
+        if self.model and not self.type:
             self.type = self.model.type
         super().save(*args, **kwargs)
 

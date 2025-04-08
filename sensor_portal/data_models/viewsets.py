@@ -16,7 +16,7 @@ from utils.viewsets import (AddOwnerViewSetMixIn, CheckAttachmentViewSetMixIn,
 
 from .file_handling_functions import create_file_objects
 from .filtersets import *
-from .models import DataFile, DataType, Deployment, Device, Project, Site
+from .models import DataFile, DataType, Deployment, Device, DeviceModel, Project, Site
 from .permissions import perms
 from .plotting_functions import get_all_file_metric_dicts
 from .serializers import (DataFileSerializer, DataFileUploadSerializer,
@@ -45,41 +45,89 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
 
     @action(detail=False, methods=['post'])
     def upsert_deployment(self, request):
-        data = request.data
-        deployment_id = data.get('deployment_ID')
+        """
+        Update or insert (upsert) a Deployment instance using deployment_ID.
+
+        - If deployment_ID exists, only update fields explicitly provided and non-empty.
+        - If not, create a new deployment using provided data.
+        - Accepts both raw field names and mapped form field names.
+        
+        Returns:
+            - 200 OK with updated deployment
+            - 201 Created with new deployment
+            - 400 Bad Request if deployment_ID is missing
+        """
+        user = request.user
+        data = request.data.copy()  # Make mutable
+
+        # Map known external field names to internal model fields
+        field_mapping = {
+            'DeploymentID': 'deployment_ID',
+            'Country': 'country',
+            'Site': 'site_name',
+            'StartDate': 'start_date',
+            'EndDate': 'end_date',
+            'Latitude': 'latitude',
+            'Longitude': 'longitude',
+            'Coordinate Uncertainty': 'coordinate_uncertainty',
+            'GPS device': 'gps_device',
+            'Microphone Height': 'mic_height',
+            'Microphone Direction': 'mic_direction',
+            'Habitat': 'habitat',
+            'Score': 'score',
+            'Protocol Checklist': 'protocol_checklist',
+            'Adresse e-mail': 'user_email',
+            'Comment/remark': 'comment'
+        }
+
+        # Translate keys and filter out empty values
+        translated_data = {
+            field_mapping.get(key, key): value
+            for key, value in data.items()
+            if value not in [None, ""]
+        }
+
+        # Handle ActiveData block if present
+        active_data = data.get("ActiveData")
+        if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
+            translated_data["battery_level"] = active_data["batteryLevel"]
+
+        deployment_id = translated_data.get("deployment_ID")
         if not deployment_id:
             return Response({"error": "deployment_ID is required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        deployment_data = {
-            'start_date': data.get('start_date'),
-            'end_date': data.get('end_date'),
-            'country': data.get('country'),
-            'site_name': data.get('site_name'),
-            'latitude': data.get('latitude'),
-            'longitude': data.get('longitude'),
-            'coordinate_uncertainty': data.get('coordinate_uncertainty'),
-            'gps_device': data.get('gps_device'),
-            'mic_height': data.get('mic_height'),
-            'mic_direction': data.get('mic_direction'),
-            'habitat': data.get('habitat'),
-            'score': data.get('score'),
-            'protocol_checklist': data.get('protocol_checklist'),
-            'user_email': data.get('user_email'),
-            'comment': data.get('comment'),
-        }
-        
-        deployment, created = Deployment.objects.get_or_create(deployment_ID=deployment_id, defaults=deployment_data)
-        if not created:
-            serializer = DeploymentSerializer(deployment, data=deployment_data, partial=True)
+        deployment, created = Deployment.objects.get_or_create(
+            deployment_ID=deployment_id,
+            defaults=translated_data
+        )
+
+        try:
+            deployment = Deployment.objects.get(deployment_ID=deployment_id)
+            serializer = DeploymentSerializer(deployment, data=translated_data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            serializer = DeploymentSerializer(deployment)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+        except Deployment.DoesNotExist:
+            serializer = DeploymentSerializer(data=translated_data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
     def by_site(self, request, site_name=None):
+        """
+        Fetch a single Deployment based on site_name (case-insensitive).
+
+        - Expects site_name to be provided in the URL.
+        - Assumes that site_name is unique across Deployments.
+        - Returns 404 if no matching Deployment is found.
+
+        Returns:
+            - 200 OK with serialized deployment data if found.
+            - 400 Bad Request if site_name is not provided.
+            - 404 Not Found if no Deployment matches the given site_name.
+        """
         if site_name is None:
             return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -141,55 +189,6 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         deployment.save()
         return Response(DeploymentSerializer(deployment).data, status=status.HTTP_200_OK)
         
-    @action(detail=False, methods=['post'])
-    def create_from_form(self, request):
-        user = request.user
-        
-        data = request.data
-        
-        # Map form field names to model field names
-        field_mapping = {
-            'DeploymentID': 'deployment_ID',
-            'Country': 'country',
-            'Site': 'site_name',
-            'StartDate': 'deployment_start',
-            'EndDate': 'deployment_end',
-            'Latitude': 'latitude',
-            'Longitude': 'longitude',
-            'Coordinate Uncertainty': 'coordinate_uncertainty',
-            'GPS device': 'gps_device',
-            'Microphone Height': 'mic_height',
-            'Microphone Direction': 'mic_direction',
-            'Habitat': 'habitat',
-            'Score': 'score',
-            'Protocol Checklist': 'protocol_checklist',
-            'Adresse e-mail': 'user_email',
-            'Comment/remark': 'comment'
-        }
-        
-        # Create deployment data dictionary
-        deployment_data = {}
-        
-        # Map form fields to model fields
-        for form_field, model_field in field_mapping.items():
-            if form_field in data:
-                deployment_data[model_field] = data[form_field]
-        
-        # Handle active data if present
-        if 'ActiveData' in data and isinstance(data['ActiveData'], dict):
-            active_data = data['ActiveData']
-            if 'batteryLevel' in active_data:
-                deployment_data['battery_level'] = active_data['batteryLevel']
-            # We no longer store last_upload or folder_size as they're calculated on-demand
-        
-        # Create serializer with the formatted data
-        serializer = self.get_serializer(data=deployment_data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
     def check_attachment(self, serializer):
         project_objects = serializer.validated_data.get('project')
         if project_objects is not None:
@@ -203,34 +202,6 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             if not self.request.user.has_perm('data_models.change_device', device_object):
                 raise PermissionDenied(
                     f"You don't have permission to deploy {device_object.device_ID}")
-
-    @action(detail=True, methods=['get'])
-    def folder_size(self, request, pk=None):
-        """
-        Get the total size of all files in this deployment
-        """
-        deployment = self.get_object()
-        
-        # Get the unit if specified
-        unit = request.query_params.get('unit', 'MB')
-        
-        folder_size = deployment.get_folder_size(unit)
-        
-        return Response({'folder_size': folder_size, 'unit': unit}, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['get'])
-    def last_upload(self, request, pk=None):
-        """
-        Get the datetime of the most recent file upload for this deployment
-        """
-        deployment = self.get_object()
-        
-        last_upload = deployment.get_last_upload()
-        
-        if last_upload:
-            return Response({'last_upload': last_upload}, status=status.HTTP_200_OK)
-        else:
-            return Response({'last_upload': None}, status=status.HTTP_200_OK)
 
 
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
@@ -271,10 +242,19 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
             'configuration': data.get('configuration'),
             'sim_card_icc': data.get('sim_card_icc'),
             'sim_card_batch': data.get('sim_card_batch'),
-            'sd_card_size': data.get('sd_card_size'),
+            'sd_card_size': float(data['sd_card_size']) if data.get('sd_card_size') not in [None, ""] else None,
         }
         
-        device, created = Device.objects.get_or_create(device_ID=device_id, defaults=device_data)
+        model = DeviceModel.objects.first()
+        if not model:
+            return Response({"error": "No default device model found."}, status=status.HTTP_400_BAD_REQUEST)
+        device_data['model'] = model
+
+        device, created = Device.objects.get_or_create(
+            device_ID=device_id,
+            defaults=device_data
+        )
+
         if not created:
             serializer = DeviceSerializer(device, data=device_data, partial=True)
             serializer.is_valid(raise_exception=True)

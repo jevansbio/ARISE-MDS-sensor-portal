@@ -15,19 +15,24 @@ const formSchema = z.object({
   date: z.string().optional(),
   time: z.string().optional(),
   latitude: z
-    .string()
-    .regex(
-      /^-?\d{1,2}\.\d{6}$/,
-      "Latitude must have 1–2 digits before the dot and exactly 6 decimal places (e.g. 45.123456)"
-    )
-    .optional(),
-  longitude: z
-    .string()
-    .regex(
-      /^-?\d{1,3}\.\d{6}$/,
-      "Longitude must have 1–3 digits before the dot and exactly 6 decimal places (e.g. 123.123456)"
-    )
-    .optional(),
+  .string()
+  .optional()
+  .refine(
+    (val) => !val || /^-?\d{1,2}\.\d{6}$/.test(val),
+    {
+      message: "Latitude must have 1–2 digits before the dot and exactly 6 decimal places (e.g. 45.123456)",
+    }
+  ),
+
+longitude: z
+  .string()
+  .optional()
+  .refine(
+    (val) => !val || /^-?\d{1,3}\.\d{6}$/.test(val),
+    {
+      message: "Longitude must have 1–3 digits before the dot and exactly 6 decimal places (e.g. 123.123456)",
+    }
+  ),
   coordUncertainty: z.string().optional(),
   gpsDevice: z.string().optional(),
   deploymentId: z.string().optional(),
@@ -82,8 +87,6 @@ export default function DeviceForm({ onSave }: DeviceFormProps) {
         deployment_ID: values.deploymentId,
         start_date: values.date,
         end_date: "",
-        lastUpload: "",
-        folder_size: 0,
         country: values.country,
         site_name: values.site,
         latitude: values.latitude,
