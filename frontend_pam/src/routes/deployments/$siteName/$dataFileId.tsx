@@ -42,7 +42,7 @@ export interface DataFile {
   favourite?: boolean;
 }
 
-export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
+export const Route = createFileRoute('/deployments/$siteName/$dataFileId')({
   component: RouteComponent,
   beforeLoad: ({ location }) => {
     console.log('Loading data file route, path:', location.pathname);
@@ -75,7 +75,7 @@ export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
 })
 
 function RouteComponent() {
-  const { deviceId, dataFileId } = Route.useParams()
+  const { siteName, dataFileId } = Route.useParams()
   const { observationId } = Route.useSearch()
   const location = useLocation()
   const authContext = useContext(AuthContext) as any;
@@ -83,7 +83,7 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const [currentObservation, setCurrentObservation] = useState<any>(null);
 
-  const apiURL = `devices/${deviceId}/datafiles/${dataFileId}`;
+  const apiURL = `deployments/${siteName}/datafiles/${dataFileId}`;
 
   const {
     data: dataFile,
@@ -206,12 +206,12 @@ function RouteComponent() {
         <h1 className="text-2xl font-bold">Data File Details</h1>
         <div className="flex gap-2">
           <DownloadButton
-            deviceId={deviceId}
+            deviceId={siteName}
             fileId={dataFileId}
             fileFormat={dataFile.fileFormat}
           />
-          <Link to="/devices/$deviceId" params={{ deviceId }}>
-            <Button variant="outline">Back to Device</Button>
+          <Link to="/deployments/$siteName" params={{ siteName }}>
+            <Button variant="outline">Back to Deployment</Button>
           </Link>
         </div>
       </div>
@@ -220,7 +220,7 @@ function RouteComponent() {
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Audio Preview</h2>
           <AudioWaveformPlayer
-            deviceId={deviceId}
+            deviceId={siteName}
             fileId={dataFileId}
             fileFormat={dataFile.fileFormat}
             startTime={currentObservation?.extra_data?.start_time}
@@ -235,8 +235,8 @@ function RouteComponent() {
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Selected Observation</h2>
             <Link 
-              to="/devices/$deviceId/$dataFileId/observations"
-              params={{ deviceId, dataFileId }}
+              to="/deployments/$siteName/$dataFileId/observations"
+              params={{ siteName, dataFileId }}
               className="text-blue-600 hover:underline"
             >
               View All Observations
@@ -323,7 +323,7 @@ function RouteComponent() {
         {/* Quality Information */}
         <AudioQualityCard
           dataFile={dataFile}
-          deviceId={deviceId}
+          deviceId={siteName}
           onCheckQuality={handleCheckQuality}
         />
       </div>

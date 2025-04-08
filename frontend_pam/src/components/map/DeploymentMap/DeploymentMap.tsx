@@ -14,10 +14,12 @@ import { Marker as CompMarker } from "@adamscybot/react-leaflet-component-marker
 import UserLocationMarker from "../MapUserLocationMarker";
 import ResetLocation from "../MapControlResetLocation";
 import { Link } from "@tanstack/react-router";
+import { getPinColor, timeSinceLastUpload } from "@/utils/timeFormat";
+import { Deployment } from "@/types";
 
 interface Props {
 	//should be changed from any
-	deployments: [{ latitude: any; longitude: any; deployment_device_ID: any, extra_data: any }];
+	deployments: Deployment[];
 }
 
 interface IconProps {
@@ -97,8 +99,6 @@ const DeploymentMap = ({ deployments }: Props) => {
 		setBounds();
 	}, [map, setBounds]);
 
-	console.log(deployments.map((deploymentData) => deploymentData.extra_data.device_config.device_ID));
-
 	return (
 		<div>
 			<MapContainer
@@ -124,28 +124,38 @@ const DeploymentMap = ({ deployments }: Props) => {
 							lat: deploymentData.latitude,
 							lng: deploymentData.longitude,
 						};
+						console.log("Deploymentdata.lastUpload: ", deploymentData.lastUpload)
+						const pinColor = getPinColor(deploymentData.lastUpload);
+
 						return (
-							<>
-								<CompMarker
-									position={latLng}
-									icon={
-										<DeploymentIcon
-											borderColor="red"
-											textColor="red"
-										/>
-									}
-								>
-									<Popup>
+							<CompMarker
+								key={deploymentData.siteName}
+								position={latLng}
+								icon={
+									<DeploymentIcon
+										borderColor={pinColor}
+										textColor={pinColor}
+									/>
+								}
+							>
+								<Popup>
 									<Link
-										to="/devices/$deviceId"
-										params={{ deviceId: deploymentData.extra_data.device_config.device_ID }}
-										className="text-blue-500 hover:underline"
+										to="/deployments/$siteName"
+										params={{ siteName: deploymentData.siteName }}
+										className="text-blue-500 hover:underline mt-2 text-sm"
 									>
-										View Device: {deploymentData.extra_data.device_config.device_ID}
+										View Site: {deploymentData.siteName}
 									</Link>
-									</Popup>
-								</CompMarker>
-							</>
+									<div className="mt-2 text-sm">
+										Last Upload: {deploymentData.lastUpload
+											? timeSinceLastUpload(deploymentData.lastUpload)
+											: 'Never'}
+									</div>
+									<div className="mt-2 text-sm">
+										Country: {deploymentData.country}
+									</div>
+								</Popup>
+							</CompMarker>
 						);
 					})}
 				</FeatureGroup>
