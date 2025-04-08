@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -168,8 +168,22 @@ export default function DeploymentsPage() {
     },
   ];
 
+  // Filtered data based on the selected country
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Extract unique countries from the data
+  const countries = Array.from(new Set(data.map((deployment) => deployment.country)));
+
+  const filteredData = useMemo(() => {
+    if (selectedCountry) {
+      return data.filter((deployment) => deployment.country === selectedCountry);
+    }
+    return data;
+  }, [selectedCountry, data]);
+
   const table = useReactTable({
-    data: data,
+    data: filteredData,  // Use filteredData here
     columns,
     state: {
       sorting,
@@ -179,57 +193,92 @@ export default function DeploymentsPage() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
-  
-    const handleSave = () => {
-      closeModal();
-    };
-  
+  const handleSave = () => {
+    closeModal();
+  };
+
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+
+  // Handle country selection
+  const handleCountrySelect = (country: string) => {
+    setSelectedCountry(country);
+    setIsDropdownOpen(false); // Close the dropdown once a country is selected
+  };
 
   return (
     <div>
-    <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
-      Add info
-    </button>
-   
-    <Modal isOpen={isModalOpen} onClose={closeModal}>
-      <DeviceForm onSave={handleSave} />
-    </Modal>
+      {/* Button to toggle dropdown */}
+      <button
+        onClick={toggleDropdown}
+        className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all"
+      >
+        {selectedCountry ? `Country: ${selectedCountry}` : "Select Country"}
+      </button>
 
-    <div className="rounded-md border m-5 shadow-md">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-0 py-0">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+      {/* Dropdown menu */}
+      {isDropdownOpen && (
+        <div className="absolute mt-2 bg-white shadow-lg rounded-lg border">
+          <ul>
+            {countries.map((country) => (
+              <li
+                key={country}
+                onClick={() => handleCountrySelect(country)}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+              >
+                {country}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <button
+        onClick={openModal}
+        className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4"
+      >
+        Add info
+      </button>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <DeviceForm onSave={handleSave} />
+      </Modal>
+
+      <div className="rounded-md border m-5 shadow-md">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="px-0 py-0">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="px-4 py-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
