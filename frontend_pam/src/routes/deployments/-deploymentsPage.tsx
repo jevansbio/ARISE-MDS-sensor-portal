@@ -42,7 +42,7 @@ export default function DeploymentsPage() {
       startDate: deployment.deployment_start,
       endDate: deployment.deployment_end,
       folderSize: deployment.folder_size,
-      lastUpload: timeSinceLastUpload(deployment.last_upload),
+      lastUpload: deployment.last_upload,
       batteryLevel: 0,
       action: "",
       siteName: deployment.site_name,
@@ -151,6 +151,7 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => timeSinceLastUpload(row.original.lastUpload),
     },
     {
       accessorKey: "folderSize",
