@@ -26,6 +26,7 @@ from .serializers import (DataFileSerializer, DataFileUploadSerializer,
 from data_models.services.audio_quality import AudioQualityChecker
 
 
+
 class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
     search_fields = ['deployment_device_ID',
                      'device__name', 'device__device_ID',
@@ -516,7 +517,37 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
                      '=tag',
                      'config',
                      'sample_rate']
-
+    
+    @action(detail=False, methods=['get'])
+    def filter_by_date(self, request):
+        # Retrieve the query parameters: start_date and end_date
+        start_date = request.GET.get('start_date', None)
+        end_date = request.GET.get('end_date', None)
+        
+        # Validate the date format
+        if start_date and end_date:
+            try:
+                start_date = djtimezone.datetime.strptime(start_date, '%m-%d-%Y')
+                end_date = djtimezone.datetime.strptime(end_date, '%m-%d-%Y')
+                
+                # Add one day to end_date to include the entire end date
+                end_date = end_date + djtimezone.timedelta(days=1)
+            except ValueError:
+                return Response({"error": "Invalid date format. Use MM-DD-YYYY."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "Both start_date and end_date are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get all data files from all devices within the date range in a single query
+        result_queryset = DataFile.objects.filter(
+            recording_dt__gte=start_date,
+            recording_dt__lt=end_date
+        )
+        
+        # Serialize and return the results
+        serializer = self.get_serializer(result_queryset, many=True)
+        return Response(serializer.data)
+        
+        
     @action(detail=False, methods=['get'])
     def test(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
