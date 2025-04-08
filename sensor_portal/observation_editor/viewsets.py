@@ -51,12 +51,29 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
             if 'id' in taxon_data and taxon_data['id']:
                 try:
                     taxon = Taxon.objects.get(id=taxon_data['id'])
-                    if 'species_name' in taxon_data:
-                        taxon.species_name = taxon_data['species_name']
-                    if 'species_common_name' in taxon_data:
-                        taxon.species_common_name = taxon_data['species_common_name']
-                    taxon.save()
-                    request.data['taxon'] = taxon.id
+                    # Only update if the species name has changed
+                    if 'species_name' in taxon_data and taxon_data['species_name'] != taxon.species_name:
+                        # Check if a taxon with the new name already exists
+                        existing_taxon = Taxon.objects.filter(
+                            species_name__iexact=taxon_data['species_name'].lower()
+                        ).first()
+                        
+                        if existing_taxon:
+                            # Use the existing taxon
+                            request.data['taxon'] = existing_taxon.id
+                        else:
+                            # Create a new taxon with the new name
+                            new_taxon = Taxon.objects.create(
+                                species_name=taxon_data['species_name'],
+                                species_common_name=taxon_data.get('species_common_name', '')
+                            )
+                            request.data['taxon'] = new_taxon.id
+                    else:
+                        # Just update the common name if provided
+                        if 'species_common_name' in taxon_data:
+                            taxon.species_common_name = taxon_data['species_common_name']
+                            taxon.save()
+                        request.data['taxon'] = taxon.id
                 except Taxon.DoesNotExist:
                     return Response(
                         {'detail': 'Taxon not found'}, 
