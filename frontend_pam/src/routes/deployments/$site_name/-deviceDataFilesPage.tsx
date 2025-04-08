@@ -202,12 +202,12 @@ export default function DeviceDataFilesPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <AudioPlayer
-            deviceId={row.original}
+            deviceId={site_name}
             fileId={row.original.id}
             fileFormat={row.original.file_format}
           />
           <DownloadButton
-            deviceId={}
+            deviceId={site_name}
             fileId={row.original.id}
             fileFormat={row.original.file_format}
           />
