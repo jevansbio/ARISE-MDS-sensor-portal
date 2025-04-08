@@ -25,6 +25,7 @@ import { getData } from "@/utils/FetchFunctions";
 import { bytesToMegabytes } from "@/utils/convertion";
 import Modal from "@/components/Modal/Modal";
 import DeviceForm from "@/components/Form";
+import { timeSinceLastUpload } from "@/utils/timeFormat";
 
 export default function DeploymentsPage() {
   const authContext = useContext(AuthContext) as any;
@@ -34,33 +35,30 @@ export default function DeploymentsPage() {
   const getDataFunc = async (): Promise<Deployment[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
-
-    const deployments: Deployment[] = response_json.map(
-      (deployment: any): Deployment => ({
-        deploymentId: deployment.deployment_ID,
-        startDate: deployment.deployment_start,
-        endDate: deployment.deployment_end,
-        folderSize: deployment.folder_size,
-        lastUpload: "",
-        batteryLevel: 0,
-        action: "",
-        site_name: deployment.site_name,
-        dataFile: [],
-        coordinate_uncertainty: deployment.coordinate_uncertainty,
-        gps_device: deployment.gps_device,
-        mic_height: deployment.mic_height,
-        mic_direction: deployment.mic_direction,
-        habitat: deployment.habitat,
-        protocol_checklist: deployment.protocol_checklist,
-        score: deployment,
-        comment: deployment.comment,
-        user_email: deployment.user_email,
-        country: deployment.country,
-        longitude: deployment.longitude,
-        latitude: deployment.latitude,
-      })
-    );
-    console.log(deployments);
+  
+    const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
+      deploymentId: deployment.deployment_ID,
+      startDate: deployment.deployment_start,
+      endDate: deployment.deployment_end,
+      folderSize: deployment.folder_size,
+      lastUpload: deployment.last_upload,
+      batteryLevel: 0,
+      action: "",
+      siteName: deployment.site_name,
+      coordinateUncertainty: deployment.coordinate_uncertainty,
+      gpsDevice: deployment.gps_device,
+      micHeight: deployment.mic_height,
+      micDirection: deployment.mic_direction,
+      habitat: deployment.habitat,
+      protocolChecklist: deployment.protocol_checklist,
+      score: deployment,
+      comment: deployment.comment,
+      userEmail: deployment.user_email,
+      country: deployment.country,
+      longitude: deployment.longitude,
+      latitude: deployment.latitude
+    }));
+    console.log(deployments)
     return deployments;
   };
 
@@ -87,11 +85,11 @@ export default function DeploymentsPage() {
       ),
       cell: ({ row }) => (
         <Link
-          to="/deployments/$site_name"
-          params={{ site_name: row.original.site_name }}
-          className="text-blue-500 hover:underline"
+          to="/deployments/$siteName"
+          params={{ siteName: row.original.siteName }}
+           className="text-blue-500 hover:underline"
         >
-          {row.original.site_name}
+          {row.original.siteName}
         </Link>
       ),
     },
@@ -149,6 +147,7 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => timeSinceLastUpload(row.original.lastUpload),
     },
     {
       accessorKey: "folderSize",
@@ -162,7 +161,7 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${bytesToMegabytes(row.original.folderSize)} MB`,
+      cell: ({ row }) => `${bytesToMegabytes(row.original.folderSize)} MB`,    
     },
   ];
 
@@ -179,22 +178,22 @@ export default function DeploymentsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+  
+    const handleSave = () => {
+      closeModal();
+    };
 
-  const handleSave = () => {
-    closeModal();
-  };
+    console.log("Deployemnts data:", data);
+  
 
   return (
     <div>
-      <button
-        onClick={openModal}
-        className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4"
-      >
+      <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
         Add info
       </button>
-
+    
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <DeviceForm onSave={handleSave} />
       </Modal>
