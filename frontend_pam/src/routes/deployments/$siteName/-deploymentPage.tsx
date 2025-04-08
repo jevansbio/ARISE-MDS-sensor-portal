@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import DeviceNav from '@/components/pagenav/DeviceNav';
+import DeviceNav from '@/components/pagenav/DeploymentNav';
 import DeviceDataFilesPage from './-deviceDataFilesPage';
 import DeviceDetailPage from './-deviceDetailPage';
 import DeploymentMapPage from './-deploymentMapPage';
 import SiteDetailPage from './-siteDetailPage';
 
 export default function DevicePage() {
-  const [activeTab, setActiveTab] = useState<'details' | 'datafiles' | 'siteDetails' | 'map'>('siteDetails'); 
+  const [activeTab, setActiveTab] = useState<'deviceDetails' | 'datafiles' | 'siteDetails' | 'map'>('siteDetails'); 
 
   return (
     <div>
@@ -18,7 +18,7 @@ export default function DevicePage() {
       {activeTab === 'siteDetails' && (
         <SiteDetailPage />
       )}
-      {activeTab === 'details' && (
+      {activeTab === 'deviceDetails' && (
         <DeviceDetailPage />
       )}
       {activeTab === 'datafiles' && (
