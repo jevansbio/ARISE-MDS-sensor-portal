@@ -13,11 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as MapImport } from './routes/map'
 import { Route as LoginImport } from './routes/login'
-import { Route as CallImport } from './routes/call'
 import { Route as IndexImport } from './routes/index'
 import { Route as DeploymentsIndexImport } from './routes/deployments/index'
-import { Route as DeploymentsSitenameIndexImport } from './routes/deployments/$site_name/index'
-import { Route as DeploymentsSitenameDataFileIdImport } from './routes/deployments/$site_name/$dataFileId'
+import { Route as DeploymentsSiteNameIndexImport } from './routes/deployments/$siteName/index'
+import { Route as DeploymentsSiteNameDataFileIdImport } from './routes/deployments/$siteName/$dataFileId'
 
 // Create/Update Routes
 
@@ -33,12 +32,6 @@ const LoginRoute = LoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CallRoute = CallImport.update({
-  id: '/call',
-  path: '/call',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -51,16 +44,16 @@ const DeploymentsIndexRoute = DeploymentsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const DeploymentsSitenameIndexRoute = DeploymentsSitenameIndexImport.update({
-  id: '/deployments/$site_name/',
-  path: '/deployments/$site_name/',
+const DeploymentsSiteNameIndexRoute = DeploymentsSiteNameIndexImport.update({
+  id: '/deployments/$siteName/',
+  path: '/deployments/$siteName/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const DeploymentsSitenameDataFileIdRoute =
-  DeploymentsSitenameDataFileIdImport.update({
-    id: '/deployments/$site_name/$dataFileId',
-    path: '/deployments/$site_name/$dataFileId',
+const DeploymentsSiteNameDataFileIdRoute =
+  DeploymentsSiteNameDataFileIdImport.update({
+    id: '/deployments/$siteName/$dataFileId',
+    path: '/deployments/$siteName/$dataFileId',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -73,13 +66,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/call': {
-      id: '/call'
-      path: '/call'
-      fullPath: '/call'
-      preLoaderRoute: typeof CallImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -103,18 +89,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeploymentsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/deployments/$site_name/$dataFileId': {
-      id: '/deployments/$site_name/$dataFileId'
-      path: '/deployments/$site_name/$dataFileId'
-      fullPath: '/deployments/$site_name/$dataFileId'
-      preLoaderRoute: typeof DeploymentsSitenameDataFileIdImport
+    '/deployments/$siteName/$dataFileId': {
+      id: '/deployments/$siteName/$dataFileId'
+      path: '/deployments/$siteName/$dataFileId'
+      fullPath: '/deployments/$siteName/$dataFileId'
+      preLoaderRoute: typeof DeploymentsSiteNameDataFileIdImport
       parentRoute: typeof rootRoute
     }
-    '/deployments/$site_name/': {
-      id: '/deployments/$site_name/'
-      path: '/deployments/$site_name'
-      fullPath: '/deployments/$site_name'
-      preLoaderRoute: typeof DeploymentsSitenameIndexImport
+    '/deployments/$siteName/': {
+      id: '/deployments/$siteName/'
+      path: '/deployments/$siteName'
+      fullPath: '/deployments/$siteName'
+      preLoaderRoute: typeof DeploymentsSiteNameIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -124,84 +110,76 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/call': typeof CallRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/deployments': typeof DeploymentsIndexRoute
-  '/deployments/$site_name/$dataFileId': typeof DeploymentsSitenameDataFileIdRoute
-  '/deployments/$site_name': typeof DeploymentsSitenameIndexRoute
+  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRoute
+  '/deployments/$siteName': typeof DeploymentsSiteNameIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/call': typeof CallRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/deployments': typeof DeploymentsIndexRoute
-  '/deployments/$site_name/$dataFileId': typeof DeploymentsSitenameDataFileIdRoute
-  '/deployments/$site_name': typeof DeploymentsSitenameIndexRoute
+  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRoute
+  '/deployments/$siteName': typeof DeploymentsSiteNameIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/call': typeof CallRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/deployments/': typeof DeploymentsIndexRoute
-  '/deployments/$site_name/$dataFileId': typeof DeploymentsSitenameDataFileIdRoute
-  '/deployments/$site_name/': typeof DeploymentsSitenameIndexRoute
+  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRoute
+  '/deployments/$siteName/': typeof DeploymentsSiteNameIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/call'
     | '/login'
     | '/map'
     | '/deployments'
-    | '/deployments/$site_name/$dataFileId'
-    | '/deployments/$site_name'
+    | '/deployments/$siteName/$dataFileId'
+    | '/deployments/$siteName'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/call'
     | '/login'
     | '/map'
     | '/deployments'
-    | '/deployments/$site_name/$dataFileId'
-    | '/deployments/$site_name'
+    | '/deployments/$siteName/$dataFileId'
+    | '/deployments/$siteName'
   id:
     | '__root__'
     | '/'
-    | '/call'
     | '/login'
     | '/map'
     | '/deployments/'
-    | '/deployments/$site_name/$dataFileId'
-    | '/deployments/$site_name/'
+    | '/deployments/$siteName/$dataFileId'
+    | '/deployments/$siteName/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CallRoute: typeof CallRoute
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   DeploymentsIndexRoute: typeof DeploymentsIndexRoute
-  DeploymentsSitenameDataFileIdRoute: typeof DeploymentsSitenameDataFileIdRoute
-  DeploymentsSitenameIndexRoute: typeof DeploymentsSitenameIndexRoute
+  DeploymentsSiteNameDataFileIdRoute: typeof DeploymentsSiteNameDataFileIdRoute
+  DeploymentsSiteNameIndexRoute: typeof DeploymentsSiteNameIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CallRoute: CallRoute,
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   DeploymentsIndexRoute: DeploymentsIndexRoute,
-  DeploymentsSitenameDataFileIdRoute: DeploymentsSitenameDataFileIdRoute,
-  DeploymentsSitenameIndexRoute: DeploymentsSitenameIndexRoute,
+  DeploymentsSiteNameDataFileIdRoute: DeploymentsSiteNameDataFileIdRoute,
+  DeploymentsSiteNameIndexRoute: DeploymentsSiteNameIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -215,19 +193,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/call",
         "/login",
         "/map",
         "/deployments/",
-        "/deployments/$site_name/$dataFileId",
-        "/deployments/$site_name/"
+        "/deployments/$siteName/$dataFileId",
+        "/deployments/$siteName/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/call": {
-      "filePath": "call.tsx"
     },
     "/login": {
       "filePath": "login.tsx"
@@ -238,11 +212,11 @@ export const routeTree = rootRoute
     "/deployments/": {
       "filePath": "deployments/index.tsx"
     },
-    "/deployments/$site_name/$dataFileId": {
-      "filePath": "deployments/$site_name/$dataFileId.tsx"
+    "/deployments/$siteName/$dataFileId": {
+      "filePath": "deployments/$siteName/$dataFileId.tsx"
     },
-    "/deployments/$site_name/": {
-      "filePath": "deployments/$site_name/index.tsx"
+    "/deployments/$siteName/": {
+      "filePath": "deployments/$siteName/index.tsx"
     }
   }
 }

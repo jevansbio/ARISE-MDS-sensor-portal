@@ -25,6 +25,7 @@ import { getData } from "@/utils/FetchFunctions";
 import { bytesToMegabytes } from "@/utils/convertion";
 import Modal from "@/components/Modal/Modal";
 import DeviceForm from "@/components/DeviceForm";
+import { timeSinceLastUpload } from "@/utils/timeFormat";
 
 export default function DeploymentsPage() {
 
@@ -40,21 +41,20 @@ export default function DeploymentsPage() {
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
       endDate: deployment.deployment_end,
-      folder_size: deployment.folder_size,
-      lastUpload: "",
+      folderSize: deployment.folder_size,
+      lastUpload: deployment.last_upload,
       batteryLevel: 0,
       action: "",
-      site_name: deployment.site_name,
-      dataFile: [],
-      coordinate_uncertainty: deployment.coordinate_uncertainty,
-      gps_device: deployment.gps_device,
-      mic_height: deployment.mic_height,
-      mic_direction: deployment.mic_direction,
+      siteName: deployment.site_name,
+      coordinateUncertainty: deployment.coordinate_uncertainty,
+      gpsDevice: deployment.gps_device,
+      micHeight: deployment.mic_height,
+      micDirection: deployment.mic_direction,
       habitat: deployment.habitat,
-      protocol_checklist: deployment.protocol_checklist,
+      protocolChecklist: deployment.protocol_checklist,
       score: deployment,
       comment: deployment.comment,
-      user_email: deployment.user_email,
+      userEmail: deployment.user_email,
       country: deployment.country,
       longitude: deployment.longitude,
       latitude: deployment.latitude
@@ -86,11 +86,11 @@ export default function DeploymentsPage() {
       ),
       cell: ({ row }) => (
         <Link
-          to="/deployments/$site_name"
-          params={{ site_name: row.original.site_name }}
+          to="/deployments/$siteName"
+          params={{ siteName: row.original.siteName }}
            className="text-blue-500 hover:underline"
         >
-          {row.original.site_name}
+          {row.original.siteName}
         </Link>
       ),
     },
@@ -151,6 +151,7 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => timeSinceLastUpload(row.original.lastUpload),
     },
     {
       accessorKey: "folderSize",
@@ -164,7 +165,7 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${bytesToMegabytes(row.original.folder_size)} MB`,    
+      cell: ({ row }) => `${bytesToMegabytes(row.original.folderSize)} MB`,    
     },
   ];
 
@@ -187,49 +188,51 @@ export default function DeploymentsPage() {
     const handleSave = () => {
       closeModal();
     };
+
+    console.log("Deployemnts data:", data);
   
 
   return (
     <div>
-    <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
-      Add info
-    </button>
-   
-    <Modal isOpen={isModalOpen} onClose={closeModal}>
-      <DeviceForm onSave={handleSave} />
-    </Modal>
+      <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
+        Add info
+      </button>
+    
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <DeviceForm onSave={handleSave} />
+      </Modal>
 
-    <div className="rounded-md border m-5 shadow-md">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="px-0 py-0">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-4 py-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+      <div className="rounded-md border m-5 shadow-md">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="px-0 py-0">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="px-4 py-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

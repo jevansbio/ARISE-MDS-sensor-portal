@@ -16,22 +16,21 @@ export type Deployment = {
     endDate: string;
     lastUpload: string;
     batteryLevel: number;
-    site_name: string;
-    folder_size: number;
-    coordinate_uncertainty: string;
-    gps_device: string;
-    mic_height: number;
-    mic_direction: string;
+    siteName: string;
+    folderSize: number;
+    coordinateUncertainty: string;
+    gpsDevice: string;
+    micHeight: number;
+    micDirection: string;
     latitude: number;
     longitude: number;
     habitat: string;
-    protocol_checklist: string;
+    protocolChecklist: string;
     score: number;
     comment: string;
     action: string;
-    user_email: string;
+    userEmail: string;
     country: string;
-    dataFile: DataFile[];
 }
 
 export type DataFile = {
