@@ -6,44 +6,38 @@ import { getData } from "@/utils/FetchFunctions";
 import AuthContext from "@/auth/AuthContext";
 import ObservationEditModal from './ObservationEditModal';
 import { formatTime } from "@/utils/timeFormat";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { LuExternalLink } from "react-icons/lu";
 import { type Observation } from './types';
 
 export default function AllObservationsList() {
   const { authTokens } = useContext(AuthContext) as any;
-  const navigate = useNavigate();
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [taxonCache, setTaxonCache] = useState<Record<number, { id: number; species_name: string; species_common_name: string }>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 100; // Fetch 100 observations per page
+  const pageSize = 100;
   const queryClient = useQueryClient();
 
-  // Query for all observations with pagination
   const { data: observations, isLoading } = useQuery({
     queryKey: ['all-observations', currentPage],
     queryFn: async () => {
       if (!authTokens?.access) return { results: [], count: 0 };
       try {
-        // Fetch observations with expanded data_files information
         const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}&expand=data_files.deployment.device&include_deployment=true`, authTokens.access);
         
         const observations = data.results || [];
         const totalCount = data.count || 0;
         setTotalPages(Math.ceil(totalCount / pageSize));
         
-        // Process observations to extract taxon data and fix device IDs
         const processedObservations = observations.map((obs: any) => {
-          // Process the data_files to ensure device.id is set from deployment name
           const processedDataFiles = obs.data_files?.map((df: any) => ({
             ...df,
             deployment: df.deployment ? {
               ...df.deployment,
               device: {
                 ...df.deployment.device,
-                // Use the first part of deployment name as device ID
                 id: df.deployment.name?.split('-')[0] || 'unknown'
               }
             } : undefined
@@ -244,18 +238,6 @@ export default function AllObservationsList() {
     }
   };
 
-  const handleNavigateToFile = (observation: Observation) => {
-    if (observation.data_files?.length > 0 && observation.data_files[0].deployment?.device?.id) {
-      const deviceId = observation.data_files[0].deployment.device.id;
-      const dataFileId = observation.data_files[0].id.toString();
-      navigate({ 
-        to: '/devices/$deviceId/$dataFileId',
-        params: { deviceId, dataFileId },
-        search: { observationId: observation.id.toString() }
-      });
-    }
-  };
-
   if (!authTokens?.access) {
     return (
       <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
@@ -302,7 +284,6 @@ export default function AllObservationsList() {
                 <TableHead>Device</TableHead>
                 <TableHead>File</TableHead>
                 <TableHead>Actions</TableHead>
-                <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -375,11 +356,6 @@ export default function AllObservationsList() {
                         Delete
                       </Button>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-gray-500">
-                    {observation.data_files?.[0]?.deployment?.device?.id && (
-                      <LuExternalLink className="inline-block" title="Open audio file" />
-                    )}
                   </TableCell>
                 </TableRow>
               ))}
