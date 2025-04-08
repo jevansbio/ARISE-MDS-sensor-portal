@@ -127,7 +127,6 @@ class AudioQualityChecker:
                     source="auto_detect",
                     taxon=unknown_taxon,
                     obs_dt=timezone.now() + timedelta(seconds=segment['start_time']),
-                    needs_review=True,  # Explicitly set needs_review to True
                     extra_data={
                         "start_time": segment['start_time'],
                         "end_time": segment['end_time'],
