@@ -138,6 +138,13 @@ class Device(BaseModel):
     type = models.ForeignKey(DataType, models.PROTECT,
                              related_name="devices", null=True)
 
+    # Device status and configuration fields
+    device_status = models.CharField(max_length=50, blank=True, null=True)
+    configuration = models.CharField(max_length=20, choices=[('summer', 'Summer'), ('winter', 'Winter')], blank=True, null=True)
+    sim_card_icc = models.CharField(max_length=50, blank=True, null=True)
+    sim_card_batch = models.CharField(max_length=50, blank=True, null=True)
+    sd_card_size = models.FloatField(help_text="Size in GB", blank=True, null=True)
+
     # User ownership
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_devices",
                               on_delete=models.SET_NULL, null=True)
@@ -147,19 +154,6 @@ class Device(BaseModel):
         settings.AUTH_USER_MODEL, blank=True, related_name="viewable_devices")
     annotators = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_devices")
-
-    # Form information fields
-    country = models.CharField(max_length=100, blank=True, null=True)
-    site_name = models.CharField(max_length=100, blank=True, null=True)
-    coordinate_uncertainty = models.CharField(max_length=100, blank=True, null=True)
-    gps_device = models.CharField(max_length=100, blank=True, null=True)
-    mic_height = models.FloatField(null=True, blank=True)
-    mic_direction = models.CharField(max_length=100, blank=True, null=True)
-    habitat = models.CharField(max_length=100, blank=True, null=True)
-    score = models.FloatField(null=True, blank=True)
-    protocol_checklist = models.CharField(max_length=255, blank=True, null=True)
-    user_email = models.EmailField(blank=True, null=True)
-    comment = models.TextField(blank=True, null=True)
     
     # Device status fields
     start_date = models.DateTimeField(null=True, blank=True)

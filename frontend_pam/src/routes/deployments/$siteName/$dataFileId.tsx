@@ -10,7 +10,7 @@ import { Link } from "@tanstack/react-router";
 import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
-export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
+export const Route = createFileRoute('/deployments/$siteName/$dataFileId')({
   component: RouteComponent,
   errorComponent: ({ error }) => {
     console.error('Route error:', error);
@@ -110,21 +110,20 @@ function RouteComponent() {
   }
 
   return (
-    <div className="container m-2 w-5/6 sm:w-full">
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <h1 className="text-2xl font-bold sm:text-left">Data File Details</h1>
-    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-      <DownloadButton
-        deviceId={deviceId}
-        fileId={dataFileId}
-        fileFormat={dataFile.fileFormat}
-        className='border'
-      />
-      <Link to="/devices/$deviceId" params={{ deviceId }} className="w-full hidden mg:block sm:block">
-        <Button variant="outline" className=''>Back to Device</Button>
-      </Link>
-    </div>
-  </div>
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Data File Details</h1>
+        <div className="flex gap-2">
+          <DownloadButton
+            deviceId={deviceId}
+            fileId={dataFileId}
+            fileFormat={dataFile.fileFormat}
+          />
+          <Link to="/deployments/$deviceId" params={{ deviceId }}>
+            <Button variant="outline">Back to Device</Button>
+          </Link>
+        </div>
+      </div>
 
       {dataFile.fileFormat.toLowerCase().includes('mp3') && (
         <div className="mb-8">
