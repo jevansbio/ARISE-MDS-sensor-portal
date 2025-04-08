@@ -27,7 +27,6 @@ import Modal from "@/components/Modal/Modal";
 import DeviceForm from "@/components/DeviceForm";
 
 export default function DeploymentsPage() {
-
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
   const apiURL = "deployment/";
@@ -35,11 +34,11 @@ export default function DeploymentsPage() {
   const getDataFunc = async (): Promise<Deployment[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
-  
+
     const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
-      endDate: deployment.deployment_end,
+      endDate: deployment.deployment_end || null, // Ensure endDate is null if not available
       folder_size: deployment.folder_size,
       lastUpload: "",
       batteryLevel: 0,
@@ -59,7 +58,7 @@ export default function DeploymentsPage() {
       longitude: deployment.longitude,
       latitude: deployment.latitude
     }));
-    console.log(deployments)
+
     return deployments;
   };
 
@@ -73,98 +72,58 @@ export default function DeploymentsPage() {
 
   const columns: ColumnDef<Deployment>[] = [
     {
-      accessorKey: "site",
+      accessorKey: "site_name",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full justify-start">
           Site
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
-        <Link
-          to="/deployments/$site_name"
-          params={{ site_name: row.original.site_name }}
-           className="text-blue-500 hover:underline"
-        >
+        <Link to="/deployments/$site_name" params={{ site_name: row.original.site_name }} className="text-blue-500 hover:underline">
           {row.original.site_name}
         </Link>
       ),
     },
     {
-      accessorKey: "id",
+      accessorKey: "deploymentId",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full justify-start">
           Device
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => row.original.deploymentId,
-
     },
     {
       accessorKey: "startDate",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full justify-start">
           Start Date
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => row.original.startDate,
-
     },
     {
       accessorKey: "endDate",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full justify-start">
           End Date
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => row.original.endDate,
-
+      cell: ({ row }) => row.original.endDate || "Ongoing",
     },
     {
-      accessorKey: "lastUpload",
+      accessorKey: "folder_size",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
-          Last Upload
-          <TbArrowsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-    },
-    {
-      accessorKey: "folderSize",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full justify-start">
           Folder Size
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${bytesToMegabytes(row.original.folder_size)} MB`,    
+      cell: ({ row }) => `${bytesToMegabytes(row.original.folder_size)} MB`,
     },
   ];
 
@@ -173,7 +132,9 @@ export default function DeploymentsPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Extract unique countries from the data
-  const countries = Array.from(new Set(data.map((deployment) => deployment.country)));
+  const countries = useMemo(() => {
+    return Array.from(new Set(data.map((deployment) => deployment.country)));
+  }, [data]);
 
   const filteredData = useMemo(() => {
     if (selectedCountry) {
@@ -182,8 +143,21 @@ export default function DeploymentsPage() {
     return data;
   }, [selectedCountry, data]);
 
-  const table = useReactTable({
-    data: filteredData,  // Use filteredData here
+  // Active and Ended deployments based on filtered data
+  const activeDeployments = useMemo(() => {
+    return filteredData.filter(
+      (deployment) => !deployment.endDate || new Date(deployment.endDate) > new Date()
+    );
+  }, [filteredData]);
+
+  const endedDeployments = useMemo(() => {
+    return filteredData.filter(
+      (deployment) => deployment.endDate && new Date(deployment.endDate) <= new Date()
+    );
+  }, [filteredData]);
+
+  const activeTable = useReactTable({
+    data: activeDeployments, // Using filtered active deployments
     columns,
     state: {
       sorting,
@@ -193,18 +167,26 @@ export default function DeploymentsPage() {
     getSortedRowModel: getSortedRowModel(),
   });
 
+  const endedTable = useReactTable({
+    data: endedDeployments, // Using filtered ended deployments
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
-  const handleSave = () => {
-    closeModal();
-  };
+  const handleSave = () => closeModal();
 
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
-  // Handle country selection
   const handleCountrySelect = (country: string) => {
     setSelectedCountry(country);
     setIsDropdownOpen(false); // Close the dropdown once a country is selected
@@ -237,37 +219,56 @@ export default function DeploymentsPage() {
         </div>
       )}
 
-      <button
-        onClick={openModal}
-        className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4"
-      >
-        Add info
-      </button>
-
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <DeviceForm onSave={handleSave} />
-      </Modal>
-
+      {/* Active Deployments Table */}
+      <h2 className="text-2xl font-bold mb-4">Active Deployments</h2>
       <div className="rounded-md border m-5 shadow-md">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {activeTable.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id} className="px-0 py-0">
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
+            {activeTable.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="px-4 py-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Ended Deployments Table */}
+      <h2 className="text-2xl font-bold mb-4">Ended Deployments</h2>
+      <div className="rounded-md border m-5 shadow-md">
+        <Table>
+          <TableHeader>
+            {endedTable.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="px-0 py-0">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {endedTable.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="px-4 py-2">
