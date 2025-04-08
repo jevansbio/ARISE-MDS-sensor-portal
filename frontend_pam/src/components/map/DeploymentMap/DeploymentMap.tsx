@@ -129,7 +129,7 @@ const DeploymentMap = ({ deployments }: Props) => {
 
 						return (
 							<CompMarker
-								key={deploymentData.site_name}
+								key={deploymentData.siteName}
 								position={latLng}
 								icon={
 									<DeploymentIcon
@@ -140,11 +140,11 @@ const DeploymentMap = ({ deployments }: Props) => {
 							>
 								<Popup>
 									<Link
-										to="/deployments/$site_name"
-										params={{ site_name: deploymentData.site_name }}
+										to="/deployments/$siteName"
+										params={{ siteName: deploymentData.siteName }}
 										className="text-blue-500 hover:underline mt-2 text-sm"
 									>
-										View Site: {deploymentData.site_name}
+										View Site: {deploymentData.siteName}
 									</Link>
 									<div className="mt-2 text-sm">
 										Last Upload: {deploymentData.lastUpload

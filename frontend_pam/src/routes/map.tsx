@@ -2,8 +2,7 @@ import AuthContext from '@/auth/AuthContext';
 import DeploymentMap from '@/components/map/DeploymentMap';
 import { Deployment } from '@/types';
 import { getData } from '@/utils/FetchFunctions';
-import { timeSinceLastUpload } from '@/utils/timeFormat';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
 import { useContext } from 'react';
 
@@ -17,7 +16,7 @@ export const Route = createFileRoute('/map')({
 })
 
 function RouteComponent() {
-  const { authTokens, user } = useContext(AuthContext) as AuthContextType;
+  const { authTokens } = useContext(AuthContext) as AuthContextType;
 
   const apiURL = "deployment/";
 
@@ -29,41 +28,35 @@ function RouteComponent() {
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
       endDate: deployment.deployment_end,
-      folder_size: deployment.folder_size,
+      folderSize: deployment.folder_size,
       lastUpload: deployment.last_upload,
       batteryLevel: 0,
       action: "",
-      site_name: deployment.site_name,
-      dataFile: [],
-      coordinate_uncertainty: deployment.coordinate_uncertainty,
-      gps_device: deployment.gps_device,
-      mic_height: deployment.mic_height,
-      mic_direction: deployment.mic_direction,
+      siteName: deployment.site_name,
+      coordinateUncertainty: deployment.coordinate_uncertainty,
+      gpsDevice: deployment.gps_device,
+      micHeight: deployment.mic_height,
+      micDirection: deployment.mic_direction,
       habitat: deployment.habitat,
-      protocol_checklist: deployment.protocol_checklist,
+      protocolChecklist: deployment.protocol_checklist,
       score: deployment,
       comment: deployment.comment,
-      user_email: deployment.user_email,
+      userEmail: deployment.user_email,
       country: deployment.country,
       longitude: deployment.longitude,
       latitude: deployment.latitude
     }));
-    console.log(deployments)
+    console.log("Deployments on map: ", deployments)
     return deployments;
   };
 
   const {
-		isLoading,
-		isPending,
 		data: deployments,
+		isLoading,
 		error,
-		isRefetching,
-		isPlaceholderData,
 	} = useQuery({
-		queryKey: ["deploymentdata", user],
-		queryFn: () => getDataFunc(),
-		refetchOnWindowFocus: false,
-		placeholderData: keepPreviousData,
+		queryKey: [apiURL],
+		queryFn: getDataFunc,
 	});
 
   if (isLoading) {

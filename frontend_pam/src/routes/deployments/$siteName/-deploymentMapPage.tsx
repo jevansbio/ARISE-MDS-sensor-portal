@@ -1,7 +1,7 @@
 import AuthContext from "@/auth/AuthContext";
 import DeploymentMap from "@/components/map/DeploymentMap";
 import { getData } from "@/utils/FetchFunctions";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Route } from "./index";
 import { Deployment } from "@/types";
@@ -12,7 +12,7 @@ type AuthContextType = {
   };
 
 export default function DeploymentMapPage() {
-    const { site_name } = Route.useParams();
+    const { siteName } = Route.useParams();
 
   const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
@@ -20,7 +20,7 @@ export default function DeploymentMapPage() {
   if (!authTokens) {
     return <p>Loading authentication...</p>;
   }
-  const apiURL = `deployment/by_site/${site_name}/`;
+  const apiURL = `deployment/by_site/${siteName}/`;
 
   const getDataFunc = async (): Promise<Deployment> => {
     if (!authTokens?.access) {
@@ -28,33 +28,30 @@ export default function DeploymentMapPage() {
 		}
 					
     const response_json = await getData(apiURL, authTokens.access);
+		console.log("respone_json site deployment map: ", response_json);
 
-    const deployment: Deployment = response_json.map(
-      (deployment: any): Deployment => ({
-        deploymentId: deployment.deployment_ID,
-        startDate: deployment.deployment_start,
-        endDate: deployment.deployment_end,
-        folder_size: deployment.folder_size,
-        lastUpload: deployment.last_upload,
-        batteryLevel: 0,
-        action: "",
-        site_name: deployment.site_name,
-        dataFile: [],
-        coordinate_uncertainty: deployment.coordinate_uncertainty,
-        gps_device: deployment.gps_device,
-        mic_height: deployment.mic_height,
-        mic_direction: deployment.mic_direction,
-        habitat: deployment.habitat,
-        protocol_checklist: deployment.protocol_checklist,
-        score: deployment.score,
-        comment: deployment.comment,
-        user_email: deployment.user_email,
-        country: deployment.country,
-        longitude: deployment.longitude,
-        latitude: deployment.latitude,
-      })
-    );
-    console.log("Deployment: ", deployment);
+    const deployment: Deployment = {
+			deploymentId: response_json.deployment_ID,
+			startDate: response_json.deployment_start,
+			endDate: response_json.deployment_end,
+			folderSize: response_json.folder_size,
+			lastUpload: response_json.last_upload,
+			batteryLevel: 0,
+			action: "",
+			siteName: response_json.site_name,
+			coordinateUncertainty: response_json.coordinate_uncertainty,
+			gpsDevice: response_json.gps_device,
+			micHeight: response_json.mic_height,
+			micDirection: response_json.mic_direction,
+			habitat: response_json.habitat,
+			protocolChecklist: response_json.protocol_checklist,
+			score: response_json.score,
+			comment: response_json.comment,
+			userEmail: response_json.user_email,
+			country: response_json.country,
+			longitude: response_json.longitude,
+			latitude: response_json.latitude,
+		}
     return deployment;
   };
 
@@ -68,8 +65,6 @@ export default function DeploymentMapPage() {
     enabled: !!authTokens?.access,
   });
 
-  console.log(deployment);
-
   if (isLoading) {
     return <p>Loading device...</p>;
   }
@@ -78,6 +73,8 @@ export default function DeploymentMapPage() {
   }
 
   const deploymentArray = deployment ? [deployment] : [];
+
+	console.log("deploymentArray: ", deploymentArray);
 
 	return (
 		<DeploymentMap deployments={deploymentArray} />
