@@ -2,7 +2,7 @@ import AuthContext from '@/auth/AuthContext'
 import { getData, postData } from '@/utils/FetchFunctions'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Outlet, useLocation } from '@tanstack/react-router'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import AudioQualityCard from '@/components/AudioQuality/AudioQualityCard'
 import { formatFileSize } from '@/utils/formatters'
 import { Button } from "@/components/ui/button";
@@ -67,14 +67,21 @@ export const Route = createFileRoute('/devices/$deviceId/$dataFileId')({
       </div>
     );
   },
+  validateSearch: (search: Record<string, unknown>) => {
+    return { 
+      observationId: typeof search.observationId === 'string' ? search.observationId : undefined 
+    };
+  }
 })
 
 function RouteComponent() {
   const { deviceId, dataFileId } = Route.useParams()
+  const { observationId } = Route.useSearch()
   const location = useLocation()
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
   const queryClient = useQueryClient();
+  const [currentObservation, setCurrentObservation] = useState<any>(null);
 
   const apiURL = `devices/${deviceId}/datafiles/${dataFileId}`;
 
@@ -145,6 +152,29 @@ function RouteComponent() {
     checkQualityMutation.mutate();
   };
 
+  // Query for the specific observation if observationId is provided
+  const { data: observation } = useQuery({
+    queryKey: ['observation', observationId],
+    queryFn: async () => {
+      if (!observationId || !authTokens?.access) return null;
+      try {
+        const data = await getData(`observation/${observationId}/`, authTokens.access);
+        return data;
+      } catch (error) {
+        console.error('Failed to fetch observation:', error);
+        return null;
+      }
+    },
+    enabled: !!observationId && !!authTokens?.access
+  });
+
+  // Set current observation when it's loaded
+  useEffect(() => {
+    if (observation) {
+      setCurrentObservation(observation);
+    }
+  }, [observation]);
+
   // Early returns after all hooks are called
   if (location.pathname.endsWith('/observations')) {
     return (
@@ -193,7 +223,44 @@ function RouteComponent() {
             deviceId={deviceId}
             fileId={dataFileId}
             fileFormat={dataFile.fileFormat}
+            startTime={currentObservation?.extra_data?.start_time}
+            endTime={currentObservation?.extra_data?.end_time}
+            totalDuration={dataFile.fileLength ? parseFloat(dataFile.fileLength) : undefined}
           />
+        </div>
+      )}
+
+      {currentObservation && (
+        <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Selected Observation</h2>
+            <Link 
+              to="/devices/$deviceId/$dataFileId/observations"
+              params={{ deviceId, dataFileId }}
+              className="text-blue-600 hover:underline"
+            >
+              View All Observations
+            </Link>
+          </div>
+          <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <span className="font-medium">Species: </span>
+              {currentObservation.taxon?.species_name || 'Unknown'} 
+              {currentObservation.taxon?.species_common_name ? ` (${currentObservation.taxon.species_common_name})` : ''}
+            </div>
+            <div>
+              <span className="font-medium">Time: </span>
+              {currentObservation.extra_data?.start_time ? 
+                `${currentObservation.extra_data.start_time.toFixed(2)}s - ${currentObservation.extra_data.end_time.toFixed(2)}s` : 
+                'N/A'}
+            </div>
+            <div>
+              <span className="font-medium">Duration: </span>
+              {currentObservation.extra_data?.duration ? 
+                `${currentObservation.extra_data.duration.toFixed(2)}s` : 
+                'N/A'}
+            </div>
+          </div>
         </div>
       )}
 

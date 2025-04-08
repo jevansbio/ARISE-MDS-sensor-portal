@@ -23,6 +23,7 @@ export interface Observation {
       name: string;
       device: {
         name: string;
+        id: string;
       };
     };
   }>;

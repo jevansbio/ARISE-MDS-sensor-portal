@@ -6,38 +6,13 @@ import { getData } from "@/utils/FetchFunctions";
 import AuthContext from "@/auth/AuthContext";
 import ObservationEditModal from './ObservationEditModal';
 import { formatTime } from "@/utils/timeFormat";
-
-interface Observation {
-  id: number;
-  obs_dt: string;
-  taxon: {
-    species_name: string;
-    species_common_name: string;
-    id: number;
-  };
-  source: string;
-  needs_review: boolean;
-  extra_data: {
-    start_time: number;
-    end_time: number;
-    duration: number;
-    avg_amplitude: number;
-    auto_detected: boolean;
-  };
-  data_files: Array<{
-    id: number;
-    file_name: string;
-    deployment?: {
-      name: string;
-      device: {
-        name: string;
-      };
-    };
-  }>;
-}
+import { Link, useNavigate } from "@tanstack/react-router";
+import { LuExternalLink } from "react-icons/lu";
+import { type Observation } from './types';
 
 export default function AllObservationsList() {
   const { authTokens } = useContext(AuthContext) as any;
+  const navigate = useNavigate();
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [taxonCache, setTaxonCache] = useState<Record<number, { id: number; species_name: string; species_common_name: string }>>({});
@@ -53,13 +28,27 @@ export default function AllObservationsList() {
       if (!authTokens?.access) return { results: [], count: 0 };
       try {
         // Fetch observations with expanded data_files information
-        const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}&expand=data_files.deployment.device`, authTokens.access);
+        const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}&expand=data_files.deployment.device&include_deployment=true`, authTokens.access);
+        
         const observations = data.results || [];
         const totalCount = data.count || 0;
         setTotalPages(Math.ceil(totalCount / pageSize));
         
-        // Process observations to extract taxon data
+        // Process observations to extract taxon data and fix device IDs
         const processedObservations = observations.map((obs: any) => {
+          // Process the data_files to ensure device.id is set from deployment name
+          const processedDataFiles = obs.data_files?.map((df: any) => ({
+            ...df,
+            deployment: df.deployment ? {
+              ...df.deployment,
+              device: {
+                ...df.deployment.device,
+                // Use the first part of deployment name as device ID
+                id: df.deployment.name?.split('-')[0] || 'unknown'
+              }
+            } : undefined
+          }));
+
           if (obs.taxon && typeof obs.taxon === 'object') {
             const taxonId = obs.taxon.id;
             if (taxonId) {
@@ -70,7 +59,8 @@ export default function AllObservationsList() {
               id: Number(obs.id),
               obs_dt: obs.obs_dt || new Date().toISOString(),
               needs_review: obs.needs_review,
-              taxon: obs.taxon
+              taxon: obs.taxon,
+              data_files: processedDataFiles
             };
           }
           
@@ -81,7 +71,8 @@ export default function AllObservationsList() {
               id: Number(obs.id),
               obs_dt: obs.obs_dt || new Date().toISOString(),
               needs_review: obs.needs_review,
-              taxon: taxonCache[taxonId]
+              taxon: taxonCache[taxonId],
+              data_files: processedDataFiles
             };
           }
           
@@ -90,38 +81,13 @@ export default function AllObservationsList() {
             id: Number(obs.id),
             obs_dt: obs.obs_dt || new Date().toISOString(),
             needs_review: obs.needs_review,
-            taxon: { id: taxonId || 0, species_name: 'Unknown', species_common_name: 'Unknown' }
+            taxon: { id: taxonId || 0, species_name: 'Unknown', species_common_name: 'Unknown' },
+            data_files: processedDataFiles
           };
         });
-        
-        // Fetch missing taxon data
-        const taxonFetchPromises = processedObservations
-          .filter((obs: any) => typeof obs.taxon === 'number' && !taxonCache[obs.taxon])
-          .map(async (obs: any) => {
-            const taxonId = obs.taxon as number;
-            try {
-              const taxonData = await getData(`taxon/${taxonId}/`, authTokens.access);
-              setTaxonCache(prev => ({ ...prev, [taxonId]: taxonData }));
-              return { taxonId, taxonData };
-            } catch (error) {
-              console.error(`Failed to fetch taxon data for ID ${taxonId}:`, error);
-              return { taxonId, taxonData: null };
-            }
-          });
-        
-        await Promise.all(taxonFetchPromises);
-        
+
         return {
-          results: processedObservations.map((obs: any) => {
-            const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
-            if (taxonId && taxonCache[taxonId]) {
-              return {
-                ...obs,
-                taxon: taxonCache[taxonId]
-              };
-            }
-            return obs;
-          }),
+          results: processedObservations,
           count: totalCount
         };
       } catch (error) {
@@ -278,6 +244,18 @@ export default function AllObservationsList() {
     }
   };
 
+  const handleNavigateToFile = (observation: Observation) => {
+    if (observation.data_files?.length > 0 && observation.data_files[0].deployment?.device?.id) {
+      const deviceId = observation.data_files[0].deployment.device.id;
+      const dataFileId = observation.data_files[0].id.toString();
+      navigate({ 
+        to: '/devices/$deviceId/$dataFileId',
+        params: { deviceId, dataFileId },
+        search: { observationId: observation.id.toString() }
+      });
+    }
+  };
+
   if (!authTokens?.access) {
     return (
       <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
@@ -324,11 +302,15 @@ export default function AllObservationsList() {
                 <TableHead>Device</TableHead>
                 <TableHead>File</TableHead>
                 <TableHead>Actions</TableHead>
+                <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {observations?.results.map((observation: Observation) => (
-                <TableRow key={observation.id}>
+                <TableRow 
+                  key={observation.id}
+                  className="hover:bg-gray-50"
+                >
                   <TableCell>{new Date(observation.obs_dt).toLocaleString()}</TableCell>
                   <TableCell>{observation.taxon.species_name}</TableCell>
                   <TableCell>{observation.taxon.species_common_name}</TableCell>
@@ -345,17 +327,38 @@ export default function AllObservationsList() {
                     ).filter((value, index, self) => self.indexOf(value) === index).join(', ')}
                   </TableCell>
                   <TableCell>
-                    {observation.data_files?.map(df => (
-                      <div key={`${observation.id}-${df.id}`} className="text-sm">
-                        <div>{df.file_name || "Unknown file"}</div>
-                        <div className="text-gray-500 text-xs">
-                          {df.deployment?.name || "Unknown deployment"}
-                        </div>
-                      </div>
-                    ))}
+                    {observation.data_files?.map(df => df.file_name).join(', ')}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
+                      {(() => {
+                        const firstFile = observation.data_files?.[0];
+                        if (firstFile?.deployment?.device?.id && firstFile.id) {
+                          return (
+                            <Link
+                              to="/devices/$deviceId/$dataFileId"
+                              params={{
+                                deviceId: firstFile.deployment.device.id,
+                                dataFileId: firstFile.id.toString()
+                              }}
+                              search={{
+                                observationId: observation.id.toString()
+                              }}
+                              className="no-underline"
+                            >
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                <LuExternalLink className="mr-1 h-4 w-4" />
+                                View Audio
+                              </Button>
+                            </Link>
+                          );
+                        }
+                        return null;
+                      })()}
                       <Button
                         variant="outline"
                         size="sm"
@@ -372,6 +375,11 @@ export default function AllObservationsList() {
                         Delete
                       </Button>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-gray-500">
+                    {observation.data_files?.[0]?.deployment?.device?.id && (
+                      <LuExternalLink className="inline-block" title="Open audio file" />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
