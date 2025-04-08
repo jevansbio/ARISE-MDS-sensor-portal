@@ -287,70 +287,69 @@ export default function ObservationList() {
     }
 
     try {
-      // First, get the observation details to get the taxon information
-      const observationResponse = await fetch(`/api/observation/${id}/`, {
+      // First verify the observation exists
+      const checkResponse = await fetch(`/api/observation/${id}/`, {
         headers: {
           'Authorization': `Bearer ${authTokens.access}`
         }
       });
 
-      if (!observationResponse.ok) {
-        throw new Error('Failed to fetch observation details');
+      if (!checkResponse.ok) {
+        if (checkResponse.status === 404) {
+          throw new Error('Observation not found');
+        }
+        throw new Error('Failed to verify observation');
       }
 
-      const observation = await observationResponse.json();
-      const speciesName = observation.taxon.species_name;
-
-      // Create a temporary observation with the same taxon
-      const tempObservationResponse = await fetch('/api/observation/', {
-        method: 'POST',
+      // Now attempt to delete
+      const deleteResponse = await fetch(`/api/observation/${id}/`, {
+        method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authTokens.access}`
-        },
-        body: JSON.stringify({
-          taxon: {
-            id: observation.taxon.id,
-            species_name: observation.taxon.species_name,
-            species_common_name: observation.taxon.species_common_name
-          }
-        })
+          'Authorization': `Bearer ${authTokens.access}`,
+          'Accept': 'application/json'
+        }
       });
 
-      if (!tempObservationResponse.ok) {
-        throw new Error('Failed to create temporary observation');
-      }
-
-      const tempObservation = await tempObservationResponse.json();
-
-      // Replace the original observation with the temporary one
-      const replaceResponse = await fetch(`/api/observation/${id}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authTokens.access}`
-        },
-        body: JSON.stringify({
-          taxon: {
-            id: tempObservation.taxon.id,
-            species_name: tempObservation.taxon.species_name,
-            species_common_name: tempObservation.taxon.species_common_name
+      if (!deleteResponse.ok) {
+        let errorMessage = 'Failed to delete observation';
+        try {
+          const errorText = await deleteResponse.text();
+          console.error('Raw error response:', errorText);
+          
+          // Check for Bridgekeeper permission error
+          if (errorText.includes('Bridgekeeper') || errorText.includes('permission could not be found')) {
+            errorMessage = 'You do not have permission to delete observations. Please contact your administrator.';
+          } else {
+            // Try to parse as JSON if possible
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.detail || errorData.message || errorText;
           }
-        })
-      });
-
-      if (!replaceResponse.ok) {
-        throw new Error('Failed to replace observation');
+        } catch (e) {
+          console.error('Error parsing response:', e);
+        }
+        
+        console.error('Delete error details:', {
+          status: deleteResponse.status,
+          statusText: deleteResponse.statusText,
+          url: deleteResponse.url
+        });
+        
+        throw new Error(errorMessage);
       }
+
+      // Log successful deletion
+      console.log('Observation deleted successfully:', {
+        id,
+        status: deleteResponse.status,
+        statusText: deleteResponse.statusText
+      });
 
       // Invalidate and refetch the observations query immediately
       await queryClient.invalidateQueries({ queryKey: ['observations', dataFileIdStr] });
       await queryClient.refetchQueries({ queryKey: ['observations', dataFileIdStr] });
-
-      console.log('=== handleDeleteObservation completed successfully ===');
     } catch (error) {
       console.error('Error in handleDeleteObservation:', error);
-      throw error;
+      alert(error instanceof Error ? error.message : 'Failed to delete observation. Please try again.');
     }
   };
 

@@ -18,11 +18,9 @@ class ShortTaxonSerializer(serializers.ModelSerializer):
         exclude = ["id", "created_on", "modified_on", "parents"]
 
     def to_representation(self, instance):
-        initial_rep = super(ShortTaxonSerializer,
-                            self).to_representation(instance)
-        initial_rep["taxon_extra_data"] = initial_rep.pop("extra_data")
-
-        return initial_rep
+        rep = super().to_representation(instance)
+        rep["taxon_extra_data"] = rep.pop("extra_data")
+        return rep
 
 
 class EvenShorterTaxonSerialier(serializers.ModelSerializer):
@@ -35,18 +33,20 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
     taxon_obj = ShortTaxonSerializer(source='taxon', read_only=True)
     taxon = serializers.PrimaryKeyRelatedField(
         queryset=Taxon.objects.all(),
-        required=False)
-    species_name = SlugRelatedGetOrCreateField(many=False,
-                                               source="taxon",
-                                               slug_field="species_name",
-                                               queryset=Taxon.objects.all(),
-                                               allow_null=True,
-                                               required=False,
-                                               read_only=False)
+        required=False
+    )
+    species_name = SlugRelatedGetOrCreateField(
+        many=False,
+        source="taxon",
+        slug_field="species_name",
+        queryset=Taxon.objects.all(),
+        allow_null=True,
+        required=False,
+        read_only=False
+    )
     data_files = serializers.SerializerMethodField()
 
     def get_data_files(self, obj):
-        data_files = obj.data_files.all()
         return [{
             'id': df.id,
             'file_name': df.file_name,
@@ -56,27 +56,22 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
                     'name': df.deployment.device.name if df.deployment and df.deployment.device else None
                 }
             } if df.deployment else None
-        } for df in data_files]
+        } for df in obj.data_files.all()]
 
     def to_representation(self, instance):
-        initial_rep = super(ObservationSerializer, self).to_representation(instance)
-        initial_rep.pop("species_name")
+        rep = super().to_representation(instance)
+        rep.pop("species_name")
         
-        # Get the taxon object
         taxon = instance.taxon
-        if taxon:
-            initial_rep['taxon'] = {
-                'id': taxon.id,
-                'species_name': taxon.species_name,
-                'species_common_name': taxon.species_common_name
-            }
-        else:
-            initial_rep['taxon'] = None
+        rep['taxon'] = {
+            'id': taxon.id,
+            'species_name': taxon.species_name,
+            'species_common_name': taxon.species_common_name
+        } if taxon else None
             
-        return initial_rep
+        return rep
 
     def to_internal_value(self, data):
-        # Handle nested taxon data
         if 'taxon' in data and isinstance(data['taxon'], dict):
             taxon_data = data['taxon']
             if 'id' in taxon_data:
