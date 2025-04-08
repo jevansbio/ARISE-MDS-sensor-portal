@@ -15,6 +15,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData, TValue> {
+    className?: string;
+  }
+}
 import { TbArrowsUpDown } from "react-icons/tb";
 import { Deployment } from "@/types";
 import { useQuery } from "@tanstack/react-query";
@@ -96,6 +102,7 @@ export default function DeploymentsPage() {
     },
     {
       accessorKey: "id",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -111,6 +118,7 @@ export default function DeploymentsPage() {
     },
     {
       accessorKey: "startDate",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -126,6 +134,7 @@ export default function DeploymentsPage() {
     },
     {
       accessorKey: "endDate",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -141,6 +150,7 @@ export default function DeploymentsPage() {
     },
     {
       accessorKey: "lastUpload",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -194,7 +204,7 @@ export default function DeploymentsPage() {
 
   return (
     <div>
-      <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
+      <button onClick={openModal} className="bg-green-900 mx-2 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 sm:ml-auto mb-4 sm:mr-4 sm:my-4">
         Add info
       </button>
     
@@ -202,35 +212,42 @@ export default function DeploymentsPage() {
         <DeviceForm onSave={handleSave} />
       </Modal>
 
-      <div className="rounded-md border m-5 shadow-md">
+      <div className="rounded-md border sm:m-5 mx-2 shadow-md">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="px-0 py-0">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="px-4 py-2">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
+        <TableHeader>
+  {table.getHeaderGroups().map((headerGroup) => (
+    <TableRow key={headerGroup.id}>
+      {headerGroup.headers.map((header) => (
+        <TableHead
+          key={header.id}
+          className={`${header.column.columnDef.meta?.className ?? ""} px-0 py-0`}
+        >
+          {header.isPlaceholder
+            ? null
+            : flexRender(
+                header.column.columnDef.header,
+                header.getContext()
+              )}
+        </TableHead>
+      ))}
+    </TableRow>
+  ))}
+</TableHeader>
+
+<TableBody>
+  {table.getRowModel().rows.map((row) => (
+    <TableRow key={row.id}>
+      {row.getVisibleCells().map((cell) => (
+        <TableCell
+          key={cell.id}
+          className={`${cell.column.columnDef.meta?.className ?? ""} px-4 py-2`}
+        >
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  ))}
+</TableBody>
         </Table>
       </div>
     </div>
