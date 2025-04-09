@@ -204,7 +204,7 @@ export default function DeploymentsPage() {
 
       {/* Dropdown menu */}
       {isDropdownOpen && (
-        <div className="absolute mt-2 bg-white shadow-lg rounded-lg border">
+        <div className="absolute mt-2 bg-white shadow-lg rounded-lg border opacity-100 z-10">
           <ul>
             {countries.map((country) => (
               <li
@@ -218,6 +218,17 @@ export default function DeploymentsPage() {
           </ul>
         </div>
       )}
+
+      {/* Clear selection of countries */}
+      {selectedCountry && (
+        <button
+          onClick={() => setSelectedCountry(null)}
+          className="bg-red-900 text-white py-2 px-8 rounded-lg hover:bg-red-700 transition-all"
+        >
+          Clear Selection
+        </button>
+      )}
+
 
       {/* Active Deployments Table */}
       <h2 className="text-2xl font-bold mb-4">Active Deployments</h2>
