@@ -337,22 +337,20 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)/download')
-    def download_datafile(self, request, datafile_id=None):
+    def download_datafile(self, request, pk=None, datafile_id=None):
         """Download a specific data file from a device"""
         device = self.get_object()
         user = request.user
 
         try:
             datafile = DataFile.objects.get(deployment__device=device, pk=datafile_id)
-            if not datafile.path:
-                return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
         except DataFile.DoesNotExist:
             return Response({"error": "DataFile not found."}, status=status.HTTP_404_NOT_FOUND)
 
         if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=datafile_id)).first():
             raise PermissionDenied("You don't have permission to download this datafile")
 
-        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        file_path = datafile.full_path()
         
         if not os.path.exists(file_path):
             return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
@@ -362,12 +360,8 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
                 file_content = f.read()
                 mime_type = 'audio/mpeg' if datafile.file_format.lower().replace('.', '') == 'mp3' else f"audio/{datafile.file_format.lower().replace('.', '')}"
                 response = HttpResponse(file_content, content_type=mime_type)
-                response['Content-Disposition'] = f'inline; filename="audio_file_{datafile_id}.{datafile.file_format.lower().replace(".", "")}"'
+                response['Content-Disposition'] = f'inline; filename="{datafile.file_name}{datafile.file_format}"'
                 response['Content-Length'] = len(file_content)
-                response['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
-                response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-                response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-                response['Access-Control-Allow-Credentials'] = 'true'
                 return response
         except IOError as e:
             return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -518,6 +512,39 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
                      'config',
                      'sample_rate']
     
+    
+    # Add to DataFileViewSet class
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        """Download a specific data file"""
+        datafile = self.get_object()
+        user = request.user
+
+        # Check permissions
+        if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=pk)).first():
+            raise PermissionDenied("You don't have permission to download this datafile")
+
+        if not datafile.path:
+            return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Construct full path by joining the base directory with local_path
+        base_dir = '/usr/src/proj_tabmon_NINA'
+        file_path = os.path.join(base_dir, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        
+        if not os.path.exists(file_path):
+            return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+                mime_type = 'audio/mpeg' if datafile.file_format.lower().replace('.', '') == 'mp3' else f"audio/{datafile.file_format.lower().replace('.', '')}"
+                response = HttpResponse(file_content, content_type=mime_type)
+                response['Content-Disposition'] = f'inline; filename="{datafile.file_name}{datafile.file_format}"'
+                response['Content-Length'] = len(file_content)
+                return response
+        except IOError as e:
+            return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
     @action(detail=False, methods=['get'])
     def filter_by_date(self, request):
         # Retrieve the query parameters: start_date and end_date

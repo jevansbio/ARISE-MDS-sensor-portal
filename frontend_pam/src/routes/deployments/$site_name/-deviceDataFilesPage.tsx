@@ -198,8 +198,7 @@ export default function DeviceDataFilesPage() {
         <div className="flex items-center gap-2">
           <AudioPlayer deviceId={"2"} fileId={"1"} />
           <DownloadButton
-            deviceId={"2"}
-            fileId={"2"}
+            fileId={row.original.id.toString()}
             fileFormat={row.original.file_format}
           />
         </div>
