@@ -150,10 +150,6 @@ The project is structured to maintain a clear separation of concerns and to ensu
 
 
 **Select folders in frontend**
-- `src/`: Contains the main source code for the frontend.
-    - `components/`: Houses reusable React components, each in its own directory.
-- `index.html`: The entry HTML file for the frontend.
-
 
 - `src/`: Contains the main source code for the frontend.
   - `components/`: Houses reusable React components, each in its own directory.
@@ -163,23 +159,22 @@ The project is structured to maintain a clear separation of concerns and to ensu
   - `routes/`
     - `deployments/`
       - `$siteName/`
-        - `deploymentMapPage.tsx`
-        - `deploymentPage.tsx`
-        - `deviceDataFilesPage.tsx`
-        - `deviceDetailPage.tsx`
-        - `siteDetailPage.tsx`
-        - `dataFieldTest.tsx`
+        - `-deploymentMapPage.tsx`
+        - `-deploymentPage.tsx`: Landing page after clicking a deployment
+        - `-deviceDataFilesPage.tsx`
+        - `-deviceDetailPage.tsx`
+        - `-siteDetailPage.tsx`
+        - `$dataFieldTest.tsx`
         - `index.tsx`
-      - `-deploymentsPage.tsx`  
+      - `-deploymentsPage.tsx`: Table view of all deployments
       - `index.tsx`: 
     - `__root.tsx`: Root component used for Tanstack Router
     - `login.tsx`Login page
     - `index.tsx`: Homepage
-    - `map.tsx`: Map over deployments
-
+    - `map.tsx`: Map over all deployments
   - `types.ts`
-  - `index.css`
-  - `main.tsx`
+  - `index.css`: Used to define tailwind
+  - `main.tsx`: Define rotuer and query provider
 - `index.html`: The entry HTML file for the frontend.
 
 
