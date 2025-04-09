@@ -46,21 +46,25 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
     @action(detail=False, methods=['post'])
     def upsert_deployment(self, request):
         """
-        Update or insert (upsert) a Deployment instance using deployment_ID.
+        Update or insert (upsert) a Deployment instance if any deployment-related fields
+        have been provided. If no deployment fields (other than deployment_ID) are filled,
+        then the deployment is not processed.
 
-        - If deployment_ID exists, only update fields explicitly provided and non-empty.
-        - If not, create a new deployment using provided data.
-        - Accepts both raw field names and mapped form field names.
+        - If any deployment fields are provided, deployment_ID is required.
+        - If deployment_ID exists, update the corresponding Deployment with the provided (non-empty) fields.
+        - Otherwise, create a new Deployment with the provided data.
         
         Returns:
-            - 200 OK with updated deployment
-            - 201 Created with new deployment
-            - 400 Bad Request if deployment_ID is missing
+            - 200 OK with updated deployment if found/updated.
+            - 201 Created if a new deployment is created.
+            - 400 Bad Request if required fields are missing.
+            - 200 OK with a message if no deployment fields are provided.
         """
-        user = request.user
-        data = request.data.copy()  # Make mutable
 
-        # Map known external field names to internal model fields
+        user = request.user
+        data = request.data.copy()  # Gjør dataen muterbar
+
+        # Mapping fra eksterne feltnavn til interne feltnavn
         field_mapping = {
             'DeploymentID': 'deployment_ID',
             'Country': 'country',
@@ -80,39 +84,62 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             'Comment/remark': 'comment'
         }
 
-        # Translate keys and filter out empty values
+        # Oversett feltnavn og filtrer ut tomme verdier
         translated_data = {
             field_mapping.get(key, key): value
-            for key, value in data.items()
+            for key, value in data.items() 
             if value not in [None, ""]
         }
 
-        # Handle ActiveData block if present
+        # Håndter eventuelle ActiveData hvis tilstede
         active_data = data.get("ActiveData")
         if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
             translated_data["battery_level"] = active_data["batteryLevel"]
 
+        # Definer hvilke felter som er deployment-relaterte (unntatt deployment_ID)
+        deployment_field_keys = [
+            "country", "site_name", "start_date", "end_date", "latitude",
+            "longitude", "coordinate_uncertainty", "gps_device", "mic_height",
+            "mic_direction", "habitat", "score", "protocol_checklist", "user_email", "comment"
+        ]
+
+        # Sjekk om noen deployment-felter er oppgitt
+        deployment_fields_provided = any(
+            key in translated_data for key in deployment_field_keys
+        )
+
+        # Hvis ingen deployment-felter er oppgitt, hopper vi over oppretting/oppdatering av deployment.
+        if not deployment_fields_provided:
+            return Response(
+                {"message": "No deployment information provided. Deployment was not updated/created."},
+                status=status.HTTP_200_OK
+            )
+
+        # Dersom deployment fields er oppgitt, krever vi at deployment_ID er med.
         deployment_id = translated_data.get("deployment_ID")
         if not deployment_id:
-            return Response({"error": "deployment_ID is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"error": "Deployment ID is required when providing deployment information."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Opprett eller hent eksisterende deployment
         deployment, created = Deployment.objects.get_or_create(
             deployment_ID=deployment_id,
             defaults=translated_data
         )
 
-        try:
-            deployment = Deployment.objects.get(deployment_ID=deployment_id)
-            serializer = DeploymentSerializer(deployment, data=translated_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        # Uansett oppdateres deployment med de nye feltene (partial update)
+        serializer = DeploymentSerializer(deployment, data=translated_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        if created:
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except Deployment.DoesNotExist:
-            serializer = DeploymentSerializer(data=translated_data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
 
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
     def by_site(self, request, site_name=None):

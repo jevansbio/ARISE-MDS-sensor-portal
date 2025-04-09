@@ -140,7 +140,7 @@ class Device(BaseModel):
 
     # Device status and configuration fields
     device_status = models.CharField(max_length=50, blank=True, null=True)
-    configuration = models.CharField(max_length=20, choices=[('summer', 'Summer'), ('winter', 'Winter')], blank=True, null=True)
+    configuration = models.CharField(max_length=20, blank=True, null=True)
     sim_card_icc = models.CharField(max_length=50, blank=True, null=True)
     sim_card_batch = models.CharField(max_length=50, blank=True, null=True)
     sd_card_size = models.FloatField(help_text="Size in GB", blank=True, null=True)
@@ -325,9 +325,8 @@ class Deployment(BaseModel):
 
     deployment_start = models.DateTimeField(default=djtimezone.now)
     deployment_end = models.DateTimeField(blank=True, null=True)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name="deployments", null=True, blank=True)
 
-    device = models.ForeignKey(
-        Device, on_delete=models.PROTECT, related_name="deployments")
     site = models.ForeignKey(Site, models.PROTECT, related_name="deployments")
     project = models.ManyToManyField(
         Project, related_name="deployments", blank=True)

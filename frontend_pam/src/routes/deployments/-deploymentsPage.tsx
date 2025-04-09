@@ -72,7 +72,7 @@ export default function DeploymentsPage() {
 
   const columns: ColumnDef<Deployment>[] = [
     {
-      accessorKey: "site",
+      accessorKey: "siteName",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -94,14 +94,14 @@ export default function DeploymentsPage() {
       ),
     },
     {
-      accessorKey: "id",
+      accessorKey: "deploymentId",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          Device
+          Deployment ID
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
