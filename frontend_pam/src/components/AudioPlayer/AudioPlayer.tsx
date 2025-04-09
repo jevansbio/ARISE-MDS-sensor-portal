@@ -23,7 +23,20 @@ export default function AudioPlayer({
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
 
-  // Cleanup function for when component unmounts
+  // Reset audio when fileId changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      setIsPlaying(false);
+    }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+  }, [fileId]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (audioRef.current) {
