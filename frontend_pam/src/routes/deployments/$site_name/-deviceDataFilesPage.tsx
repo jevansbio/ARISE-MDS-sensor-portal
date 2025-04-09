@@ -196,7 +196,10 @@ export default function DeviceDataFilesPage() {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <AudioPlayer deviceId={"2"} fileId={"1"} />
+          <AudioPlayer
+            fileId={row.original.id.toString()}
+            fileFormat={row.original.file_format}
+          />
           <DownloadButton
             fileId={row.original.id.toString()}
             fileFormat={row.original.file_format}

@@ -528,8 +528,7 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
             return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Construct full path by joining the base directory with local_path
-        base_dir = '/usr/src/proj_tabmon_NINA'
-        file_path = os.path.join(base_dir, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
         
         if not os.path.exists(file_path):
             return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
