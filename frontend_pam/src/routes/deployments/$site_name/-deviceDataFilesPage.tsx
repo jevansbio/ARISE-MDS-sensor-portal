@@ -115,10 +115,6 @@ export default function DeviceDataFilesPage() {
       cell: ({ row }) => row.original.file_name,
     },
     {
-      accessorKey: "config",
-      header: "Config",
-    },
-    {
       accessorKey: "sample_rate",
       header: ({ column }) => (
         <Button
@@ -201,14 +197,10 @@ export default function DeviceDataFilesPage() {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <AudioPlayer
-            deviceId={site_name}
-            fileId={row.original.id}
-            fileFormat={row.original.file_format}
-          />
+          <AudioPlayer deviceId={"2"} fileId={"1"} />
           <DownloadButton
-            deviceId={site_name}
-            fileId={row.original.id}
+            deviceId={"2"}
+            fileId={"2"}
             fileFormat={row.original.file_format}
           />
         </div>
