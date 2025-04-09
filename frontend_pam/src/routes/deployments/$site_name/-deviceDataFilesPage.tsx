@@ -39,10 +39,6 @@ export default function DeviceDataFilesPage() {
 
   const [FilteredDataFiles, setFilteredDataFiles] = useState<DataFile[]>([]);
 
-  useEffect(() => {
-    console.log(site_name);
-  }, [FilteredDataFiles]); // State to store data files
-
   const apiURL = `devices/${site_name}/datafiles`;
 
   const getDataFunc = async (): Promise<DataFile[]> => {

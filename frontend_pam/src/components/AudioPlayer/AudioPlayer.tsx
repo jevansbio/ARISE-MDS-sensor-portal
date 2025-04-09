@@ -104,8 +104,6 @@ export default function AudioPlayer({
           }
 
           const blob = await response.blob();
-          console.log("Received blob:", blob);
-          console.log("Blob type:", blob.type);
 
           // Use the blob's type if available, otherwise determine from file format
           const mimeType =
@@ -113,7 +111,6 @@ export default function AudioPlayer({
             (fileFormat.toLowerCase().startsWith(".")
               ? `audio/${fileFormat.toLowerCase().substring(1)}`
               : `audio/${fileFormat.toLowerCase()}`);
-          console.log("Setting MIME type:", mimeType);
 
           // Create a new blob with the correct MIME type
           const audioBlob = new Blob([blob], { type: mimeType });
@@ -125,7 +122,6 @@ export default function AudioPlayer({
 
           // Create and store new URL
           audioUrlRef.current = URL.createObjectURL(audioBlob);
-          console.log("Created object URL:", audioUrlRef.current);
 
           audioRef.current.src = audioUrlRef.current;
           await audioRef.current.load();

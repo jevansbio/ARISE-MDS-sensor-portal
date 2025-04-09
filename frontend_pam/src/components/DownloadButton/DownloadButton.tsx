@@ -19,7 +19,6 @@ export default function DownloadButton({
 
   const handleDownload = async () => {
     try {
-      console.log("Starting download for file:", fileId);
       const response = await fetch(`/api/datafile/${fileId}/download/`, {
         headers: {
           Authorization: `Bearer ${authTokens.access}`,
@@ -35,7 +34,6 @@ export default function DownloadButton({
       }
 
       const blob = await response.blob();
-      console.log("Received blob:", blob);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
