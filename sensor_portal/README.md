@@ -185,6 +185,99 @@ The system supports detailed observations through:
    - Batch quality assessment results
    - Custom observation reports
 
+#### Customizing Quality Checks and Observations
+
+1. **Configuration Location**:
+   The quality check criteria are defined in `sensor_portal/data_models/services/audio_quality.py`:
+   ```python
+   class AudioQualityChecker:
+       # Thresholds for quality assessment
+       CLIPPING_THRESHOLD = 0.01  # 1% clipping allowed
+       DC_OFFSET_THRESHOLD = 0.1  # Maximum allowed DC offset
+       SNR_THRESHOLD = 20  # Minimum acceptable SNR in dB
+       SILENCE_THRESHOLD = 0.3  # Warning threshold for silence ratio
+       ZCR_NOISE_THRESHOLD = 0.4  # Maximum allowed zero crossing rate
+   ```
+
+2. **Modifying Quality Score Deductions**:
+   To adjust the scoring system, modify the deduction rules in the `check_audio_quality` method:
+   ```python
+   # Technical deductions
+   if clipping_ratio > CLIPPING_THRESHOLD:
+       quality_score -= 20  # Adjust deduction value
+   
+   # Content-based deductions
+   if silence_ratio > 0.8:
+       quality_score -= 40  # Adjust deduction value
+   ```
+
+3. **Adding New Observations**:
+   To add new observation criteria, extend the `check_audio_quality` method:
+   ```python
+   # Example: Add new spectral observation
+   if spectral_flatness > 0.8:
+       observations.append("High spectral flatness detected")
+   ```
+
+4. **Custom Quality Checks**:
+   Create a new method in `AudioQualityChecker` for custom checks:
+   ```python
+   @staticmethod
+   def custom_quality_check(file_path, custom_thresholds):
+       # Implement custom quality checks
+       pass
+   ```
+
+5. **Configuration via Settings**:
+   Add custom thresholds to Django settings:
+   ```python
+   # settings.py
+   QUALITY_CHECK_THRESHOLDS = {
+       'clipping': 0.01,
+       'dc_offset': 0.1,
+       'snr': 20,
+       'silence': 0.3,
+       'zcr': 0.4
+   }
+   ```
+
+6. **Dynamic Threshold Adjustment**:
+   Implement dynamic thresholds based on recording conditions:
+   ```python
+   def adjust_thresholds(recording_conditions):
+       # Adjust thresholds based on recording environment
+       pass
+   ```
+
+7. **Adding New Metrics**:
+   To add new quality metrics:
+   1. Add new fields to the `DataFile` model
+   2. Update the quality check service
+   3. Modify the serializer to include new metrics
+   4. Update the API endpoints
+
+8. **Testing Changes**:
+   After modifying criteria:
+   ```bash
+   # Run quality check tests
+   pytest data_models/tests/test_audio_quality.py
+   
+   # Validate changes with sample files
+   python manage.py test_quality_criteria
+   ```
+
+9. **Version Control**:
+   - Track changes to quality criteria
+   - Document threshold modifications
+   - Maintain backward compatibility
+   - Update documentation
+
+10. **Monitoring Impact**:
+    - Track quality score distributions
+    - Monitor false positive/negative rates
+    - Analyze impact on data validation
+    - Adjust thresholds based on results
+
 ### API Layer (`api/`)
 - RESTful endpoints for all models
 - GIS-enabled endpoints for spatial queries
