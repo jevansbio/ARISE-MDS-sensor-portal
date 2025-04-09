@@ -337,7 +337,7 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)/download')
-    def download_datafile(self, request, device_ID=None, datafile_id=None):
+    def download_datafile(self, request, datafile_id=None):
         """Download a specific data file from a device"""
         device = self.get_object()
         user = request.user
@@ -523,6 +523,7 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         # Retrieve the query parameters: start_date and end_date
         start_date = request.GET.get('start_date', None)
         end_date = request.GET.get('end_date', None)
+        site_name = request.GET.get('site_name', None)
         
         # Validate the date format
         if start_date and end_date:
@@ -537,11 +538,18 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         else:
             return Response({"error": "Both start_date and end_date are required."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Get all data files from all devices within the date range in a single query
-        result_queryset = DataFile.objects.filter(
-            recording_dt__gte=start_date,
-            recording_dt__lt=end_date
-        )
+        # Build the initial queryset to filter by date range
+        filters = {
+            'recording_dt__gte': start_date,
+            'recording_dt__lt': end_date
+        }
+
+        # If site_name is provided, filter by the related Deployment's site_name as well
+        if site_name:
+            filters['deployment__site_name'] = site_name
+
+        # Perform the filtering in a single query using the filters dictionary
+        result_queryset = DataFile.objects.filter(**filters)
         
         # Serialize and return the results
         serializer = self.get_serializer(result_queryset, many=True)

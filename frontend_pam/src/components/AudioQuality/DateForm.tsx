@@ -17,14 +17,15 @@ const formatDate = (date: Date) => {
 const fetchDataForDateRange = async (
   startDate: Date,
   endDate: Date,
-  token: string
+  token: string,
+  site_name: string
 ) => {
   const formattedStartDate = formatDate(startDate);
   const formattedEndDate = formatDate(endDate);
 
   // Using the provided getData function
   const response = await getData(
-    `datafile/filter_by_date?start_date=${formattedStartDate}&end_date=${formattedEndDate}`,
+    `datafile/filter_by_date?start_date=${formattedStartDate}&end_date=${formattedEndDate}&site_name=${site_name}`,
     token
   );
   return response; // The response is already in JSON format
@@ -40,9 +41,13 @@ interface AuthContextType {
 
 interface DatafileProps {
   filteredDatafiles: (data: DataFile[]) => void; // Change to expect an array of DataFile
+  site_name: string;
 }
 
-const DateForm: React.FC<DatafileProps> = ({ filteredDatafiles }) => {
+const DateForm: React.FC<DatafileProps> = ({
+  filteredDatafiles,
+  site_name,
+}) => {
   // State to store the start and end dates
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -54,7 +59,12 @@ const DateForm: React.FC<DatafileProps> = ({ filteredDatafiles }) => {
     queryKey: ["datafile", startDate, endDate], // Query key with the date range
     queryFn: () => {
       if (startDate && endDate && authTokens?.access) {
-        return fetchDataForDateRange(startDate, endDate, authTokens.access);
+        return fetchDataForDateRange(
+          startDate,
+          endDate,
+          authTokens.access,
+          site_name
+        );
       }
       return Promise.resolve(null); // Return null or empty response if dates are not selected or token is missing
     },

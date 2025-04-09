@@ -30,7 +30,6 @@ import DateForm from "@/components/AudioQuality/DateForm";
 
 export default function DeviceDataFilesPage() {
   const { site_name } = Route.useParams();
-
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
 
@@ -41,7 +40,7 @@ export default function DeviceDataFilesPage() {
   const [FilteredDataFiles, setFilteredDataFiles] = useState<DataFile[]>([]);
 
   useEffect(() => {
-    console.log("FilteredDataFiles changed:", FilteredDataFiles);
+    console.log(site_name);
   }, [FilteredDataFiles]); // State to store data files
 
   const apiURL = `devices/${site_name}/datafiles`;
@@ -228,7 +227,10 @@ export default function DeviceDataFilesPage() {
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-6 pl-5">Data Files</h1>
 
-      <DateForm filteredDatafiles={handleDataFromDateForm} />
+      <DateForm
+        filteredDatafiles={handleDataFromDateForm}
+        site_name={site_name}
+      />
 
       <div className="rounded-md border m-5 shadow-md">
         <Table>
