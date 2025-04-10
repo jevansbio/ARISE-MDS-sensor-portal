@@ -91,8 +91,8 @@ export default function Form({ onSave }: FormProps) {
       // Sett sammen payload for deployment (fra deployment-delen)
       const deploymentPayload = {
         deployment_ID: values.deploymentId,
-        start_date: values.date,
-        end_date: "",
+        deployment_start: values.date,
+        deployment_end: "",
         country: values.country,
         site_name: values.site,
         latitude: values.latitude,
@@ -166,14 +166,14 @@ export default function Form({ onSave }: FormProps) {
                 <Input id="simCardICC" placeholder="Enter Sim Card ICC" {...register("simCardICC")} />
                 {errors.simCardICC && <p className="text-sm text-red-500">{errors.simCardICC.message}</p>}
               </div>
-            </div>
-            {/* Column 2 */}
-            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="simCardBatch">SIM Card Batch</Label>
                 <Input id="simCardBatch" placeholder="Enter SIM Card Batch" {...register("simCardBatch")} />
                 {errors.simCardBatch && <p className="text-sm text-red-500">{errors.simCardBatch.message}</p>}
               </div>
+            </div>
+            {/* Column 2 */}
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="sdCardSize">SD Card Size (GB)</Label>
                 <Input id="sdCardSize" type="number" placeholder="Enter SD Card Size" {...register("sdCardSize")} />
@@ -224,9 +224,6 @@ export default function Form({ onSave }: FormProps) {
                 <Input id="latitude" type="text" placeholder="Enter latitude (e.g. 45.123456)" {...register("latitude")} />
                 {errors.latitude && <p className="text-sm text-red-500">{errors.latitude.message}</p>}
               </div>
-            </div>
-            {/* Column 2 */}
-            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="longitude">Longitude</Label>
                 <Input id="longitude" type="text" placeholder="Enter longitude (e.g. 123.123456)" {...register("longitude")} />
@@ -237,6 +234,10 @@ export default function Form({ onSave }: FormProps) {
                 <Input id="coordUncertainty" type="number" placeholder="Enter coordinate uncertainty" {...register("coordUncertainty")} />
                 {errors.coordUncertainty && <p className="text-sm text-red-500">{errors.coordUncertainty.message}</p>}
               </div>
+            </div>
+            {/* Column 2 */}
+            <div className="space-y-4">
+
               <div className="space-y-2">
                 <Label htmlFor="gpsDevice">GPS Device</Label>
                 <Input id="gpsDevice" placeholder="Enter GPS device" {...register("gpsDevice")} />
@@ -272,16 +273,14 @@ export default function Form({ onSave }: FormProps) {
                 <Input id="email" type="email" placeholder="Enter email" {...register("email")} />
                 {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="comment">Comment</Label>
+                <Input id="comment" placeholder="Enter comment" {...register("comment")} />
+                {errors.comment && <p className="text-sm text-red-500">{errors.comment.message}</p>}
+              </div>
             </div>
           </div>
         </section>
-
-        {/* Full width Comment Field */}
-        <div className="space-y-2 mt-4">
-          <Label htmlFor="comment">Comment</Label>
-          <Input id="comment" placeholder="Enter comment" {...register("comment")} />
-          {errors.comment && <p className="text-sm text-red-500">{errors.comment.message}</p>}
-        </div>
 
         <div className="flex justify-center mt-8">
           <Button type="submit">Submit</Button>

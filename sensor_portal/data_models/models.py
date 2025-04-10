@@ -34,7 +34,7 @@ from .general_functions import check_dt
 
 class Site(BaseModel):
     name = models.CharField(max_length=50)
-    short_name = models.CharField(max_length=10, blank=True)
+    short_name = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
         return self.name
@@ -54,7 +54,7 @@ class DataType(BaseModel):
 
 class Project(BaseModel):
     # Metadata
-    project_ID = models.CharField(max_length=10, unique=True, blank=True)
+    project_ID = models.CharField(max_length=50, unique=True, blank=True)
     name = models.CharField(max_length=50)
 
     objectives = models.CharField(max_length=500, blank=True)
@@ -317,19 +317,19 @@ class Device(BaseModel):
 
 class Deployment(BaseModel):
     deployment_device_ID = models.CharField(
-        max_length=100, blank=True, editable=False, unique=True)
+        max_length=100, blank=True, editable=False, unique=True, null=True)
     deployment_ID = models.CharField(max_length=50)
     device_type = models.ForeignKey(
-        DataType, models.PROTECT, related_name="deployments", null=True)
+        DataType, models.PROTECT, related_name="deployments", null=True, blank=True)
     device_n = models.IntegerField(default=1)
 
-    deployment_start = models.DateTimeField(default=djtimezone.now)
+    deployment_start = models.DateTimeField(default=djtimezone.now, blank=True, null=True)
     deployment_end = models.DateTimeField(blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name="deployments", null=True, blank=True)
 
-    site = models.ForeignKey(Site, models.PROTECT, related_name="deployments")
+    site = models.ForeignKey(Site, models.PROTECT, related_name="deployments", null=True, blank=True)
     project = models.ManyToManyField(
-        Project, related_name="deployments", blank=True)
+        Project, related_name="deployments", blank=True, null=True)
 
     latitude = models.DecimalField(
         max_digits=8, decimal_places=6, blank=True, null=True)
@@ -369,19 +369,19 @@ class Deployment(BaseModel):
         DataStorageInput, null=True, blank=True, related_name="linked_deployments", on_delete=models.SET_NULL)
 
     extra_data = models.JSONField(default=dict, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, blank=True, null=True)
 
-    time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE)
+    time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE, null=True, blank=True)
 
     # User ownership
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_deployments",
                               on_delete=models.SET_NULL, null=True)
     managers = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name="managed_deployments")
+        settings.AUTH_USER_MODEL, blank=True, related_name="managed_deployments", null=True)
     viewers = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_deployments")
+        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_deployments", null=True)
     annotators = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_deployments")
+        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_deployments", null=True)
 
     combo_project = models.CharField(
         max_length=100, blank=True, null=True, editable=False)

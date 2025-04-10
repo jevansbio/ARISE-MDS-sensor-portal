@@ -69,8 +69,8 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             'DeploymentID': 'deployment_ID',
             'Country': 'country',
             'Site': 'site_name',
-            'StartDate': 'start_date',
-            'EndDate': 'end_date',
+            'StartDate': 'deployment_start',
+            'EndDate': 'deployment_end',
             'Latitude': 'latitude',
             'Longitude': 'longitude',
             'Coordinate Uncertainty': 'coordinate_uncertainty',
@@ -96,9 +96,32 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
             translated_data["battery_level"] = active_data["batteryLevel"]
 
+        if "site" not in translated_data:
+            default_site = Site.objects.first()  # Kan også velges via settings
+            if default_site:
+                # Sjekk om default_site.short_name er for lang
+                max_len = default_site._meta.get_field("short_name").max_length  # forventer 10
+                if len(default_site.short_name) > max_len:
+                    # Trunkér short_name og lagre endringen
+                    default_site.short_name = default_site.short_name[:max_len]
+                    default_site.save()
+                translated_data["site"] = default_site
+            else:
+                # Hvis det ikke finnes et Site, kan du velge å returnere en feilmelding
+                return Response(
+                    {"error": "No Site instance found in the database."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+    
+        if "project" not in translated_data:
+            default_project = Project.objects.first()
+            if default_project:
+                translated_data['project'] = default_project
+            else:
+                pass
         # Definer hvilke felter som er deployment-relaterte (unntatt deployment_ID)
         deployment_field_keys = [
-            "country", "site_name", "start_date", "end_date", "latitude",
+            "country", "site_name", "deployment_start", "deployment_end", "latitude",
             "longitude", "coordinate_uncertainty", "gps_device", "mic_height",
             "mic_direction", "habitat", "score", "protocol_checklist", "user_email", "comment"
         ]
