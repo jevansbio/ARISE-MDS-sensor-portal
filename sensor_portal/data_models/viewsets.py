@@ -42,24 +42,24 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             return DeploymentSerializer_GeoJSON
         else:
             return DeploymentSerializer
-
+        
     @action(detail=False, methods=['post'])
     def upsert_deployment(self, request):
         """
-        Update or insert (upsert) a Deployment instance if any deployment-related fields
-        have been provided. If no deployment fields (other than deployment_ID) are filled,
-        then the deployment is not processed.
-
-        - If any deployment fields are provided, deployment_ID is required.
-        - If deployment_ID exists, update the corresponding Deployment with the provided (non-empty) fields.
-        - Otherwise, create a new Deployment with the provided data.
+        Oppdater eller opprett (upsert) et Deployment-objekt basert på de oppgitte feltene.
         
-        Returns:
-            - 200 OK with updated deployment if found/updated.
-            - 201 Created if a new deployment is created.
-            - 400 Bad Request if required fields are missing.
-            - 200 OK with a message if no deployment fields are provided.
+        - deployment_ID er påkrevd.
+        - Hvis deployment_ID finnes, oppdateres Deployment-objektet med de oppgitte (ikke-tomme) feltene.
+        - Hvis ikke, opprettes et nytt Deployment med de oppgitte dataene.
+        - Dersom 'site' ikke sendes med, brukes et standard Site-objekt.
+        
+        Returnerer:
+        - 200 OK med oppdatert deployment hvis funnet/oppdatert.
+        - 201 Created hvis nytt deployment opprettes.
+        - 400 Bad Request hvis nødvendige felt mangler.
+        - 200 OK med melding hvis ingen deployment-felter er oppgitt.
         """
+        from data_models.models import Site, Project
 
         user = request.user
         data = request.data.copy()  # Gjør dataen muterbar
@@ -87,7 +87,7 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         # Oversett feltnavn og filtrer ut tomme verdier
         translated_data = {
             field_mapping.get(key, key): value
-            for key, value in data.items() 
+            for key, value in data.items()
             if value not in [None, ""]
         }
 
@@ -96,49 +96,57 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
             translated_data["battery_level"] = active_data["batteryLevel"]
 
+        # Håndter feltet 'site'
+        # Hvis 'site' ikke sendes med, hentes et standard Site-objekt og settes som en instans.
         if "site" not in translated_data:
-            default_site = Site.objects.first()  # Kan også velges via settings
+            default_site = Site.objects.first()
             if default_site:
-                # Sjekk om default_site.short_name er for lang
-                max_len = default_site._meta.get_field("short_name").max_length  # forventer 10
-                if len(default_site.short_name) > max_len:
-                    # Trunkér short_name og lagre endringen
-                    default_site.short_name = default_site.short_name[:max_len]
-                    default_site.save()
-                translated_data["site"] = default_site
+                translated_data["site"] = default_site  # Sett som Site-instans
             else:
-                # Hvis det ikke finnes et Site, kan du velge å returnere en feilmelding
                 return Response(
                     {"error": "No Site instance found in the database."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-    
-        if "project" not in translated_data:
+        else:
+            # Hvis 'site' er oppgitt, sjekk om verdien er en Site-instans.
+            site_val = translated_data["site"]
+            if not isinstance(site_val, Site):
+                try:
+                    # Prøv først som primærnøkkel (konvertere til int)
+                    translated_data["site"] = Site.objects.get(pk=int(site_val))
+                except (ValueError, Site.DoesNotExist):
+                    # Hvis ikke, prøv å hente via short_name
+                    try:
+                        translated_data["site"] = Site.objects.get(short_name=site_val)
+                    except Site.DoesNotExist:
+                        return Response(
+                            {"error": f"Provided Site '{site_val}' does not exist."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+
+        # Håndter many-to-many-feltet 'project'
+        # Fjern feltet fra defaults for å unngå direkte tilordning
+        many_to_many_projects = translated_data.pop("project", None)
+        if many_to_many_projects is None:
             default_project = Project.objects.first()
             if default_project:
-                translated_data['project'] = default_project
-            else:
-                pass
-        # Definer hvilke felter som er deployment-relaterte (unntatt deployment_ID)
+                many_to_many_projects = [default_project.pk]
+
+        # Definer hvilke felter som regnes som deployment-relaterte (unntatt deployment_ID)
         deployment_field_keys = [
             "country", "site_name", "deployment_start", "deployment_end", "latitude",
             "longitude", "coordinate_uncertainty", "gps_device", "mic_height",
             "mic_direction", "habitat", "score", "protocol_checklist", "user_email", "comment"
         ]
 
-        # Sjekk om noen deployment-felter er oppgitt
-        deployment_fields_provided = any(
-            key in translated_data for key in deployment_field_keys
-        )
-
-        # Hvis ingen deployment-felter er oppgitt, hopper vi over oppretting/oppdatering av deployment.
+        deployment_fields_provided = any(key in translated_data for key in deployment_field_keys)
         if not deployment_fields_provided:
             return Response(
                 {"message": "No deployment information provided. Deployment was not updated/created."},
                 status=status.HTTP_200_OK
             )
 
-        # Dersom deployment fields er oppgitt, krever vi at deployment_ID er med.
+        # deployment_ID er obligatorisk
         deployment_id = translated_data.get("deployment_ID")
         if not deployment_id:
             return Response(
@@ -146,13 +154,19 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Opprett eller hent eksisterende deployment
+        # Opprett eller hent eksisterende Deployment (uten many-to-many-feltet)
         deployment, created = Deployment.objects.get_or_create(
             deployment_ID=deployment_id,
             defaults=translated_data
         )
 
-        # Uansett oppdateres deployment med de nye feltene (partial update)
+        # Oppdater many-to-many-feltet for 'project' separat
+        if many_to_many_projects:
+            if not isinstance(many_to_many_projects, list):
+                many_to_many_projects = [many_to_many_projects]
+            deployment.project.set(many_to_many_projects)
+
+        # Utfør partial update via serializer
         serializer = DeploymentSerializer(deployment, data=translated_data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -161,7 +175,6 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')

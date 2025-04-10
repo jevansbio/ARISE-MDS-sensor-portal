@@ -78,17 +78,27 @@ export default function Form({ onSave }: FormProps) {
       if (!token) {
         throw new Error("Authentication token is missing");
       }
-
-      // Sett sammen payload for device (fra device-delen)
-      const devicePayload = {
-        device_ID: values.deviceId,
-        configuration: values.configuration,
-        sim_card_icc: values.simCardICC,
-        sim_card_batch: values.simCardBatch,
-        sd_card_size: values.sdCardSize,
-      };
-
-      // Sett sammen payload for deployment (fra deployment-delen)
+  
+      // Sjekk om det finnes device data (f.eks. deviceId)
+      let deviceResponseOk = true;
+      if (values.deviceId && values.deviceId.trim() !== "") {
+        const devicePayload = {
+          device_ID: values.deviceId,
+          configuration: values.configuration,
+          sim_card_icc: values.simCardICC,
+          sim_card_batch: values.simCardBatch,
+          sd_card_size: values.sdCardSize,
+        };
+        const deviceUrl = `devices/upsert_device/`;
+        const deviceResponse = await postData(deviceUrl, token, devicePayload);
+        console.log("Device response:", deviceResponse);
+        
+        if (!deviceResponse.ok) {
+          throw new Error("Failed to update device info");
+        }
+      } 
+  
+      // Payload for deployment
       const deploymentPayload = {
         deployment_ID: values.deploymentId,
         deployment_start: values.date,
@@ -107,26 +117,17 @@ export default function Form({ onSave }: FormProps) {
         user_email: values.email,
         comment: values.comment,
       };
-
-      console.log("Device payload:", devicePayload);
+  
       console.log("Deployment payload:", deploymentPayload);
-
-      const deviceUrl = `devices/upsert_device/`;
-      const deviceResponse = await postData(deviceUrl, token, devicePayload);
-      console.log("Device response:", deviceResponse);
-
+  
       const deploymentUrl = `deployment/upsert_deployment/`;
       const deploymentResponse = await postData(deploymentUrl, token, deploymentPayload);
       console.log("Deployment response:", deploymentResponse);
-
-      if (!deviceResponse.ok) {
-        throw new Error("Failed to update device info");
+  
+      if (!deploymentResponse.ok) {
+        throw new Error("Failed to update deployment info");
       }
-
-      if(!deploymentResponse.ok){
-        throw new Error("Failed to update deployment info")
-      }
-
+  
       window.alert("Your information was submitted successfully!");
       onSave();
     } catch (error: any) {

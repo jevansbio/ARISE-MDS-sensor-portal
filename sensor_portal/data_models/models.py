@@ -396,29 +396,40 @@ class Deployment(BaseModel):
 
     def __str__(self):
         return self.deployment_device_ID
-
+    
     def clean(self):
-        # result, message = validators.deployment_check_type(
-        #     self.device_type, self.device)
-        # if not result:
-        #     raise ValidationError(message)
-
+        # Sjekk at deployment_start er før deployment_end
         result, message = validators.deployment_start_time_after_end_time(
-            self.deployment_start, self.deployment_end)
+            self.deployment_start, self.deployment_end
+        )
         if not result:
             raise ValidationError(message)
-        result, message = validators.deployment_check_overlap(
-            self.deployment_start, self.deployment_end, self.device, self.pk)
-        if not result:
-            raise ValidationError(message)
+        
+        # Utfør overlap-sjekken kun hvis et device er tilknyttet
+        if self.device is not None:
+            result, message = validators.deployment_check_overlap(
+                self.deployment_start, self.deployment_end, self.device, self.pk
+            )
+            if not result:
+                raise ValidationError(message)
+        
         super(Deployment, self).clean()
 
     def save(self, *args, **kwargs):
-        self.deployment_device_ID = f"{self.deployment_ID}_{self.device.type.name}_{self.device_n}"
+        # Bruk en fallback-streng dersom self.device er None,
+        # eller dersom self.device.type er None.
+        if self.device is not None and self.device.type is not None:
+            device_type_name = self.device.type.name
+        else:
+            device_type_name = "NoDevice"
+
+        # Bygg deployment_device_ID med fallback-verdien
+        self.deployment_device_ID = f"{self.deployment_ID}_{device_type_name}_{self.device_n}"
 
         self.is_active = self.check_active()
 
-        if self.device_type is None:
+        # Hvis self.device er satt, men self.device_type ikke er satt, sett det
+        if self.device is not None and self.device_type is None:
             self.device_type = self.device.type
 
         if self.longitude and self.latitude:
@@ -691,13 +702,21 @@ class DataFile(BaseModel):
         super().save(*args, **kwargs)
 
     def clean(self):
-        result, message = validators.data_file_in_deployment(
-            self.recording_dt, self.deployment)
+        result, message = validators.deployment_start_time_after_end_time(
+            self.deployment_start, self.deployment_end
+        )
         if not result:
             raise ValidationError(message)
-        super(DataFile, self).clean()
-
-
+        
+        if self.device is not None:
+            result, message = validators.deployment_check_overlap(
+                self.deployment_start, self.deployment_end, self.device, self.pk
+            )
+            if not result:
+                raise ValidationError(message)
+        
+        super(Deployment, self).clean()
+        
 @receiver(post_save, sender=DataFile)
 def post_save_file(sender, instance, created, **kwargs):
     instance.deployment.set_thumb_url()
