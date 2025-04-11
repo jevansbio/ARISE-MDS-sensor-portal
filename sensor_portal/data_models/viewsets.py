@@ -46,25 +46,24 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
     @action(detail=False, methods=['post'])
     def upsert_deployment(self, request):
         """
-        Oppdater eller opprett (upsert) et Deployment-objekt basert på de oppgitte feltene.
+        Update or create (upsert) a Deployment object based on the provided fields.
         
-        - deployment_ID er påkrevd.
-        - Hvis deployment_ID finnes, oppdateres Deployment-objektet med de oppgitte (ikke-tomme) feltene.
-        - Hvis ikke, opprettes et nytt Deployment med de oppgitte dataene.
-        - Dersom 'site' ikke sendes med, brukes et standard Site-objekt.
+        - deployment_ID is required.
+        - If deployment_ID exists, update the Deployment object with the provided (non-empty) fields.
+        - Otherwise, create a new Deployment using the provided data.
+        - If 'site' is not provided, a default Site object is used.
         
-        Returnerer:
-        - 200 OK med oppdatert deployment hvis funnet/oppdatert.
-        - 201 Created hvis nytt deployment opprettes.
-        - 400 Bad Request hvis nødvendige felt mangler.
-        - 200 OK med melding hvis ingen deployment-felter er oppgitt.
+        Returns:
+        - 200 OK with the updated deployment if found/updated.
+        - 201 Created if a new deployment is created.
+        - 400 Bad Request if required fields are missing.
+        - 200 OK with a message if no deployment-related fields are provided.
         """
-        from data_models.models import Site, Project
 
         user = request.user
-        data = request.data.copy()  # Gjør dataen muterbar
+        data = request.data.copy()  
 
-        # Mapping fra eksterne feltnavn til interne feltnavn
+        # Mapping from external field names to internal field names
         field_mapping = {
             'DeploymentID': 'deployment_ID',
             'Country': 'country',
@@ -81,23 +80,36 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             'Score': 'score',
             'Protocol Checklist': 'protocol_checklist',
             'Adresse e-mail': 'user_email',
-            'Comment/remark': 'comment'
+            'Comment/remark': 'comment',
         }
 
-        # Oversett feltnavn og filtrer ut tomme verdier
+        # Translate field names and filter out empty values
         translated_data = {
             field_mapping.get(key, key): value
             for key, value in data.items()
             if value not in [None, ""]
         }
 
-        # Håndter eventuelle ActiveData hvis tilstede
+        # Handle any ActiveData if present
         active_data = data.get("ActiveData")
         if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
             translated_data["battery_level"] = active_data["batteryLevel"]
 
-        # Håndter feltet 'site'
-        # Hvis 'site' ikke sendes med, hentes et standard Site-objekt og settes som en instans.
+        # Check if device information is provided in the payload.
+        # Hvis feltet "device_ID" finnes, prøv å hente Device-instansen og legg den til i translated_data.
+        if "device_ID" in data and data.get("device_ID"):
+            try:
+                device_instance = Device.objects.get(device_ID=data.get("device_ID"))
+                translated_data["device"] = device_instance
+            except Device.DoesNotExist:
+                # Alternativt kan du velge å returnere en feilmelding dersom det forventes at en enhet skal eksistere.
+                return Response(
+                    {"error": f"Device with ID {data.get('device_ID')} does not exist."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Handle the 'site' field
+        # If 'site' is not provided, fetch a default Site object and set it as an instance.
         if "site" not in translated_data:
             default_site = Site.objects.first()
             if default_site:
@@ -108,14 +120,11 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
-            # Hvis 'site' er oppgitt, sjekk om verdien er en Site-instans.
             site_val = translated_data["site"]
             if not isinstance(site_val, Site):
                 try:
-                    # Prøv først som primærnøkkel (konvertere til int)
                     translated_data["site"] = Site.objects.get(pk=int(site_val))
                 except (ValueError, Site.DoesNotExist):
-                    # Hvis ikke, prøv å hente via short_name
                     try:
                         translated_data["site"] = Site.objects.get(short_name=site_val)
                     except Site.DoesNotExist:
@@ -123,16 +132,13 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
                             {"error": f"Provided Site '{site_val}' does not exist."},
                             status=status.HTTP_400_BAD_REQUEST
                         )
-
-        # Håndter many-to-many-feltet 'project'
-        # Fjern feltet fra defaults for å unngå direkte tilordning
+                    
         many_to_many_projects = translated_data.pop("project", None)
         if many_to_many_projects is None:
             default_project = Project.objects.first()
             if default_project:
                 many_to_many_projects = [default_project.pk]
 
-        # Definer hvilke felter som regnes som deployment-relaterte (unntatt deployment_ID)
         deployment_field_keys = [
             "country", "site_name", "deployment_start", "deployment_end", "latitude",
             "longitude", "coordinate_uncertainty", "gps_device", "mic_height",
@@ -146,7 +152,6 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
                 status=status.HTTP_200_OK
             )
 
-        # deployment_ID er obligatorisk
         deployment_id = translated_data.get("deployment_ID")
         if not deployment_id:
             return Response(
@@ -154,19 +159,16 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Opprett eller hent eksisterende Deployment (uten many-to-many-feltet)
         deployment, created = Deployment.objects.get_or_create(
             deployment_ID=deployment_id,
             defaults=translated_data
         )
 
-        # Oppdater many-to-many-feltet for 'project' separat
         if many_to_many_projects:
             if not isinstance(many_to_many_projects, list):
                 many_to_many_projects = [many_to_many_projects]
             deployment.project.set(many_to_many_projects)
 
-        # Utfør partial update via serializer
         serializer = DeploymentSerializer(deployment, data=translated_data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -322,10 +324,18 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
             serializer = DeviceSerializer(device, data=device_data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            serializer = DeviceSerializer(device)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Connect the device to an existing deployment if deployment_ID is provided
+        deployment_id = data.get('deployment_ID')
+        if deployment_id:
+            try:
+                deployment = Deployment.objects.get(deployment_ID=deployment_id)
+                device.deployments.add(deployment)  # Associate the device with the deployment
+            except Deployment.DoesNotExist:
+                return Response({"error": f"Deployment with ID {deployment_id} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = DeviceSerializer(device)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
     def by_site(self, request, site_name=None):

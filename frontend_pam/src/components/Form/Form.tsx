@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AuthContext from "@/auth/AuthContext";
 import { postData } from "@/utils/FetchFunctions";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
-// Definer skjema for felt med Zod
 const formSchema = z.object({
   // Device Fields
   deviceId: z.string().optional(),
@@ -26,23 +25,17 @@ const formSchema = z.object({
   latitude: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || /^-?\d{1,2}\.\d{6}$/.test(val),
-      {
-        message:
-          "Latitude must have 1–2 digits before the dot and exactly 6 decimal places (e.g. 45.123456)",
-      }
-    ),
+    .refine((val) => !val || /^-?\d{1,2}\.\d{6}$/.test(val), {
+      message:
+        "Latitude must have 1–2 digits before the dot and exactly 6 decimal places (e.g. 45.123456)",
+    }),
   longitude: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || /^-?\d{1,3}\.\d{6}$/.test(val),
-      {
-        message:
-          "Longitude must have 1–3 digits before the dot and exactly 6 decimal places (e.g. 123.123456)",
-      }
-    ),
+    .refine((val) => !val || /^-?\d{1,3}\.\d{6}$/.test(val), {
+      message:
+        "Longitude must have 1–3 digits before the dot and exactly 6 decimal places (e.g. 123.123456)",
+    }),
   coordUncertainty: z.string().optional(),
   gpsDevice: z.string().optional(),
   micHeight: z.string().optional(),
@@ -69,18 +62,17 @@ export default function Form({ onSave }: FormProps) {
     resolver: zodResolver(formSchema),
   });
 
-  const authContext = useContext(AuthContext) as { authTokens: { access: string } | null };
+  const authContext = useContext(AuthContext) as {
+    authTokens: { access: string } | null;
+  };
   const token = authContext?.authTokens?.access;
-  const [submitMessage, setSubmitMessage] = useState<string>("");
 
   const onSubmit = async (values: FormValues) => {
     try {
       if (!token) {
         throw new Error("Authentication token is missing");
       }
-  
-      // Sjekk om det finnes device data (f.eks. deviceId)
-      let deviceResponseOk = true;
+
       if (values.deviceId && values.deviceId.trim() !== "") {
         const devicePayload = {
           device_ID: values.deviceId,
@@ -88,16 +80,16 @@ export default function Form({ onSave }: FormProps) {
           sim_card_icc: values.simCardICC,
           sim_card_batch: values.simCardBatch,
           sd_card_size: values.sdCardSize,
+          deployment_ID: values.deploymentId
         };
         const deviceUrl = `devices/upsert_device/`;
         const deviceResponse = await postData(deviceUrl, token, devicePayload);
-        console.log("Device response:", deviceResponse);
-        
+
         if (!deviceResponse.ok) {
           throw new Error("Failed to update device info");
         }
-      } 
-  
+      }
+
       // Payload for deployment
       const deploymentPayload = {
         deployment_ID: values.deploymentId,
@@ -117,21 +109,21 @@ export default function Form({ onSave }: FormProps) {
         user_email: values.email,
         comment: values.comment,
       };
-  
-      console.log("Deployment payload:", deploymentPayload);
-  
+
       const deploymentUrl = `deployment/upsert_deployment/`;
-      const deploymentResponse = await postData(deploymentUrl, token, deploymentPayload);
-      console.log("Deployment response:", deploymentResponse);
-  
+      const deploymentResponse = await postData(
+        deploymentUrl,
+        token,
+        deploymentPayload
+      );
+
       if (!deploymentResponse.ok) {
         throw new Error("Failed to update deployment info");
       }
-  
+
       window.alert("Your information was submitted successfully!");
       onSave();
     } catch (error: any) {
-      console.error("Error updating info:", error);
       window.alert("Error: " + (error.message || String(error)));
     }
   };
@@ -139,16 +131,14 @@ export default function Form({ onSave }: FormProps) {
   return (
     <div>
       <p className="text-sm text-muted-foreground mb-4">
-        You can fill out information about <strong>devices</strong> and <strong>deployments</strong> in this form,
-        but you do not need to fill out all fields.
+        You can fill out information about <strong>devices</strong> and{" "}
+        <strong>deployments</strong> in this form, but you do not need to fill
+        out all fields.
         <br />
-        To update or add information for a device or deployment, you must provide a corresponding
+        To update or add information for a device or deployment, you must
+        provide a corresponding
         <strong> Device ID</strong> or <strong>Deployment ID</strong>.
       </p>
-
-      {submitMessage && (
-        <p className="mb-4 text-sm text-green-600">{submitMessage}</p>
-      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Device Information Section */}
@@ -159,31 +149,72 @@ export default function Form({ onSave }: FormProps) {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="deviceId">Device ID</Label>
-                <Input id="deviceId" placeholder="Enter device ID" {...register("deviceId")} />
-                {errors.deviceId && <p className="text-sm text-red-500">{errors.deviceId.message}</p>}
+                <Input
+                  id="deviceId"
+                  placeholder="Enter device ID"
+                  {...register("deviceId")}
+                />
+                {errors.deviceId && (
+                  <p className="text-sm text-red-500">
+                    {errors.deviceId.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="simCardICC">Sim Card ICC</Label>
-                <Input id="simCardICC" placeholder="Enter Sim Card ICC" {...register("simCardICC")} />
-                {errors.simCardICC && <p className="text-sm text-red-500">{errors.simCardICC.message}</p>}
+                <Input
+                  id="simCardICC"
+                  placeholder="Enter Sim Card ICC"
+                  {...register("simCardICC")}
+                />
+                {errors.simCardICC && (
+                  <p className="text-sm text-red-500">
+                    {errors.simCardICC.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="simCardBatch">SIM Card Batch</Label>
-                <Input id="simCardBatch" placeholder="Enter SIM Card Batch" {...register("simCardBatch")} />
-                {errors.simCardBatch && <p className="text-sm text-red-500">{errors.simCardBatch.message}</p>}
+                <Input
+                  id="simCardBatch"
+                  placeholder="Enter SIM Card Batch"
+                  {...register("simCardBatch")}
+                />
+                {errors.simCardBatch && (
+                  <p className="text-sm text-red-500">
+                    {errors.simCardBatch.message}
+                  </p>
+                )}
               </div>
             </div>
             {/* Column 2 */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="sdCardSize">SD Card Size (GB)</Label>
-                <Input id="sdCardSize" type="number" placeholder="Enter SD Card Size" {...register("sdCardSize")} />
-                {errors.sdCardSize && <p className="text-sm text-red-500">{errors.sdCardSize.message}</p>}
+                <Input
+                  id="sdCardSize"
+                  type="number"
+                  placeholder="Enter SD Card Size"
+                  {...register("sdCardSize")}
+                />
+                {errors.sdCardSize && (
+                  <p className="text-sm text-red-500">
+                    {errors.sdCardSize.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="configuration">Configuration</Label>
-                <Input id="configuration" placeholder="Enter configuration" {...register("configuration")} />
-                {errors.configuration && <p className="text-sm text-red-500">{errors.configuration.message}</p>}
+                <Input
+                  id="configuration"
+                  placeholder="Enter configuration"
+                  {...register("configuration")}
+                />
+                {errors.configuration && (
+                  <p className="text-sm text-red-500">
+                    {errors.configuration.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -197,87 +228,212 @@ export default function Form({ onSave }: FormProps) {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="deploymentId">Deployment ID</Label>
-                <Input id="deploymentId" placeholder="Enter deployment ID" {...register("deploymentId")} />
-                {errors.deploymentId && <p className="text-sm text-red-500">{errors.deploymentId.message}</p>}
+                <Input
+                  id="deploymentId"
+                  placeholder="Enter deployment ID"
+                  {...register("deploymentId")}
+                />
+                {errors.deploymentId && (
+                  <p className="text-sm text-red-500">
+                    {errors.deploymentId.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Country</Label>
-                <Input id="country" placeholder="Enter country" {...register("country")} />
-                {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
+                <Input
+                  id="country"
+                  placeholder="Enter country"
+                  {...register("country")}
+                />
+                {errors.country && (
+                  <p className="text-sm text-red-500">
+                    {errors.country.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="site">Site</Label>
-                <Input id="site" placeholder="Enter site" {...register("site")} />
-                {errors.site && <p className="text-sm text-red-500">{errors.site.message}</p>}
+                <Input
+                  id="site"
+                  placeholder="Enter site"
+                  {...register("site")}
+                />
+                {errors.site && (
+                  <p className="text-sm text-red-500">{errors.site.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date">Date</Label>
-                <Input id="date" type="date" placeholder="Enter start date" {...register("date")} />
-                {errors.date && <p className="text-sm text-red-500">{errors.date.message}</p>}
+                <Input
+                  id="date"
+                  type="date"
+                  placeholder="Enter start date"
+                  {...register("date")}
+                />
+                {errors.date && (
+                  <p className="text-sm text-red-500">{errors.date.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time">Time (UTC)</Label>
-                <Input id="time" type="time" placeholder="Enter start time" {...register("time")} />
-                {errors.time && <p className="text-sm text-red-500">{errors.time.message}</p>}
+                <Input
+                  id="time"
+                  type="time"
+                  placeholder="Enter start time"
+                  {...register("time")}
+                />
+                {errors.time && (
+                  <p className="text-sm text-red-500">{errors.time.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="latitude">Latitude</Label>
-                <Input id="latitude" type="text" placeholder="Enter latitude (e.g. 45.123456)" {...register("latitude")} />
-                {errors.latitude && <p className="text-sm text-red-500">{errors.latitude.message}</p>}
+                <Input
+                  id="latitude"
+                  type="text"
+                  placeholder="Enter latitude (e.g. 45.123456)"
+                  {...register("latitude")}
+                />
+                {errors.latitude && (
+                  <p className="text-sm text-red-500">
+                    {errors.latitude.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="longitude">Longitude</Label>
-                <Input id="longitude" type="text" placeholder="Enter longitude (e.g. 123.123456)" {...register("longitude")} />
-                {errors.longitude && <p className="text-sm text-red-500">{errors.longitude.message}</p>}
+                <Input
+                  id="longitude"
+                  type="text"
+                  placeholder="Enter longitude (e.g. 123.123456)"
+                  {...register("longitude")}
+                />
+                {errors.longitude && (
+                  <p className="text-sm text-red-500">
+                    {errors.longitude.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="coordUncertainty">Coordinate Uncertainty</Label>
-                <Input id="coordUncertainty" type="number" placeholder="Enter coordinate uncertainty" {...register("coordUncertainty")} />
-                {errors.coordUncertainty && <p className="text-sm text-red-500">{errors.coordUncertainty.message}</p>}
+                <Input
+                  id="coordUncertainty"
+                  type="number"
+                  placeholder="Enter coordinate uncertainty"
+                  {...register("coordUncertainty")}
+                />
+                {errors.coordUncertainty && (
+                  <p className="text-sm text-red-500">
+                    {errors.coordUncertainty.message}
+                  </p>
+                )}
               </div>
             </div>
             {/* Column 2 */}
             <div className="space-y-4">
-
               <div className="space-y-2">
                 <Label htmlFor="gpsDevice">GPS Device</Label>
-                <Input id="gpsDevice" placeholder="Enter GPS device" {...register("gpsDevice")} />
-                {errors.gpsDevice && <p className="text-sm text-red-500">{errors.gpsDevice.message}</p>}
+                <Input
+                  id="gpsDevice"
+                  placeholder="Enter GPS device"
+                  {...register("gpsDevice")}
+                />
+                {errors.gpsDevice && (
+                  <p className="text-sm text-red-500">
+                    {errors.gpsDevice.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="micHeight">Microphone Height</Label>
-                <Input id="micHeight" type="number" placeholder="Enter microphone height" {...register("micHeight")} />
-                {errors.micHeight && <p className="text-sm text-red-500">{errors.micHeight.message}</p>}
+                <Input
+                  id="micHeight"
+                  type="number"
+                  placeholder="Enter microphone height"
+                  {...register("micHeight")}
+                />
+                {errors.micHeight && (
+                  <p className="text-sm text-red-500">
+                    {errors.micHeight.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="micDirection">Microphone Direction</Label>
-                <Input id="micDirection" placeholder="Enter microphone direction" {...register("micDirection")} />
-                {errors.micDirection && <p className="text-sm text-red-500">{errors.micDirection.message}</p>}
+                <Input
+                  id="micDirection"
+                  placeholder="Enter microphone direction"
+                  {...register("micDirection")}
+                />
+                {errors.micDirection && (
+                  <p className="text-sm text-red-500">
+                    {errors.micDirection.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="habitat">Habitat</Label>
-                <Input id="habitat" placeholder="Enter habitat" {...register("habitat")} />
-                {errors.habitat && <p className="text-sm text-red-500">{errors.habitat.message}</p>}
+                <Input
+                  id="habitat"
+                  placeholder="Enter habitat"
+                  {...register("habitat")}
+                />
+                {errors.habitat && (
+                  <p className="text-sm text-red-500">
+                    {errors.habitat.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="score">Score</Label>
-                <Input id="score" type="number" placeholder="Enter score" {...register("score")} />
-                {errors.score && <p className="text-sm text-red-500">{errors.score.message}</p>}
+                <Input
+                  id="score"
+                  type="number"
+                  placeholder="Enter score"
+                  {...register("score")}
+                />
+                {errors.score && (
+                  <p className="text-sm text-red-500">{errors.score.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="protocolChecklist">Protocol Checklist</Label>
-                <Input id="protocolChecklist" placeholder="Enter protocol checklist" {...register("protocolChecklist")} />
-                {errors.protocolChecklist && <p className="text-sm text-red-500">{errors.protocolChecklist.message}</p>}
+                <Input
+                  id="protocolChecklist"
+                  placeholder="Enter protocol checklist"
+                  {...register("protocolChecklist")}
+                />
+                {errors.protocolChecklist && (
+                  <p className="text-sm text-red-500">
+                    {errors.protocolChecklist.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter email" {...register("email")} />
-                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter email"
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
               </div>
               <div className="space-y-2 mt-4">
                 <Label htmlFor="comment">Comment</Label>
-                <Input id="comment" placeholder="Enter comment" {...register("comment")} />
-                {errors.comment && <p className="text-sm text-red-500">{errors.comment.message}</p>}
+                <Input
+                  id="comment"
+                  placeholder="Enter comment"
+                  {...register("comment")}
+                />
+                {errors.comment && (
+                  <p className="text-sm text-red-500">
+                    {errors.comment.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>

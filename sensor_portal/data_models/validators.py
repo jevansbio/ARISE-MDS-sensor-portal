@@ -54,17 +54,17 @@ def deployment_check_overlap(start_dt, end_dt, device, deployment_pk):
         (boolean, dict or str): True and empty error message if no overlap (or if device is None); 
                                  otherwise, False and an error message.
     """
-    # Returner True dersom device er None.
+    # If no device is provided, skip the overlap check.
     if device is None:
         return True, ""
     
+    # Otherwise, perform the overlap check by calling the device's check_overlap method.
     overlapping_deployments = device.check_overlap(start_dt, end_dt, deployment_pk)
     if len(overlapping_deployments) == 0:
         return True, ""
     
     error_message = {
-        "deployment_start": f"this deployment of {device.device_ID} "
-                            f"would overlap with {','.join(overlapping_deployments)}"
+        "deployment_start": f"this deployment of {device.device_ID} would overlap with {','.join(overlapping_deployments)}"
     }
     return False, error_message
 

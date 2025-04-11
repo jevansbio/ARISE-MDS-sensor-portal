@@ -398,14 +398,14 @@ class Deployment(BaseModel):
         return self.deployment_device_ID
     
     def clean(self):
-        # Sjekk at deployment_start er før deployment_end
+        # Check that deployment_start is before deployment_end
         result, message = validators.deployment_start_time_after_end_time(
             self.deployment_start, self.deployment_end
         )
         if not result:
             raise ValidationError(message)
         
-        # Utfør overlap-sjekken kun hvis et device er tilknyttet
+        # Only perform the overlap check if a device is attached.
         if self.device is not None:
             result, message = validators.deployment_check_overlap(
                 self.deployment_start, self.deployment_end, self.device, self.pk
