@@ -53,9 +53,10 @@ END $$;
 -- Recreate PostGIS extension if needed
 CREATE EXTENSION postgis;
 
-```
+
 ### to exit postgres shell
 \q
+```
 
 
 ### then run migrations again
