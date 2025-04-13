@@ -116,6 +116,20 @@ export default function DeploymentsPage() {
       cell: ({ row }) => row.original.endDate || "Ongoing",
     },
     {
+      accessorKey: "lastUpload",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="w-full justify-start"
+        >
+          Last Upload
+          <TbArrowsUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ), 
+      cell: ({ row }) => row.original.lastUpload,
+    },
+    {
       accessorKey: "folder_size",
       header: ({ column }) => (
         <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="w-full justify-start">
@@ -143,13 +157,14 @@ export default function DeploymentsPage() {
     return data;
   }, [selectedCountry, data]);
 
-  // Active and Ended deployments based on filtered data
+  // Active deployments based on filtered data
   const activeDeployments = useMemo(() => {
     return filteredData.filter(
       (deployment) => !deployment.endDate || new Date(deployment.endDate) > new Date()
     );
   }, [filteredData]);
 
+  // Ended deployments based on filtered data
   const endedDeployments = useMemo(() => {
     return filteredData.filter(
       (deployment) => deployment.endDate && new Date(deployment.endDate) <= new Date()
@@ -157,7 +172,7 @@ export default function DeploymentsPage() {
   }, [filteredData]);
 
   const activeTable = useReactTable({
-    data: activeDeployments, // Using filtered active deployments
+    data: activeDeployments, 
     columns,
     state: {
       sorting,
@@ -168,7 +183,7 @@ export default function DeploymentsPage() {
   });
 
   const endedTable = useReactTable({
-    data: endedDeployments, // Using filtered ended deployments
+    data: endedDeployments, 
     columns,
     state: {
       sorting,
