@@ -1,5 +1,6 @@
-import React from 'react';
-import { DataFile } from '@/types';
+import { Link } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import { DataFile } from "@/types";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,6 +10,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions
 } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
@@ -22,29 +24,24 @@ ChartJS.register(
   Legend
 );
 
-interface TemporalEvolutionData {
-  times: number[];
-  rms_energy: number[];
-  spectral_centroid: number[];
-  zero_crossing_rate: number[];
-}
-
-interface QualityMetrics {
-  [key: string]: number;
-}
-
-interface ExtraData {
-  temporal_evolution?: TemporalEvolutionData;
-  quality_metrics?: QualityMetrics;
-  observations?: string[];
-}
-
-interface Props {
+interface AudioQualityCardProps {
   dataFile: DataFile;
+  deviceId: string;
   onCheckQuality: () => void;
 }
 
-const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
+const AudioQualityCard: React.FC<AudioQualityCardProps> = ({ dataFile, deviceId, onCheckQuality }) => {
+  const getObservationCount = (dataFile: DataFile): number => {
+    if (!dataFile.extraData?.auto_detected_observations) return 0;
+    return dataFile.extraData.auto_detected_observations.length;
+  };
+
+  console.log('AudioQualityCard data:', {
+    extraData: dataFile.extraData,
+    observations: dataFile.extraData?.auto_detected_observations,
+    count: getObservationCount(dataFile)
+  });
+
   const getQualityColor = (score: number | null) => {
     if (score === null) return 'bg-gray-200';
     if (score >= 80) return 'bg-green-100';
@@ -73,13 +70,23 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
 
   const renderTemporalEvolution = () => {
     if (!dataFile.extraData?.temporal_evolution) return null;
-
+    
     const temporalData = dataFile.extraData.temporal_evolution;
+    if (!temporalData.times || !Array.isArray(temporalData.times)) return null;
+
     const metrics = [
       { key: 'rms_energy' as const, label: 'RMS Energy', color: 'rgb(75, 192, 192)' },
       { key: 'spectral_centroid' as const, label: 'Spectral Centroid', color: 'rgb(255, 99, 132)' },
       { key: 'zero_crossing_rate' as const, label: 'Zero Crossing Rate', color: 'rgb(54, 162, 235)' }
     ];
+
+    // Check if all required data arrays exist
+    const hasAllData = metrics.every(metric => 
+      Array.isArray(temporalData[metric.key]) && 
+      temporalData[metric.key].length > 0
+    );
+
+    if (!hasAllData) return null;
 
     return (
       <div className="mt-6">
@@ -150,13 +157,25 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
     <div className="bg-white rounded-lg shadow p-6 space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Audio Quality</h3>
-        <button
-          onClick={onCheckQuality}
-          disabled={dataFile.qualityCheckStatus === 'in_progress'}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
-        >
-          {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
-        </button>
+        <div className="flex gap-2">
+          <Button
+            onClick={onCheckQuality}
+            disabled={dataFile.qualityCheckStatus === 'in_progress'}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
+          </Button>
+          <Link 
+            to="/devices/$deviceId/$dataFileId/observations"
+            params={{
+              deviceId: deviceId,
+              dataFileId: dataFile.id
+            }}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2"
+          >
+            <span>View Observations</span>
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
@@ -204,8 +223,10 @@ const AudioQualityCard: React.FC<Props> = ({ dataFile, onCheckQuality }) => {
         <div className="mt-4">
           <h4 className="text-sm font-semibold text-gray-600 mb-2">Issues Found:</h4>
           <ul className="list-disc list-inside space-y-1">
-            {dataFile.qualityIssues.map((issue, index) => (
-              <li key={index} className="text-sm text-red-600">{issue}</li>
+            {dataFile.qualityIssues.map((issue: string, index: number) => (
+              <div key={index} className="flex items-center space-x-2">
+                <span className="text-sm text-red-600">⚠️ {issue}</span>
+              </div>
             ))}
           </ul>
         </div>

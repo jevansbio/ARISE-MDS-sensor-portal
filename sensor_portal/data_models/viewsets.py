@@ -96,24 +96,21 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             translated_data["battery_level"] = active_data["batteryLevel"]
 
         # Check if device information is provided in the payload.
-        # Hvis feltet "device_ID" finnes, prøv å hente Device-instansen og legg den til i translated_data.
         if "device_ID" in data and data.get("device_ID"):
             try:
                 device_instance = Device.objects.get(device_ID=data.get("device_ID"))
                 translated_data["device"] = device_instance
             except Device.DoesNotExist:
-                # Alternativt kan du velge å returnere en feilmelding dersom det forventes at en enhet skal eksistere.
                 return Response(
                     {"error": f"Device with ID {data.get('device_ID')} does not exist."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
         # Handle the 'site' field
-        # If 'site' is not provided, fetch a default Site object and set it as an instance.
         if "site" not in translated_data:
             default_site = Site.objects.first()
             if default_site:
-                translated_data["site"] = default_site  # Sett som Site-instans
+                translated_data["site"] = default_site
             else:
                 return Response(
                     {"error": "No Site instance found in the database."},
@@ -267,6 +264,91 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             if not self.request.user.has_perm('data_models.change_device', device_object):
                 raise PermissionDenied(
                     f"You don't have permission to deploy {device_object.device_ID}")
+
+    @action(detail=True, methods=['get'])
+    def folder_size(self, request, pk=None):
+        """
+        Get the total size of all files in this deployment
+        """
+        deployment = self.get_object()
+        
+        # Get the unit if specified
+        unit = request.query_params.get('unit', 'MB')
+        
+        folder_size = deployment.get_folder_size(unit)
+        
+        return Response({'folder_size': folder_size, 'unit': unit}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def last_upload(self, request, pk=None):
+        """
+        Get the datetime of the most recent file upload for this deployment
+        """
+        deployment = self.get_object()
+        
+        last_upload = deployment.get_last_upload()
+        
+        if last_upload:
+            return Response({'last_upload': last_upload}, status=status.HTTP_200_OK)
+        else:
+            return Response({'last_upload': None}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def check_quality_bulk(self, request, pk=None):
+        """
+        Trigger quality check for all audio files in a deployment
+        """
+        try:
+            deployment = self.get_object()
+            if not request.user.has_perm('data_models.change_deployment', deployment):
+                raise PermissionDenied("You don't have permission to check quality for this deployment")
+
+            # Get all audio files for this deployment
+            audio_files = DataFile.objects.filter(
+                deployment=deployment,
+                file_format__in=['.wav', '.WAV', '.mp3', '.MP3']  # Common audio formats
+            )
+
+            if not audio_files.exists():
+                return Response({
+                    "error": "No audio files found in this deployment"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Start quality checks for each file
+            results = []
+            for data_file in audio_files:
+                try:
+                    quality_data = AudioQualityChecker.update_file_quality(data_file)
+                    results.append({
+                        'file_id': data_file.id,
+                        'file_name': data_file.file_name,
+                        'status': 'completed',
+                        'quality_score': quality_data.get('quality_score')
+                    })
+                except Exception as e:
+                    results.append({
+                        'file_id': data_file.id,
+                        'file_name': data_file.file_name,
+                        'status': 'failed',
+                        'error': str(e)
+                    })
+
+            return Response({
+                'deployment_id': pk,
+                'total_files': len(audio_files),
+                'results': results
+            }, status=status.HTTP_200_OK)
+
+        except PermissionDenied as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
