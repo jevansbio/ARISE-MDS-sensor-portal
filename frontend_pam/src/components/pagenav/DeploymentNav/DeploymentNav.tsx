@@ -1,9 +1,9 @@
-interface DeviceNavProps {
-  activeTab: 'details' | 'datafiles'| 'siteDetails';
-  setActiveTab: (tab: 'details' | 'datafiles' | 'siteDetails') => void;
+interface DeploymentNavProps {
+  activeTab: 'deviceDetails' | 'datafiles'| 'siteDetails' | 'map';
+  setActiveTab: (tab: 'deviceDetails' | 'datafiles' | 'siteDetails' | 'map') => void;
 }
 
-function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
+function DeploymentNav({ activeTab, setActiveTab }: DeploymentNavProps) {
   return (
     <nav className="border-b border-gray-200">
       <ul className="flex flex-row gap-8 px-6">
@@ -19,9 +19,9 @@ function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
         </li>
         <li>
           <button
-            onClick={() => setActiveTab('details')}
+            onClick={() => setActiveTab('deviceDetails')}
             className={`inline-block py-4 text-lg hover:text-gray-600 ${
-              activeTab === 'details' ? 'border-b-2 border-black' : ''
+              activeTab === 'deviceDetails' ? 'border-b-2 border-black' : ''
             }`}
           >
             Device Details
@@ -37,9 +37,19 @@ function DeviceNav({ activeTab, setActiveTab }: DeviceNavProps) {
             Data Files
           </button>
         </li>
+        <li>
+          <button
+            onClick={() => setActiveTab('map')}
+            className={`inline-block py-4 text-lg hover:text-gray-600 ${
+              activeTab === 'map' ? 'border-b-2 border-black' : ''
+            }`}
+          >
+            Map
+          </button>
+        </li>
       </ul>
     </nav>
   );
 }
 
-export default DeviceNav;
+export default DeploymentNav;

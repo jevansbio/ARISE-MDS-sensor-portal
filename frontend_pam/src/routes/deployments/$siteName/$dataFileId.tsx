@@ -10,7 +10,7 @@ import { Link } from "@tanstack/react-router";
 import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
-export const Route = createFileRoute('/deployments/$site_name/$dataFileId')({
+export const Route = createFileRoute('/deployments/$siteName/$dataFileId')({
   component: RouteComponent,
   errorComponent: ({ error }) => {
     console.error('Route error:', error);

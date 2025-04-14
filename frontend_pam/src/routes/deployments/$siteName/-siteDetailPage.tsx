@@ -6,9 +6,10 @@ import { useContext } from "react";
 import { getData } from "@/utils/FetchFunctions";
 import { useQuery } from "@tanstack/react-query";
 import { Deployment } from "@/types";
+import { timeSinceLastUpload } from "@/utils/timeFormat";
 
 export default function SiteDetailPage() {
-  const { site_name } = Route.useParams();
+  const { siteName } = Route.useParams();
 
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
@@ -16,15 +17,40 @@ export default function SiteDetailPage() {
   if (!authTokens) {
     return <p>Loading authentication...</p>;
   }
-  const apiURL = `deployment/by_site/${site_name}/`;
+  const apiURL = `deployment/by_site/${siteName}/`;
 
-  const getDataFunc = async () => {
-    if (!authTokens?.access) return null;
-    const responseJson = await getData(apiURL, authTokens.access);
-    console.log(responseJson)
-    return responseJson;
+  const getDataFunc = async (): Promise<Deployment> => {
+    if (!authTokens?.access) {
+			throw new Error("No access token");
+		}
+					
+    const response_json = await getData(apiURL, authTokens.access);
+		console.log("respone_json site deployment map: ", response_json);
+
+    const deployment: Deployment = {
+			deploymentId: response_json.deployment_ID,
+			startDate: response_json.deployment_start,
+			endDate: response_json.deployment_end,
+			folderSize: response_json.folder_size,
+			lastUpload: response_json.last_upload,
+			batteryLevel: 0,
+			action: "",
+			siteName: response_json.site_name,
+			coordinateUncertainty: response_json.coordinate_uncertainty,
+			gpsDevice: response_json.gps_device,
+			micHeight: response_json.mic_height,
+			micDirection: response_json.mic_direction,
+			habitat: response_json.habitat,
+			protocolChecklist: response_json.protocol_checklist,
+			score: response_json.score,
+			comment: response_json.comment,
+			userEmail: response_json.user_email,
+			country: response_json.country,
+			longitude: response_json.longitude,
+			latitude: response_json.latitude,
+		}
+    return deployment;
   };
-
 
   const {
     data: deployment,
@@ -56,25 +82,25 @@ export default function SiteDetailPage() {
           className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6"
         >
           <p>
-            <strong>Deployment ID:</strong> {deployment.deployment_ID}
+            <strong>Deployment ID:</strong> {deployment.deploymentId}
           </p>
           <p>
-            <strong>Start Date:</strong> {deployment.deployment_start}
+            <strong>Start Date:</strong> {deployment.startDate}
           </p>
           <p>
-            <strong>End Date:</strong> {deployment.deployment_end}
+            <strong>End Date:</strong> {deployment.endDate}
           </p>
           <p>
-            <strong>Last Upload:</strong> {deployment.lastUpload}
+            <strong>Last Upload:</strong> {timeSinceLastUpload(deployment.lastUpload)}
           </p>
           <p>
-            <strong>Folder Size:</strong> {bytesToMegabytes(deployment.folder_size)}
+            <strong>Folder Size:</strong> {bytesToMegabytes(deployment.folderSize)}
           </p>
           <p>
             <strong>Country:</strong> {deployment.country}
           </p>
           <p>
-            <strong>Site Name:</strong> {deployment.site_name}
+            <strong>Site Name:</strong> {deployment.siteName}
           </p>
           <p>
             <strong>Latitude:</strong> {deployment.latitude}
@@ -84,16 +110,16 @@ export default function SiteDetailPage() {
           </p>
           <p>
             <strong>Coordinate Uncertainty:</strong>{" "}
-            {deployment.coordinate_uncertainty}
+            {deployment.coordinateUncertainty}
           </p>
           <p>
-            <strong>GPS Device:</strong> {deployment.gps_device}
+            <strong>GPS Device:</strong> {deployment.gpsDevice}
           </p>
           <p>
-            <strong>Microphone Height:</strong> {deployment.mic_height}
+            <strong>Microphone Height:</strong> {deployment.micHeight}
           </p>
           <p>
-            <strong>Microphone Direction:</strong> {deployment.mic_direction}
+            <strong>Microphone Direction:</strong> {deployment.micDirection}
           </p>
           <p>
             <strong>Habitat:</strong> {deployment.habitat}
@@ -102,10 +128,10 @@ export default function SiteDetailPage() {
             <strong>Score:</strong> {deployment.score}
           </p>
           <p>
-            <strong>Protocol Checklist:</strong> {deployment.protocol_checklist}
+            <strong>Protocol Checklist:</strong> {deployment.protocolChecklist}
           </p>
           <p>
-            <strong>User e-mail:</strong> {deployment.user_email}
+            <strong>User e-mail:</strong> {deployment.userEmail}
           </p>
           <p>
             <strong>Comment:</strong> {deployment.comment}
