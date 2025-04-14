@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useContext } from 'react';
 import AuthContext from "@/auth/AuthContext";
-import { type Observation } from './types';
+import { type Observation } from '@/types';
 
 interface ObservationEditModalProps {
   isOpen: boolean;

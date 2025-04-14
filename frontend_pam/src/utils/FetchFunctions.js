@@ -7,26 +7,15 @@ export async function getData(url, token) {
 		},
 	});
 	if (!response.ok) {
-		// Try to get error details from response
-		try {
-			const errorData = await response.json();
-			throw new Error(
-				errorData.detail || 
-				errorData.message || 
-				`${response.status} ${response.statusText}`
-			);
-		} catch (e) {
-			// If we can't parse the error JSON, throw the status
-			throw new Error(`${response.status} ${response.statusText}`);
-		}
+		throw new Error(response.statusText);
 	}
 	return response.json();
 }
 
 // Post data to API
-export async function postData(url, token, data, method = 'POST') {
+export async function postData(url, token, data) {
 	let response = await fetch(`/${import.meta.env.VITE_API_BASE_URL}/${url}`, {
-		method: method,
+		method: "POST",
 		headers: {
 			Authorization: "Bearer " + String(token),
 			"Content-Type": "application/json",
@@ -35,18 +24,7 @@ export async function postData(url, token, data, method = 'POST') {
 	});
 
 	if (!response.ok) {
-		// Try to get error details from response
-		try {
-			const errorData = await response.json();
-			throw new Error(
-				errorData.detail || 
-				errorData.message || 
-				`${response.status} ${response.statusText}`
-			);
-		} catch (e) {
-			// If we can't parse the error JSON, throw the status
-			throw new Error(`${response.status} ${response.statusText}`);
-		}
+		throw new Error(response.statusText);
 	}
 
 	return response.json();

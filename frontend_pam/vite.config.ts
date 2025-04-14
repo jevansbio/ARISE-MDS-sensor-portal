@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react"
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import { defineConfig } from "vite"
 
- 
 export default defineConfig({
   plugins: [
     TanStackRouterVite({ autoCodeSplitting: true }),
@@ -13,9 +12,6 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  optimizeDeps: {
-    include: ['@radix-ui/react-switch', '@radix-ui/react-dialog'],
   },
   server: {
     host: true,

@@ -8,7 +8,7 @@ import ObservationEditModal from './ObservationEditModal';
 import { formatTime } from "@/utils/timeFormat";
 import { Link } from "@tanstack/react-router";
 import { LuExternalLink } from "react-icons/lu";
-import { type Observation } from './types';
+import { type Observation } from '@/types';
 
 export default function AllObservationsList() {
   const { authTokens } = useContext(AuthContext) as any;

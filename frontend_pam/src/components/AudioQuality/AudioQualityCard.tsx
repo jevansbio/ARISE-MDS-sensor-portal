@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { DataFile } from "@/routes/devices/$deviceId/$dataFileId";
+import { DataFile } from "@/types";
 import {
   Chart as ChartJS,
   CategoryScale,

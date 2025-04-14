@@ -85,56 +85,58 @@ function RouteComponent() {
 
   const apiURL = `deployments/${siteName}/datafiles/${dataFileId}`;
 
+  const getDataFile = async () => {
+    if (!authTokens?.access) return null;
+    const responseJson = await getData(apiURL, authTokens.access);
+    console.log('Raw API response:', responseJson);
+    
+    // Transform the response data
+    const transformedData: DataFile = {
+      id: responseJson.id,
+      deployment: responseJson.deployment,
+      fileName: responseJson.file_name,
+      fileFormat: responseJson.file_format,
+      fileSize: responseJson.file_size,
+      fileType: responseJson.file_type,
+      path: responseJson.path,
+      localPath: responseJson.local_path,
+      uploadDt: responseJson.upload_dt,
+      recordingDt: responseJson.recording_dt,
+      config: responseJson.config,
+      sampleRate: responseJson.sample_rate,
+      fileLength: responseJson.file_length,
+      qualityScore: responseJson.quality_score,
+      qualityIssues: responseJson.quality_issues || [],
+      qualityCheckDt: responseJson.quality_check_dt,
+      qualityCheckStatus: responseJson.quality_check_status,
+      extraData: null,
+      thumbUrl: responseJson.thumb_url,
+      localStorage: responseJson.local_storage,
+      archived: responseJson.archived,
+      favourite: responseJson.is_favourite
+    };
+
+    // Handle extra_data separately to ensure proper typing
+    if (responseJson.extra_data) {
+      transformedData.extraData = {
+        quality_metrics: responseJson.extra_data.quality_metrics || {},
+        temporal_evolution: responseJson.extra_data.temporal_evolution || {},
+        observations: responseJson.extra_data.observations || [],
+        auto_detected_observations: responseJson.extra_data.auto_detected_observations || []
+      };
+    }
+
+    console.log('Transformed data:', transformedData);
+    return transformedData;
+  };
+
   const {
     data: dataFile,
     isLoading,
     error,
   } = useQuery({
     queryKey: [apiURL],
-    queryFn: async () => {
-      if (!authTokens?.access) return null;
-      const responseJson = await getData(apiURL, authTokens.access);
-      console.log('Raw API response:', responseJson);
-      
-      // Transform the response data
-      const transformedData: DataFile = {
-        id: responseJson.id,
-        deployment: responseJson.deployment,
-        fileName: responseJson.file_name,
-        fileFormat: responseJson.file_format,
-        fileSize: responseJson.file_size,
-        fileType: responseJson.file_type,
-        path: responseJson.path,
-        localPath: responseJson.local_path,
-        uploadDt: responseJson.upload_dt,
-        recordingDt: responseJson.recording_dt,
-        config: responseJson.config,
-        sampleRate: responseJson.sample_rate,
-        fileLength: responseJson.file_length,
-        qualityScore: responseJson.quality_score,
-        qualityIssues: responseJson.quality_issues || [],
-        qualityCheckDt: responseJson.quality_check_dt,
-        qualityCheckStatus: responseJson.quality_check_status,
-        extraData: null,
-        thumbUrl: responseJson.thumb_url,
-        localStorage: responseJson.local_storage,
-        archived: responseJson.archived,
-        favourite: responseJson.is_favourite
-      };
-
-      // Handle extra_data separately to ensure proper typing
-      if (responseJson.extra_data) {
-        transformedData.extraData = {
-          quality_metrics: responseJson.extra_data.quality_metrics || {},
-          temporal_evolution: responseJson.extra_data.temporal_evolution || {},
-          observations: responseJson.extra_data.observations || [],
-          auto_detected_observations: responseJson.extra_data.auto_detected_observations || []
-        };
-      }
-
-      console.log('Transformed data:', transformedData);
-      return transformedData;
-    },
+    queryFn: getDataFile,
     enabled: !!authTokens?.access,
   });
 

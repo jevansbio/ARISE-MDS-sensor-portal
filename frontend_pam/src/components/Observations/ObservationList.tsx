@@ -1,66 +1,36 @@
-import { useState, useEffect } from "react";
-import { Route as ObservationsRoute } from "@/routes/devices/$deviceId/$dataFileId/observations";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
 import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
 import { formatTime } from "@/utils/timeFormat";
-import { useContext } from 'react';
 import AuthContext from "@/auth/AuthContext";
 import { getData, postData, patchData } from "@/utils/FetchFunctions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FaPlay } from "react-icons/fa";
 import ObservationEditModal from './ObservationEditModal';
-import { useQueryClient } from "@tanstack/react-query";
 import { ObservationTable } from './ObservationTable';
-import { type Observation } from './types';
-
-interface DataFile {
-  id: string | number;
-  file_name: string;
-  file_format: string;
-  file_length: number;
-}
-
-interface Device {
-  id: string | number;
-  name: string;
-}
+import { type Observation } from '@/types';
 
 export default function ObservationList() {
-  const { deviceId: deviceIdStr, dataFileId: dataFileIdStr } = useParams({ from: '/devices/$deviceId/$dataFileId' });
-  const deviceId = deviceIdStr;  // Keep as string for API calls
-  const dataFileId = dataFileIdStr;  // Keep as string for API calls
+  const { siteName, dataFileId } = useParams({ from: '/deployments/$siteName/$dataFileId/observations' });
   const navigate = useNavigate();
   const { authTokens } = useContext(AuthContext) as any;
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  console.log('ObservationList mounted with params:', { deviceId, dataFileId });
-
-  // Query for device details
-  const { data: device, isLoading: isLoadingDevice } = useQuery({
-    queryKey: ['device', deviceIdStr],
-    queryFn: async () => {
-      if (!deviceIdStr || !authTokens?.access) return null;
-      const data = await getData(`devices/${deviceIdStr}`, authTokens.access);
-      return data as Device;
-    },
-    enabled: !!deviceIdStr && !!authTokens?.access,
-    retry: 1
-  });
+  console.log('ObservationList mounted with params:', { siteName, dataFileId });
 
   // Query for data file details
   const { data: dataFile, isLoading: isLoadingFile, error: fileError } = useQuery({
-    queryKey: ['dataFile', deviceIdStr, dataFileIdStr],
+    queryKey: ['dataFile', siteName, dataFileId],
     queryFn: async () => {
-      if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return null;
-      const data = await getData(`devices/${deviceIdStr}/datafiles/${dataFileIdStr}`, authTokens.access);
-      return data as DataFile;
+      if (!siteName || !dataFileId || !authTokens?.access) return null;
+      const data = await getData(`deployments/${siteName}/datafiles/${dataFileId}`, authTokens.access);
+      return data;
     },
-    enabled: !!deviceIdStr && !!dataFileIdStr && !!authTokens?.access,
+    enabled: !!siteName && !!dataFileId && !!authTokens?.access,
     retry: 1
   });
 
@@ -94,11 +64,11 @@ export default function ObservationList() {
 
   // Query for observations
   const { data: observations = [], isLoading: isLoadingObs, error: obsError } = useQuery<Observation[]>({
-    queryKey: ['observations', dataFileIdStr],
+    queryKey: ['observations', dataFileId],
     queryFn: async () => {
-      if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return [];
+      if (!siteName || !dataFileId || !authTokens?.access) return [];
       try {
-        console.log('Fetching observations for data file:', dataFileIdStr);
+        console.log('Fetching observations for data file:', dataFileId);
         // Fetch all pages of observations
         let allObservations: any[] = [];
         let page = 1;
@@ -106,7 +76,7 @@ export default function ObservationList() {
         
         while (hasMore) {
           console.log(`Fetching page ${page} of observations...`);
-          const data = await getData(`observation/?data_files=${dataFileIdStr}&page=${page}&page_size=50`, authTokens.access);
+          const data = await getData(`observation/?data_files=${dataFileId}&page=${page}&page_size=50`, authTokens.access);
           const pageObservations = Array.isArray(data) ? data : data.results || [];
           console.log(`Retrieved ${pageObservations.length} observations from page ${page}`);
           allObservations = [...allObservations, ...pageObservations];
@@ -155,7 +125,7 @@ export default function ObservationList() {
         throw error;
       }
     },
-    enabled: !!deviceIdStr && !!dataFileIdStr && !!authTokens?.access,
+    enabled: !!siteName && !!dataFileId && !!authTokens?.access,
     gcTime: 5 * 60 * 1000, // Keep cache for 5 minutes
     staleTime: 0, // Always consider data stale to force refetch
     refetchOnMount: true,
@@ -167,25 +137,25 @@ export default function ObservationList() {
 
   // Effect to handle component mount and data file changes
   useEffect(() => {
-    if (!deviceIdStr || !dataFileIdStr || !authTokens?.access) return;
+    if (!siteName || !dataFileId || !authTokens?.access) return;
     
-    console.log('Component mounted or data file changed:', { deviceIdStr, dataFileIdStr });
+    console.log('Component mounted or data file changed:', { siteName, dataFileId });
     
     // Force a refetch of observations when the component mounts or data file changes
     queryClient.invalidateQueries({ 
-      queryKey: ['observations', dataFileIdStr],
+      queryKey: ['observations', dataFileId],
       refetchType: 'active'
     });
-  }, [deviceIdStr, dataFileIdStr, authTokens?.access, queryClient]);
+  }, [siteName, dataFileId, authTokens?.access, queryClient]);
 
-  const isLoading = isLoadingDevice || isLoadingFile || isLoadingObs;
+  const isLoading = isLoadingFile || isLoadingObs;
   const error = fileError || obsError;
 
-  if (!deviceId || !dataFileId) {
-    console.error('Missing route parameters:', { deviceId, dataFileId });
+  if (!siteName || !dataFileId) {
+    console.error('Missing route parameters:', { siteName, dataFileId });
     return (
       <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-        Missing required parameters: deviceId and dataFileId must be provided
+        Missing required parameters: siteName and dataFileId must be provided
       </div>
     );
   }
@@ -215,8 +185,12 @@ export default function ObservationList() {
   }
 
   const handleBack = () => {
-    if (!deviceIdStr || !dataFileIdStr) return;
-    navigate({ to: "/devices/$deviceId/$dataFileId", params: { deviceId: deviceIdStr, dataFileId: dataFileIdStr } });
+    if (!siteName || !dataFileId) return;
+    navigate({ 
+      to: "/deployments/$siteName/$dataFileId", 
+      params: { siteName, dataFileId },
+      search: { observationId: undefined }
+    });
   };
 
   const handleEditClick = (observation: Observation) => {
@@ -253,144 +227,70 @@ export default function ObservationList() {
         formattedObservation
       );
       
-      if (!response) {
+      if (!response.ok) {
         throw new Error('Failed to update observation');
       }
       
-      // Invalidate and refetch observations query
-      console.log('Invalidating queries...');
-      await queryClient.invalidateQueries({ 
-        queryKey: ['observations', dataFileIdStr],
-        refetchType: 'active'
-      });
+      // Invalidate and refetch observations
+      await queryClient.invalidateQueries({ queryKey: ['observations', dataFileId] });
+      console.log('Observations cache invalidated');
       
-      // Force a refetch of the observations
-      console.log('Forcing refetch...');
-      await queryClient.refetchQueries({ 
-        queryKey: ['observations', dataFileIdStr],
-        type: 'active',
-        exact: true
-      });
-      
-      console.log('Observation update completed');
     } catch (error) {
-      console.error('Error during observation update:', error);
-      // You might want to show an error message to the user here
+      console.error('Error saving observation:', error);
+      // Reopen the modal if there was an error
+      setIsEditModalOpen(true);
+      throw error;
     }
   };
 
   const handleDeleteObservation = async (id: number) => {
-    if (!authTokens?.access) return;
-    
-    if (!window.confirm('Are you sure you want to delete this observation?')) {
-      return;
-    }
-
     try {
-      // First verify the observation exists
-      const checkResponse = await fetch(`/api/observation/${id}/`, {
-        headers: {
-          'Authorization': `Bearer ${authTokens.access}`
-        }
-      });
-
-      if (!checkResponse.ok) {
-        if (checkResponse.status === 404) {
-          throw new Error('Observation not found');
-        }
-        throw new Error('Failed to verify observation');
+      if (!authTokens?.access) {
+        throw new Error('No authentication token available');
       }
-
-      // Now attempt to delete
-      const deleteResponse = await fetch(`/api/observation/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${authTokens.access}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!deleteResponse.ok) {
-        let errorMessage = 'Failed to delete observation';
-        try {
-          const errorText = await deleteResponse.text();
-          console.error('Raw error response:', errorText);
-          
-          // Check for Bridgekeeper permission error
-          if (errorText.includes('Bridgekeeper') || errorText.includes('permission could not be found')) {
-            errorMessage = 'You do not have permission to delete observations. Please contact your administrator.';
-          } else {
-            // Try to parse as JSON if possible
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.detail || errorData.message || errorText;
-          }
-        } catch (e) {
-          console.error('Error parsing response:', e);
-        }
-        
-        console.error('Delete error details:', {
-          status: deleteResponse.status,
-          statusText: deleteResponse.statusText,
-          url: deleteResponse.url
-        });
-        
-        throw new Error(errorMessage);
+      
+      const response = await postData(
+        `observation/${id}/delete/`,
+        authTokens.access,
+        {}
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete observation');
       }
-
-      // Log successful deletion
-      console.log('Observation deleted successfully:', {
-        id,
-        status: deleteResponse.status,
-        statusText: deleteResponse.statusText
-      });
-
-      // Invalidate and refetch the observations query immediately
-      await queryClient.invalidateQueries({ queryKey: ['observations', dataFileIdStr] });
-      await queryClient.refetchQueries({ queryKey: ['observations', dataFileIdStr] });
+      
+      // Invalidate and refetch observations
+      await queryClient.invalidateQueries({ queryKey: ['observations', dataFileId] });
+      
     } catch (error) {
-      console.error('Error in handleDeleteObservation:', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete observation. Please try again.');
+      console.error('Error deleting observation:', error);
+      throw error;
     }
   };
 
   return (
-    <div className="container mx-auto py-10 space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Observations</h2>
-          {device && dataFile && (
-            <p className="text-gray-600">
-              for {dataFile.file_name} on {device.name}
-            </p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleBack}>Back to File</Button>
-        </div>
+    <div className="container mx-auto py-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Observations</h1>
+        <Button onClick={handleBack} variant="outline">Back to Data File</Button>
       </div>
 
-      {observations.length === 0 ? (
-        <div className="text-center py-8 bg-gray-50 rounded-lg">
-          <p className="text-gray-500 text-lg">No observations found</p>
-        </div>
-      ) : (
-        <ObservationTable
-          deviceId={deviceId}
-          fileId={dataFileId}
-          fileFormat={dataFile?.file_format || 'wav'}
-          fileDuration={dataFile?.file_length || 0}
-          observations={observations}
-          onDelete={handleDeleteObservation}
-          onEdit={handleEditClick}
-        />
-      )}
+      <ObservationTable
+        deviceId={siteName}
+        fileId={dataFileId}
+        fileFormat={dataFile?.file_format || 'wav'}
+        fileDuration={dataFile?.file_length || 0}
+        observations={observations}
+        onEdit={handleEditClick}
+        onDelete={handleDeleteObservation}
+      />
 
-      {selectedObservation && (
+      {isEditModalOpen && selectedObservation && (
         <ObservationEditModal
           isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
           observation={selectedObservation}
           onSave={handleSaveObservation}
+          onClose={() => setIsEditModalOpen(false)}
         />
       )}
     </div>
