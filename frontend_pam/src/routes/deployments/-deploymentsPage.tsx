@@ -24,11 +24,10 @@ import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import { bytesToMegabytes } from "@/utils/convertion";
 import Modal from "@/components/Modal/Modal";
-import DeviceForm from "@/components/DeviceForm";
+import DeviceForm from "@/components/Form";
 import { timeSinceLastUpload } from "@/utils/timeFormat";
 
 export default function DeploymentsPage() {
-
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
   const apiURL = "deployment/";
@@ -73,7 +72,7 @@ export default function DeploymentsPage() {
 
   const columns: ColumnDef<Deployment>[] = [
     {
-      accessorKey: "site",
+      accessorKey: "siteName",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -95,19 +94,18 @@ export default function DeploymentsPage() {
       ),
     },
     {
-      accessorKey: "id",
+      accessorKey: "deploymentId",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          Device
+          Deployment ID
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => row.original.deploymentId,
-
     },
     {
       accessorKey: "startDate",
@@ -122,7 +120,6 @@ export default function DeploymentsPage() {
         </Button>
       ),
       cell: ({ row }) => row.original.startDate,
-
     },
     {
       accessorKey: "endDate",
@@ -137,7 +134,6 @@ export default function DeploymentsPage() {
         </Button>
       ),
       cell: ({ row }) => row.original.endDate,
-
     },
     {
       accessorKey: "lastUpload",
@@ -180,7 +176,7 @@ export default function DeploymentsPage() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
