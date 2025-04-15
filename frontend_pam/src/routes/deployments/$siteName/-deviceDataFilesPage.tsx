@@ -39,48 +39,6 @@ export default function DeviceDataFilesPage() {
 
   const [FilteredDataFiles, setFilteredDataFiles] = useState<DataFile[]>([]);
 
-  const apiURL = `devices/${site_name}/datafiles`;
-
-  const getDataFunc = async (): Promise<DataFile[]> => {
-    if (!authTokens?.access) return [];
-    const response_json = await getData(apiURL, authTokens.access);
-
-    const filteredDatafiles: DataFile[] = response_json.map(
-      (dataFile: any): DataFile => ({
-        id: dataFile.id,
-        deployment: dataFile.deployment,
-        fileName: dataFile.file_name,
-        fileFormat: dataFile.file_format,
-        fileSize: dataFile.file_size,
-        fileType: dataFile.file_type,
-        path: dataFile.path,
-        localPath: dataFile.local_path,
-        uploadDt: dataFile.upload_dt,
-        recordingDt: dataFile.recording_dt,
-        config: dataFile.config,
-        sampleRate: dataFile.sample_rate,
-        fileLength: dataFile.file_length,
-        qualityScore: dataFile.quality_score,
-        qualityIssues: dataFile.quality_issues || [],
-        qualityCheckDt: dataFile.quality_check_dt,
-        qualityCheckStatus: dataFile.quality_check_status,
-        extraData: dataFile.extra_data,
-        thumbUrl: dataFile.thumb_url,
-        localStorage: dataFile.local_storage,
-        archived: dataFile.archived,
-        favourite: dataFile.is_favourite,
-      })
-    );
-
-    return dataFiles;
-  };
-
-  const { data: dataFiles = [] } = useQuery({
-    queryKey: [apiURL],
-    queryFn: getDataFunc,
-    enabled: !!authTokens?.access,
-  });
-
   const columns: ColumnDef<DataFile>[] = [
     {
       accessorKey: "id",
@@ -154,7 +112,6 @@ export default function DeviceDataFilesPage() {
       ),
       cell: ({ row }) => {
         const fileSize = row.original.file_size;
-        console.log("File size:", fileSize);
         return `${bytesToMegabytes(fileSize)} MB`;
       },
     },
@@ -208,7 +165,7 @@ export default function DeviceDataFilesPage() {
   // Table state and instance for sorting and rendering
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
-    data: FilteredDataFiles.length > 0 ? FilteredDataFiles : dataFiles,
+    data: FilteredDataFiles,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
