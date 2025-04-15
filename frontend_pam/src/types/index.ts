@@ -1,3 +1,4 @@
+// Device and Deployment Types
 export type Device = {
     id: string;
     startDate: string;
@@ -31,6 +32,14 @@ export type Deployment = {
     action: string;
     userEmail: string;
     country: string;
+};
+
+// Data File Types
+export interface ExtraData {
+    quality_metrics?: Record<string, any>;
+    temporal_evolution?: Record<string, any>;
+    observations?: string[];
+    auto_detected_observations: number[];
 }
 
 export type DataFile = {
@@ -54,15 +63,48 @@ export type DataFile = {
     qualityCheckDt: string | null;
     qualityCheckStatus: 'pending' | 'in_progress' | 'completed' | 'failed';
     // Additional fields
-    extraData: Record<string, any> | null;
+    extraData: ExtraData | null;
     thumbUrl: string | null;
     localStorage: boolean;
     archived: boolean;
     favourite: boolean;
 };
 
+// Observation Types
+export interface Observation {
+    id: number;
+    obs_dt: string;
+    source: string;
+    needs_review: boolean;
+    extra_data: {
+        start_time: number;
+        end_time: number;
+        duration: number;
+        avg_amplitude: number;
+        auto_detected: boolean;
+        needs_review?: boolean;
+    };
+    taxon: {
+        species_name: string;
+        species_common_name: string;
+        id: number;
+    };
+    data_files: Array<{
+        id: number;
+        file_name: string;
+        deployment?: {
+            name: string;
+            device: {
+                name: string;
+                id: string;
+            };
+        };
+    }>;
+}
+
+// UI Component Types
 export type ModalProps = {
     isOpen: boolean;
     onClose: () => void;
     children: React.ReactNode;
-};
+}; 

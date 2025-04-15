@@ -37,6 +37,86 @@ export default function DeviceDataFilesPage() {
     return <p>Loading authentication...</p>;
   }
 
+  const apiURL = `devices/${siteName}/datafiles`;
+
+  const getDataFunc = async (): Promise<DataFile[]> => {
+    if (!authTokens?.access) return [];
+    const response_json = await getData(apiURL, authTokens.access);
+  
+    const dataFiles: DataFile[] = response_json.map((dataFile: any):DataFile => ({
+      id: dataFile.id,
+      deployment: dataFile.deployment,
+      fileName: dataFile.file_name,
+      fileFormat: dataFile.file_format,
+      fileSize: dataFile.file_size,
+      fileType: dataFile.file_type,
+      path: dataFile.path,
+      localPath: dataFile.local_path,
+      uploadDt: dataFile.upload_dt,
+      recordingDt: dataFile.recording_dt,
+      config: dataFile.config,
+      sampleRate: dataFile.sample_rate,
+      fileLength: dataFile.file_length,
+      qualityScore: dataFile.quality_score,
+      qualityIssues: dataFile.quality_issues || [],
+      qualityCheckDt: dataFile.quality_check_dt,
+      qualityCheckStatus: dataFile.quality_check_status,
+      extraData: dataFile.extra_data,
+      thumbUrl: dataFile.thumb_url,
+      localStorage: dataFile.local_storage,
+      archived: dataFile.archived,
+      favourite: dataFile.is_favourite
+    }));
+
+    return dataFiles;
+  };
+
+  const {
+    data: dataFiles = [],
+    refetch
+  } = useQuery({
+    queryKey: [apiURL],
+    queryFn: getDataFunc,
+    enabled: !!authTokens?.access,
+  });
+
+  const handleBulkQualityCheck = async () => {
+    if (!authTokens?.access) return;
+
+    try {
+      // Get the deployment ID from the first data file
+      const deploymentId = dataFiles[0]?.deployment;
+      if (!deploymentId) {
+        alert('No deployment found for this device');
+        return;
+      }
+
+      // Call the bulk quality check endpoint
+      const response = await fetch(`/api/deployment/${deploymentId}/check_quality_bulk/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authTokens.access}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to start bulk quality check');
+      }
+
+      const result = await response.json();
+      alert(`Started quality check for ${result.total_files} files`);
+      
+      // Refetch data after a short delay to show updated status
+      setTimeout(() => {
+        refetch();
+      }, 2000);
+    } catch (error: any) {
+      console.error('Error starting bulk quality check:', error);
+      alert(error?.message || 'Failed to start bulk quality check. Please try again.');
+    }
+  };
   const [FilteredDataFiles, setFilteredDataFiles] = useState<DataFile[]>([]);
 
   const columns: ColumnDef<DataFile>[] = [
@@ -180,7 +260,15 @@ export default function DeviceDataFilesPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-6 pl-5">Data Files</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold pl-5">Data Files</h1>
+        <Button 
+          onClick={handleBulkQualityCheck}
+          className="bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Check Quality for All Audio Files
+        </Button>
+      </div>
 
       <DateForm
         filteredDatafiles={handleDataFromDateForm}

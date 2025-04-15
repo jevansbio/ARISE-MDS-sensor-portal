@@ -87,19 +87,18 @@ export default function AudioPlayer({
         try {
           const response = await fetch(`/api/datafile/${fileId}/download/`, {
             headers: {
-              Authorization: `Bearer ${authTokens.access}`,
-              Accept: "*/*",
-              "Content-Type": "application/json",
+              'Authorization': `Bearer ${authTokens.access}`,
+              'Accept': '*/*'
             },
             credentials: "include",
           });
 
           if (!response.ok) {
-            console.error("Response status:", response.status);
-            console.error(
-              "Response headers:",
-              Object.fromEntries(response.headers.entries())
-            );
+            console.error('Response status:', response.status);
+            console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+            if (response.status === 404) {
+              throw new Error('Audio file not found. Please check if the file exists.');
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 

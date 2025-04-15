@@ -46,22 +46,28 @@ def deployment_check_overlap(start_dt, end_dt, device, deployment_pk):
     Args:
         start_dt (datetime): start datetime of new deployment
         end_dt (datetime): end datetime of new deployment
-        device (Device): Device of new deployment
+        device (Device): Device of new deployment (if None, overlap-check slås over)
         deployment_pk (int): pk of a deployment to be ignored when considering overlaps.
-        Include if editing an existing deployment to avoid checking for overlap with itself.
+            Include if editing an existing deployment to avoid checking for overlap with itself.
 
     Returns:
-            success (boolean), error message (dict where the key is the associated field name)
+        (boolean, dict or str): True and empty error message if no overlap (or if device is None); 
+                                 otherwise, False and an error message.
     """
-    overlapping_deployments = device.check_overlap(
-        start_dt, end_dt, deployment_pk)
+    # If no device is provided, skip the overlap check.
+    if device is None:
+        return True, ""
+    
+    # Otherwise, perform the overlap check by calling the device's check_overlap method.
+    overlapping_deployments = device.check_overlap(start_dt, end_dt, deployment_pk)
     if len(overlapping_deployments) == 0:
         return True, ""
+    
     error_message = {
-        "deployment_start": f"this deployment of {device.device_ID} "
-        f"would overlap with {','.join(overlapping_deployments)}"
+        "deployment_start": f"this deployment of {device.device_ID} would overlap with {','.join(overlapping_deployments)}"
     }
     return False, error_message
+
 
 
 def deployment_check_type(device_type, device):
