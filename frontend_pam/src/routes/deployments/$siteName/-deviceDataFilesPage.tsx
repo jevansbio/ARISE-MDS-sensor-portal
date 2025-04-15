@@ -29,7 +29,7 @@ import { bytesToMegabytes } from "@/utils/convertion";
 import DateForm from "@/components/AudioQuality/DateForm";
 
 export default function DeviceDataFilesPage() {
-  const { site_name } = Route.useParams();
+  const { siteName: site_name } = Route.useParams();
   const authContext = useContext(AuthContext) as any;
   const { authTokens } = authContext || { authTokens: null };
 
