@@ -103,7 +103,9 @@ const DateForm: React.FC<DatafileProps> = ({
 
       {/* Optional: You can add a fallback component or message to render when nothing is available */}
       {!data && !isLoading && !isError && (
-        <div className="text-gray-500 mt-2">No data available yet.</div>
+        <div className="text-gray-500 mt-2">
+          Pick a timeframe to get datafiles from.
+        </div>
       )}
     </div>
   );
