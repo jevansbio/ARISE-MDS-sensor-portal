@@ -87,7 +87,7 @@ export default function AllObservationsList() {
           }
           
           const taxonId = typeof obs.taxon === 'number' ? obs.taxon : 
-            (typeof obs.taxon === 'object' && obs.taxon !== null ? obs.taxon.id : undefined);
+            (typeof obs.taxon === 'object' && obs.taxon !== null && 'id' in obs.taxon ? obs.taxon.id : undefined);
           if (taxonId && taxonCache[taxonId]) {
             return {
               ...obs,

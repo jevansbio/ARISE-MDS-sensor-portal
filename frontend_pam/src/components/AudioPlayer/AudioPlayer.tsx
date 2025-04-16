@@ -101,7 +101,7 @@ export default function AudioPlayer({
         try {
           const response = await fetch(`/api/datafile/${fileId}/download/`, {
             headers: {
-              'Authorization': `Bearer ${authTokens.access}`,
+              'Authorization': `Bearer ${authTokens?.access || ''}`,
               'Accept': '*/*'
             },
             credentials: "include",
@@ -121,9 +121,9 @@ export default function AudioPlayer({
           // Use the blob's type if available, otherwise determine from file format
           const mimeType =
             blob.type ||
-            (fileFormat.toLowerCase().startsWith(".")
+            (fileFormat?.toLowerCase()?.startsWith(".")
               ? `audio/${fileFormat.toLowerCase().substring(1)}`
-              : `audio/${fileFormat.toLowerCase()}`);
+              : `audio/${fileFormat?.toLowerCase() || 'mp3'}`);
 
           // Create a new blob with the correct MIME type
           const audioBlob = new Blob([blob], { type: mimeType });
