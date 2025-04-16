@@ -41,8 +41,15 @@ const fetchDateRange = async (token: string, site_name: string) => {
 };
 
 interface AuthContextType {
-  user: any;
-  authTokens: any;
+  user: {
+    username: string;
+    email: string;
+    // Add other user properties as needed
+  } | null;
+  authTokens: {
+    access: string;
+    refresh: string;
+  } | null;
   loginUser: (e: React.FormEvent) => void;
   logoutUser: (e?: React.FormEvent) => void;
   useAuth: () => AuthContextType;

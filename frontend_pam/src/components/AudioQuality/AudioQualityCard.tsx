@@ -9,8 +9,7 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
-  ChartOptions
+  Legend
 } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
