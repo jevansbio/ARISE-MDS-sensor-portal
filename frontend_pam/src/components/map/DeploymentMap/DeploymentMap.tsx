@@ -18,7 +18,6 @@ import { getPinColor, timeSinceLastUpload } from "@/utils/timeFormat";
 import { Deployment } from "@/types";
 
 interface Props {
-	//should be changed from any
 	deployments: Deployment[];
 }
 
@@ -29,8 +28,6 @@ interface IconProps {
 	textColor?: string;
 	borderWidth?: number;
 	iconSize?: [number, number];
-	symbolSize?: number;
-	symbol?: string;
 }
 
 const DeploymentIcon = ({
@@ -40,8 +37,6 @@ const DeploymentIcon = ({
 	textColor = "#000",
 	borderWidth = 2,
 	iconSize = [28, 28],
-	symbolSize = 16,
-	symbol = "FaCamera",
 }: IconProps) => {
 	return (
 		<div className={"beautify-marker"}>
@@ -63,13 +58,7 @@ const DeploymentIcon = ({
 						height: "100%",
 						width: "100%",
 					}}
-				>
-					{/* <img
-						style={{ height: "100%", objectFit: "cover" }}
-						src={logo}
-						alt="Logo"
-					/> */}
-				</div>
+				/>
 			</div>
 		</div>
 	);
@@ -124,7 +113,6 @@ const DeploymentMap = ({ deployments }: Props) => {
 							lat: deploymentData.latitude,
 							lng: deploymentData.longitude,
 						};
-						console.log("Deploymentdata.lastUpload: ", deploymentData.lastUpload)
 						const pinColor = getPinColor(deploymentData.lastUpload);
 
 						return (
