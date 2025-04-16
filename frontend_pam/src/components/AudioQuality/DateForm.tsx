@@ -31,6 +31,15 @@ const fetchDataForDateRange = async (
   return response; // The response is already in JSON format
 };
 
+// Helper function to fetch date range
+const fetchDateRange = async (token: string, site_name: string) => {
+  const response = await getData(
+    `datafile/date_range?site_name=${site_name}`,
+    token
+  );
+  return response;
+};
+
 interface AuthContextType {
   user: any;
   authTokens: any;
@@ -40,7 +49,7 @@ interface AuthContextType {
 }
 
 interface DatafileProps {
-  filteredDatafiles: (data: DataFile[]) => void; // Change to expect an array of DataFile
+  filteredDatafiles: (data: DataFile[]) => void;
   site_name: string;
 }
 
@@ -48,15 +57,30 @@ const DateForm: React.FC<DatafileProps> = ({
   filteredDatafiles,
   site_name,
 }) => {
-  // State to store the start and end dates
+  const { authTokens } = useContext(AuthContext) as AuthContextType;
+  
+  // Query to get the date range
+  const { data: dateRange } = useQuery({
+    queryKey: ["dateRange", site_name],
+    queryFn: () => fetchDateRange(authTokens?.access, site_name),
+    enabled: !!authTokens?.access,
+  });
+
+  // State to store the start and end dates with default values from the system
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  const { authTokens } = useContext(AuthContext) as AuthContextType;
+  // Set default dates when dateRange is available
+  useEffect(() => {
+    if (dateRange?.first_date && dateRange?.last_date) {
+      setStartDate(new Date(dateRange.first_date));
+      setEndDate(new Date(dateRange.last_date));
+    }
+  }, [dateRange]);
 
   // TanStack Query: useQuery hook to fetch data based on the selected dates
   const { data, error, isLoading, isError } = useQuery<DataFile[]>({
-    queryKey: ["datafile", startDate, endDate], // Query key with the date range
+    queryKey: ["datafile", startDate, endDate],
     queryFn: () => {
       if (startDate && endDate && authTokens?.access) {
         return fetchDataForDateRange(
@@ -66,16 +90,16 @@ const DateForm: React.FC<DatafileProps> = ({
           site_name
         );
       }
-      return Promise.resolve(null); // Return null or empty response if dates are not selected or token is missing
+      return Promise.resolve(null);
     },
-    enabled: !!startDate && !!endDate && !!authTokens?.access, // Only run the query if both dates and token are available
+    enabled: !!startDate && !!endDate && !!authTokens?.access,
   });
 
   useEffect(() => {
     if (data) {
-      filteredDatafiles(data); // Send the fetched data to the parent component
+      filteredDatafiles(data);
     }
-  }, [data, filteredDatafiles]); // Run the effect whenever `data` or `filteredDatafiles` changes
+  }, [data, filteredDatafiles]);
 
   return (
     <div className="flex space-x-4 items-center pl-5">
