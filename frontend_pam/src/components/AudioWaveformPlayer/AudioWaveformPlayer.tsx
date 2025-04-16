@@ -172,7 +172,7 @@ export default function AudioWaveformPlayer({
       }
 
       if (!audioRef.current || !audioRef.current.src) {
-        const audioUrl = `/api/devices/${deviceId}/datafiles/${fileId}/download`;
+        const audioUrl = `/api/datafile/${fileId}/download/`;
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
