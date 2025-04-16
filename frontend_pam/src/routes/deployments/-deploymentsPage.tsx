@@ -23,8 +23,6 @@ import { Button } from "@/components/ui/button";
 import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import { bytesToMegabytes } from "@/utils/convertion";
-import Modal from "@/components/Modal/Modal";
-import DeviceForm from "@/components/Form";
 import { timeSinceLastUpload } from "@/utils/timeFormat";
 
 interface AuthContextType {
@@ -222,12 +220,6 @@ export default function DeploymentsPage() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-  const handleSave = () => closeModal();
 
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
