@@ -7,8 +7,35 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useContext } from 'react';
 
 type AuthContextType = {
-  user: any;
-  authTokens: any;
+  user: {
+    username: string;
+    email: string;
+  } | null;
+  authTokens: {
+    access: string;
+    refresh: string;
+  } | null;
+};
+
+type ApiDeployment = {
+  deployment_ID: string;
+  deployment_start: string;
+  deployment_end: string;
+  folder_size: number;
+  last_upload: string;
+  site_name: string;
+  coordinate_uncertainty: string;
+  gps_device: string;
+  mic_height: number;
+  mic_direction: string;
+  habitat: string;
+  protocol_checklist: string;
+  score: number;
+  comment: string;
+  user_email: string;
+  country: string;
+  longitude: number;
+  latitude: number;
 };
 
 export const Route = createFileRoute('/map')({
@@ -24,7 +51,7 @@ function RouteComponent() {
     if (!authTokens?.access) return [];
     const response_json = await getData(apiURL, authTokens.access);
   
-    const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
+    const deployments: Deployment[] = response_json.map((deployment: ApiDeployment): Deployment => ({
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
       endDate: deployment.deployment_end,
@@ -39,7 +66,7 @@ function RouteComponent() {
       micDirection: deployment.mic_direction,
       habitat: deployment.habitat,
       protocolChecklist: deployment.protocol_checklist,
-      score: deployment,
+      score: deployment.score,
       comment: deployment.comment,
       userEmail: deployment.user_email,
       country: deployment.country,
@@ -51,20 +78,20 @@ function RouteComponent() {
   };
 
   const {
-		data: deployments,
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: [apiURL],
-		queryFn: getDataFunc,
-	});
+    data: deployments,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [apiURL],
+    queryFn: getDataFunc,
+  });
 
   if (isLoading) {
     return <div>Loading data...</div>;
   }
 
   if (error) {
-    return <div>Error occurred: {(error as any).message}</div>;
+    return <div>Error occurred: {error instanceof Error ? error.message : String(error)}</div>;
   }
 
   console.log("deployments data map 123: ", deployments);

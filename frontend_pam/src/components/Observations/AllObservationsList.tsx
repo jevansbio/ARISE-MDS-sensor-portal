@@ -28,11 +28,21 @@ type QueryData = {
   count: number;
 };
 
+type TaxonType = {
+  id: number;
+  species_name: string;
+  species_common_name: string;
+};
+
+type RawObservation = Omit<Observation, 'taxon'> & {
+  taxon: number | TaxonType | null;
+};
+
 export default function AllObservationsList() {
   const { authTokens } = useContext(AuthContext) as AuthContextType;
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [taxonCache, setTaxonCache] = useState<Record<number, { id: number; species_name: string; species_common_name: string }>>({});
+  const [taxonCache, setTaxonCache] = useState<Record<number, TaxonType>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 100;
@@ -49,7 +59,7 @@ export default function AllObservationsList() {
         const totalCount = data.count || 0;
         setTotalPages(Math.ceil(totalCount / pageSize));
         
-        const processedObservations = observations.map((obs) => {
+        const processedObservations = observations.map((obs: RawObservation) => {
           const processedDataFiles = obs.data_files?.map((df) => ({
             ...df,
             deployment: df.deployment ? {
@@ -64,19 +74,20 @@ export default function AllObservationsList() {
           if (obs.taxon && typeof obs.taxon === 'object') {
             const taxonId = obs.taxon.id;
             if (taxonId) {
-              setTaxonCache(prev => ({ ...prev, [taxonId]: obs.taxon }));
+              setTaxonCache(prev => ({ ...prev, [taxonId]: obs.taxon as TaxonType }));
             }
             return {
               ...obs,
               id: Number(obs.id),
               obs_dt: obs.obs_dt || new Date().toISOString(),
               needs_review: obs.needs_review,
-              taxon: obs.taxon,
+              taxon: obs.taxon as TaxonType,
               data_files: processedDataFiles
             };
           }
           
-          const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
+          const taxonId = typeof obs.taxon === 'number' ? obs.taxon : 
+            (typeof obs.taxon === 'object' && obs.taxon !== null ? obs.taxon.id : undefined);
           if (taxonId && taxonCache[taxonId]) {
             return {
               ...obs,
