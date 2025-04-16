@@ -26,6 +26,7 @@ from .serializers import (DataFileSerializer, DataFileUploadSerializer,
 from data_models.services.audio_quality import AudioQualityChecker
 
 
+
 class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
     search_fields = ['deployment_device_ID',
                      'device__name', 'device__device_ID',
@@ -471,22 +472,20 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)/download')
-    def download_datafile(self, request, device_ID=None, datafile_id=None):
+    def download_datafile(self, request, pk=None, datafile_id=None):
         """Download a specific data file from a device"""
         device = self.get_object()
         user = request.user
 
         try:
             datafile = DataFile.objects.get(deployment__device=device, pk=datafile_id)
-            if not datafile.path:
-                return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
         except DataFile.DoesNotExist:
             return Response({"error": "DataFile not found."}, status=status.HTTP_404_NOT_FOUND)
 
         if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=datafile_id)).first():
             raise PermissionDenied("You don't have permission to download this datafile")
 
-        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        file_path = datafile.full_path()
         
         if not os.path.exists(file_path):
             return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
@@ -496,12 +495,8 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
                 file_content = f.read()
                 mime_type = 'audio/mpeg' if datafile.file_format.lower().replace('.', '') == 'mp3' else f"audio/{datafile.file_format.lower().replace('.', '')}"
                 response = HttpResponse(file_content, content_type=mime_type)
-                response['Content-Disposition'] = f'inline; filename="audio_file_{datafile_id}.{datafile.file_format.lower().replace(".", "")}"'
+                response['Content-Disposition'] = f'inline; filename="{datafile.file_name}{datafile.file_format}"'
                 response['Content-Length'] = len(file_content)
-                response['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
-                response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-                response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-                response['Access-Control-Allow-Credentials'] = 'true'
                 return response
         except IOError as e:
             return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -651,7 +646,98 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
                      '=tag',
                      'config',
                      'sample_rate']
+    
+    @action(detail=False, methods=['get'])
+    def date_range(self, request):
+        """
+        Get the first and last recording dates for a site
+        """
+        site_name = request.query_params.get('site_name')
+        if not site_name:
+            return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Get the first and last recording dates for the site
+        first_date = DataFile.objects.filter(
+            deployment__site_name=site_name
+        ).order_by('recording_dt').values_list('recording_dt', flat=True).first()
+
+        last_date = DataFile.objects.filter(
+            deployment__site_name=site_name
+        ).order_by('-recording_dt').values_list('recording_dt', flat=True).first()
+
+        return Response({
+            'first_date': first_date,
+            'last_date': last_date
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        """Download a specific data file"""
+        datafile = self.get_object()
+        user = request.user
+
+        # Check permissions
+        if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=pk)).first():
+            raise PermissionDenied("You don't have permission to download this datafile")
+
+        if not datafile.path:
+            return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Construct full path by joining the base directory with local_path
+        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        
+        if not os.path.exists(file_path):
+            return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+                mime_type = 'audio/mpeg' if datafile.file_format.lower().replace('.', '') == 'mp3' else f"audio/{datafile.file_format.lower().replace('.', '')}"
+                response = HttpResponse(file_content, content_type=mime_type)
+                response['Content-Disposition'] = f'inline; filename="{datafile.file_name}{datafile.file_format}"'
+                response['Content-Length'] = len(file_content)
+                return response
+        except IOError as e:
+            return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    @action(detail=False, methods=['get'])
+    def filter_by_date(self, request):
+        # Retrieve the query parameters: start_date and end_date
+        start_date = request.GET.get('start_date', None)
+        end_date = request.GET.get('end_date', None)
+        site_name = request.GET.get('site_name', None)
+        
+        # Validate the date format
+        if start_date and end_date:
+            try:
+                start_date = djtimezone.datetime.strptime(start_date, '%m-%d-%Y')
+                end_date = djtimezone.datetime.strptime(end_date, '%m-%d-%Y')
+                
+                # Add one day to end_date to include the entire end date
+                end_date = end_date + djtimezone.timedelta(days=1)
+            except ValueError:
+                return Response({"error": "Invalid date format. Use MM-DD-YYYY."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "Both start_date and end_date are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Build the initial queryset to filter by date range
+        filters = {
+            'recording_dt__gte': start_date,
+            'recording_dt__lt': end_date
+        }
+
+        # If site_name is provided, filter by the related Deployment's site_name as well
+        if site_name:
+            filters['deployment__site_name'] = site_name
+
+        # Perform the filtering in a single query using the filters dictionary
+        result_queryset = DataFile.objects.filter(**filters)
+        
+        # Serialize and return the results
+        serializer = self.get_serializer(result_queryset, many=True)
+        return Response(serializer.data)
+        
+        
     @action(detail=False, methods=['get'])
     def test(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

@@ -83,7 +83,7 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const [currentObservation, setCurrentObservation] = useState<any>(null);
 
-  const apiURL = `deployments/${siteName}/datafiles/${dataFileId}`;
+  const apiURL = `datafile/${dataFileId}/`;
 
   const getDataFile = async () => {
     if (!authTokens?.access) return null;

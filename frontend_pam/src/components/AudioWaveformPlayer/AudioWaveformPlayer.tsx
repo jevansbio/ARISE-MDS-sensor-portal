@@ -172,7 +172,7 @@ export default function AudioWaveformPlayer({
       }
 
       if (!audioRef.current || !audioRef.current.src) {
-        const audioUrl = `/api/devices/${deviceId}/datafiles/${fileId}/download`;
+        const audioUrl = `/api/datafile/${fileId}/download/`;
         const response = await fetch(audioUrl, {
           headers: {
             'Authorization': `Bearer ${authTokens.access}`,
@@ -205,9 +205,23 @@ export default function AudioWaveformPlayer({
         let mimeType = blob.type;
         if (!mimeType || mimeType === 'application/octet-stream') {
           // If no MIME type or generic binary, try to determine from file format
-          mimeType = fileFormat.toLowerCase().startsWith('.') ? 
-            `audio/${fileFormat.toLowerCase().substring(1)}` : 
-            `audio/${fileFormat.toLowerCase()}`;
+          const format = fileFormat.toLowerCase().replace('.', '');
+          switch (format) {
+            case 'mp3':
+              mimeType = 'audio/mpeg';
+              break;
+            case 'wav':
+              mimeType = 'audio/wav';
+              break;
+            case 'ogg':
+              mimeType = 'audio/ogg';
+              break;
+            case 'm4a':
+              mimeType = 'audio/mp4';
+              break;
+            default:
+              mimeType = `audio/${format}`;
+          }
         }
         console.log('Using MIME type:', mimeType);
         
@@ -233,7 +247,13 @@ export default function AudioWaveformPlayer({
               audioRef.current?.removeEventListener('canplay', handleCanPlay);
               audioRef.current?.removeEventListener('error', handleError);
               const audioError = (e.target as HTMLAudioElement).error;
-              reject(new Error(`Audio format not supported: ${audioError?.message || 'unknown error'}`));
+              console.error('Audio error details:', {
+                code: audioError?.code,
+                message: audioError?.message,
+                mimeType,
+                fileFormat
+              });
+              reject(new Error(`Audio format not supported: ${audioError?.message || 'unknown error'}. MIME type: ${mimeType}, File format: ${fileFormat}`));
             };
             
             audioRef.current.addEventListener('canplay', handleCanPlay);
