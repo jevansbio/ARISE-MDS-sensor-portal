@@ -30,54 +30,8 @@ export default function DeviceDataFilesPage() {
   const { siteName: site_name } = Route.useParams();
   const authContext = useContext(AuthContext) as { authTokens: { access: string } | null };
   const { authTokens } = authContext || { authTokens: null };
-
-  if (!authTokens) {
-    return <p>Loading authentication...</p>;
-  }
-
   const [FilteredDataFiles, setFilteredDataFiles] = useState<DataFile[]>([]);
-
-  const handleBulkQualityCheck = async () => {
-    if (!authTokens?.access) return;
-
-    try {
-      // Get the deployment ID from the first data file
-      const deploymentId = FilteredDataFiles[0]?.deployment;
-      if (!deploymentId) {
-        alert("No deployment found for this device");
-        return;
-      }
-
-      // Call the bulk quality check endpoint
-      const response = await fetch(
-        `/api/deployment/${deploymentId}/check_quality_bulk/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authTokens.access}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || "Failed to start bulk quality check"
-        );
-      }
-
-      const result = await response.json();
-      alert(`Started quality check for ${result.total_files} files`);
-
-      // Refetch data after a short delay to show updated status
-      setTimeout(() => {}, 2000);
-    } catch (error: unknown) {
-      console.error("Error starting bulk quality check:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to start bulk quality check. Please try again.";
-      alert(errorMessage);
-    }
-  };
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns: ColumnDef<DataFile>[] = [
     {
@@ -202,8 +156,6 @@ export default function DeviceDataFilesPage() {
     },
   ];
 
-  // Table state and instance for sorting and rendering
-  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data: FilteredDataFiles,
     columns,
@@ -212,6 +164,52 @@ export default function DeviceDataFilesPage() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
+
+  const handleBulkQualityCheck = async () => {
+    if (!authTokens?.access) return;
+
+    try {
+      // Get the deployment ID from the first data file
+      const deploymentId = FilteredDataFiles[0]?.deployment;
+      if (!deploymentId) {
+        alert("No deployment found for this device");
+        return;
+      }
+
+      // Call the bulk quality check endpoint
+      const response = await fetch(
+        `/api/deployment/${deploymentId}/check_quality_bulk/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authTokens.access}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Failed to start bulk quality check"
+        );
+      }
+
+      const result = await response.json();
+      alert(`Started quality check for ${result.total_files} files`);
+
+      // Refetch data after a short delay to show updated status
+      setTimeout(() => {}, 2000);
+    } catch (error: unknown) {
+      console.error("Error starting bulk quality check:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to start bulk quality check. Please try again.";
+      alert(errorMessage);
+    }
+  };
 
   // Function to handle data received from DateForm
   const handleDataFromDateForm = (newData: DataFile[]) => {
