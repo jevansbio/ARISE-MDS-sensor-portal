@@ -37,7 +37,7 @@ export type Deployment = {
 // Data File Types
 export interface ExtraData {
     quality_metrics?: Record<string, number>;
-    temporal_evolution?: Record<string, any>;
+    temporal_evolution?: Record<string, number | string | boolean | null>;
     observations?: string[];
     auto_detected_observations: number[];
 }
