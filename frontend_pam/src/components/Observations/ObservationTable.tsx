@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit2, Play, Pause, Volume2 } from "lucide-react";
+import { Trash2, Edit2, Play, Pause } from "lucide-react";
 import { formatTime } from "@/utils/timeFormat";
 import AudioWaveformPlayer from "../AudioWaveformPlayer/AudioWaveformPlayer";
 import { Badge } from "@/components/ui/badge";
