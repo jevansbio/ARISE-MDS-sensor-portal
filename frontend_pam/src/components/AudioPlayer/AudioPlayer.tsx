@@ -9,6 +9,20 @@ interface AudioPlayerProps {
   className?: string;
 }
 
+interface AuthContextType {
+  authTokens: {
+    access: string;
+    refresh: string;
+  } | null;
+  user: {
+    username: string;
+    email: string;
+  } | null;
+  loginUser: (username: string, password: string) => Promise<void>;
+  logoutUser: () => void;
+  refreshToken: () => Promise<void>;
+}
+
 export default function AudioPlayer({
   fileId,
   fileFormat = "mp3",
@@ -20,7 +34,7 @@ export default function AudioPlayer({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
 
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
 
   // Reset audio when fileId changes
