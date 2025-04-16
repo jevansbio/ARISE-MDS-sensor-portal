@@ -19,7 +19,7 @@ import {
 import { TbArrowsUpDown } from "react-icons/tb";
 import { Link } from "@tanstack/react-router";
 import { Route } from ".";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import AuthContext from "@/auth/AuthContext";
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
@@ -28,7 +28,7 @@ import DateForm from "@/components/AudioQuality/DateForm";
 
 export default function DeviceDataFilesPage() {
   const { siteName: site_name } = Route.useParams();
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as { authTokens: { access: string } | null };
   const { authTokens } = authContext || { authTokens: null };
 
   if (!authTokens) {
