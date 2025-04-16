@@ -12,7 +12,7 @@ declare module './AuthContext' {
             email: string;
             // Add other user properties as needed
         } | null;
-        loginUser: (username: string, password: string) => Promise<void>;
+        loginUser: (e: FormEvent<HTMLFormElement>) => Promise<void>;
         logoutUser: () => void;
         refreshToken: () => Promise<void>;
     }

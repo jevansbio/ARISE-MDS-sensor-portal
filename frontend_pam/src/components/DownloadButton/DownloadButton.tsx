@@ -9,16 +9,26 @@ interface DownloadButtonProps {
   className?: string;
 }
 
+type AuthContextType = {
+  authTokens: {
+    access: string;
+  } | null;
+};
+
 export default function DownloadButton({
   fileId,
   fileFormat,
   className = "",
 }: DownloadButtonProps) {
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
 
   const handleDownload = async () => {
     try {
+      if (!authTokens?.access) {
+        throw new Error("Authentication token is missing");
+      }
+
       const response = await fetch(`/api/datafile/${fileId}/download/`, {
         headers: {
           Authorization: `Bearer ${authTokens.access}`,
