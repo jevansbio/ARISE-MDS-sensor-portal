@@ -647,8 +647,29 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
                      'config',
                      'sample_rate']
     
-    
-    # Add to DataFileViewSet class
+    @action(detail=False, methods=['get'])
+    def date_range(self, request):
+        """
+        Get the first and last recording dates for a site
+        """
+        site_name = request.query_params.get('site_name')
+        if not site_name:
+            return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get the first and last recording dates for the site
+        first_date = DataFile.objects.filter(
+            deployment__site_name=site_name
+        ).order_by('recording_dt').values_list('recording_dt', flat=True).first()
+
+        last_date = DataFile.objects.filter(
+            deployment__site_name=site_name
+        ).order_by('-recording_dt').values_list('recording_dt', flat=True).first()
+
+        return Response({
+            'first_date': first_date,
+            'last_date': last_date
+        }, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['get'])
     def download(self, request, pk=None):
         """Download a specific data file"""

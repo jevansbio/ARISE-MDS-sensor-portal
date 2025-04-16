@@ -317,9 +317,9 @@ export default function AllObservationsList() {
                         if (firstFile?.deployment?.device?.id && firstFile.id) {
                           return (
                             <Link
-                              to="/devices/$deviceId/$dataFileId"
+                              to="/deployments/$siteName/$dataFileId"
                               params={{
-                                deviceId: firstFile.deployment.device.id,
+                                siteName: firstFile.deployment.name,
                                 dataFileId: firstFile.id.toString()
                               }}
                               search={{
