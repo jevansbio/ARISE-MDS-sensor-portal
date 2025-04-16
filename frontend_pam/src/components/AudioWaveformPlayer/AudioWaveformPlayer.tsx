@@ -24,7 +24,6 @@ interface AuthContextType {
 
 interface AudioWaveformPlayerProps {
   fileId: string;
-  fileFormat: string;
   className?: string;
   startTime?: number;
   endTime?: number;
@@ -33,7 +32,6 @@ interface AudioWaveformPlayerProps {
 
 export default function AudioWaveformPlayer({ 
   fileId, 
-  fileFormat, 
   className = "",
   startTime = 0,
   endTime,
@@ -151,7 +149,7 @@ export default function AudioWaveformPlayer({
   }, []);
 
   useEffect(() => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
     audioContextRef.current = audioContext;
     
     const analyser = audioContext.createAnalyser();
@@ -226,6 +224,7 @@ export default function AudioWaveformPlayer({
       if (authTokens?.access && !isInitialized) {
         try {
           await loadAudio(true);
+          setIsInitialized(true);
         } catch (error) {
           console.error('Error initializing audio:', error);
         }
