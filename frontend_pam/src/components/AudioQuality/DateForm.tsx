@@ -44,15 +44,13 @@ interface AuthContextType {
   user: {
     username: string;
     email: string;
-    // Add other user properties as needed
   } | null;
   authTokens: {
     access: string;
     refresh: string;
   } | null;
-  loginUser: (e: React.FormEvent) => void;
-  logoutUser: (e?: React.FormEvent) => void;
-  useAuth: () => AuthContextType;
+  loginUser: (username: string, password: string) => Promise<void>;
+  logoutUser: () => void;
 }
 
 interface DatafileProps {
@@ -64,12 +62,18 @@ const DateForm: React.FC<DatafileProps> = ({
   filteredDatafiles,
   site_name,
 }) => {
-  const { authTokens } = useContext(AuthContext) as AuthContextType;
+  const authContext = useContext(AuthContext) as AuthContextType;
+  const { authTokens } = authContext || { authTokens: null };
   
   // Query to get the date range
   const { data: dateRange } = useQuery({
     queryKey: ["dateRange", site_name],
-    queryFn: () => fetchDateRange(authTokens?.access, site_name),
+    queryFn: () => {
+      if (!authTokens?.access) {
+        throw new Error('No access token available');
+      }
+      return fetchDateRange(authTokens.access, site_name);
+    },
     enabled: !!authTokens?.access,
   });
 

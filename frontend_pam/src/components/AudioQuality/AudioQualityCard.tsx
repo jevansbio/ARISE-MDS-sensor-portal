@@ -165,8 +165,8 @@ const AudioQualityCard: React.FC<AudioQualityCardProps> = ({ dataFile, deviceId,
             {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
           </Button>
           <Link 
-            to="/devices/$deviceId/$dataFileId/observations"
-            params={{
+            to="/observations"
+            search={{
               deviceId: deviceId,
               dataFileId: dataFile.id
             }}
