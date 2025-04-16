@@ -72,12 +72,10 @@ export default function DeviceDataFilesPage() {
 
       // Refetch data after a short delay to show updated status
       setTimeout(() => {}, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error starting bulk quality check:", error);
-      alert(
-        error?.message ||
-          "Failed to start bulk quality check. Please try again."
-      );
+      const errorMessage = error instanceof Error ? error.message : "Failed to start bulk quality check. Please try again.";
+      alert(errorMessage);
     }
   };
 
