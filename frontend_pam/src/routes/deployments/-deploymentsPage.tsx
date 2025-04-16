@@ -27,19 +27,45 @@ import Modal from "@/components/Modal/Modal";
 import DeviceForm from "@/components/Form";
 import { timeSinceLastUpload } from "@/utils/timeFormat";
 
+interface AuthContextType {
+  authTokens: {
+    access: string;
+  } | null;
+}
+
+interface ApiDeployment {
+  deployment_ID: string;
+  deployment_start: string;
+  deployment_end: string | null;
+  folder_size: number;
+  last_upload: string;
+  site_name: string;
+  coordinate_uncertainty: string;
+  gps_device: string;
+  mic_height: string;
+  mic_direction: string;
+  habitat: string;
+  protocol_checklist: string;
+  comment: string;
+  user_email: string;
+  country: string;
+  longitude: number;
+  latitude: number;
+}
+
 export default function DeploymentsPage() {
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
   const apiURL = "deployment/";
 
   const getDataFunc = async (): Promise<Deployment[]> => {
     if (!authTokens?.access) return [];
-    const response_json = await getData(apiURL, authTokens.access);
+    const response_json = await getData<ApiDeployment[]>(apiURL, authTokens.access);
 
-    const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
+    const deployments: Deployment[] = response_json.map((deployment): Deployment => ({
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
-      endDate: deployment.deployment_end || null, // Ensure endDate is null if not available
+      endDate: deployment.deployment_end || "",
       folderSize: deployment.folder_size,
       lastUpload: deployment.last_upload,
       batteryLevel: 0,
@@ -47,11 +73,11 @@ export default function DeploymentsPage() {
       siteName: deployment.site_name,
       coordinateUncertainty: deployment.coordinate_uncertainty,
       gpsDevice: deployment.gps_device,
-      micHeight: deployment.mic_height,
+      micHeight: parseFloat(deployment.mic_height) || 0,
       micDirection: deployment.mic_direction,
       habitat: deployment.habitat,
       protocolChecklist: deployment.protocol_checklist,
-      score: deployment,
+      score: 0,
       comment: deployment.comment,
       userEmail: deployment.user_email,
       country: deployment.country,
@@ -207,7 +233,7 @@ export default function DeploymentsPage() {
 
   const handleCountrySelect = (country: string) => {
     setSelectedCountry(country);
-    setIsDropdownOpen(false); // Close the dropdown once a country is selected
+    setIsDropdownOpen(false);
   };
 
   return (
