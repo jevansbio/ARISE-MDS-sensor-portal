@@ -288,7 +288,7 @@ export default function AudioWaveformPlayer({
           if (playPromise !== undefined) {
             await playPromise;
           }
-        } catch (playError) {
+        } catch {
           throw new Error('Failed to play audio: format not supported');
         }
       }
@@ -298,20 +298,6 @@ export default function AudioWaveformPlayer({
       setIsPlaying(false);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (!audioRef.current) return;
-    const time = audioRef.current.currentTime;
-    setCurrentTime(time);
-    
-    // If we're past the end time, reset to start
-    if (endTime && time >= endTime) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      audioRef.current.currentTime = startTime || 0;
-      setCurrentTime(startTime || 0);
     }
   };
 
