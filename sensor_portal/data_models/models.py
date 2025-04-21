@@ -490,8 +490,6 @@ class Deployment(BaseModel):
 
     def get_folder_size(self, unit="MB"):
    
-        qs = DataFile.objects.filter(deployment=self)
-
         agg = self.files.aggregate(total_size=Sum('file_size'))
         
         total = agg['total_size'] or 0
