@@ -492,8 +492,19 @@ class Deployment(BaseModel):
             self.thumb_url = None
 
     def get_folder_size(self, unit="MB"):
-        """Calculate the total size of all files in this deployment"""
-        return self.files.file_size(unit) if self.files.exists() else 0
+        """
+        """
+        qs = DataFile.objects.filter(deployment=self)
+
+        agg = qs.aggregate(total_size=Sum('file_size'))
+        
+        total = agg['total_size'] or 0
+
+        if unit.upper() == "KB":
+            return total * 1024
+        elif unit.upper() == "GB":
+            return total / 1024
+        return total
         
     def get_last_upload(self):
         """Get the datetime of the most recent file upload for this deployment"""
