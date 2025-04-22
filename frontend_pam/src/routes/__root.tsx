@@ -11,6 +11,14 @@ import { AuthProvider } from "@/auth/AuthContext";
 import { useContext } from "react";
 import AuthContext from "@/auth/AuthContext";
 
+type User = {
+  id: string;
+  email: string;
+  username: string;
+  is_staff?: boolean;
+  is_superuser?: boolean;
+};
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
@@ -45,8 +53,7 @@ function AuthWrapper() {
 }
 
 function RootComponent() {
-  //to get around typescript error, we are mixing javascript and typescript to keep original functionality
-  const { user } = useContext(AuthContext) as { user: any };
+  const { user } = useContext(AuthContext) as { user: User | null };
   const { pathname } = useLocation();
 
   // If there is no authenticated user, only render the Outlet.

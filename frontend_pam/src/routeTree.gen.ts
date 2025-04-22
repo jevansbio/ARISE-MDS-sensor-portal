@@ -11,14 +11,22 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ObservationsImport } from './routes/observations'
 import { Route as MapImport } from './routes/map'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
 import { Route as DeploymentsIndexImport } from './routes/deployments/index'
 import { Route as DeploymentsSiteNameIndexImport } from './routes/deployments/$siteName/index'
 import { Route as DeploymentsSiteNameDataFileIdImport } from './routes/deployments/$siteName/$dataFileId'
+import { Route as DeploymentsSiteNameDataFileIdObservationsImport } from './routes/deployments/$siteName/$dataFileId/observations'
 
 // Create/Update Routes
+
+const ObservationsRoute = ObservationsImport.update({
+  id: '/observations',
+  path: '/observations',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const MapRoute = MapImport.update({
   id: '/map',
@@ -57,6 +65,13 @@ const DeploymentsSiteNameDataFileIdRoute =
     getParentRoute: () => rootRoute,
   } as any)
 
+const DeploymentsSiteNameDataFileIdObservationsRoute =
+  DeploymentsSiteNameDataFileIdObservationsImport.update({
+    id: '/observations',
+    path: '/observations',
+    getParentRoute: () => DeploymentsSiteNameDataFileIdRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -82,6 +97,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapImport
       parentRoute: typeof rootRoute
     }
+    '/observations': {
+      id: '/observations'
+      path: '/observations'
+      fullPath: '/observations'
+      preLoaderRoute: typeof ObservationsImport
+      parentRoute: typeof rootRoute
+    }
     '/deployments/': {
       id: '/deployments/'
       path: '/deployments'
@@ -103,27 +125,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeploymentsSiteNameIndexImport
       parentRoute: typeof rootRoute
     }
+    '/deployments/$siteName/$dataFileId/observations': {
+      id: '/deployments/$siteName/$dataFileId/observations'
+      path: '/observations'
+      fullPath: '/deployments/$siteName/$dataFileId/observations'
+      preLoaderRoute: typeof DeploymentsSiteNameDataFileIdObservationsImport
+      parentRoute: typeof DeploymentsSiteNameDataFileIdImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface DeploymentsSiteNameDataFileIdRouteChildren {
+  DeploymentsSiteNameDataFileIdObservationsRoute: typeof DeploymentsSiteNameDataFileIdObservationsRoute
+}
+
+const DeploymentsSiteNameDataFileIdRouteChildren: DeploymentsSiteNameDataFileIdRouteChildren =
+  {
+    DeploymentsSiteNameDataFileIdObservationsRoute:
+      DeploymentsSiteNameDataFileIdObservationsRoute,
+  }
+
+const DeploymentsSiteNameDataFileIdRouteWithChildren =
+  DeploymentsSiteNameDataFileIdRoute._addFileChildren(
+    DeploymentsSiteNameDataFileIdRouteChildren,
+  )
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
+  '/observations': typeof ObservationsRoute
   '/deployments': typeof DeploymentsIndexRoute
-  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRoute
+  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRouteWithChildren
   '/deployments/$siteName': typeof DeploymentsSiteNameIndexRoute
+  '/deployments/$siteName/$dataFileId/observations': typeof DeploymentsSiteNameDataFileIdObservationsRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
+  '/observations': typeof ObservationsRoute
   '/deployments': typeof DeploymentsIndexRoute
-  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRoute
+  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRouteWithChildren
   '/deployments/$siteName': typeof DeploymentsSiteNameIndexRoute
+  '/deployments/$siteName/$dataFileId/observations': typeof DeploymentsSiteNameDataFileIdObservationsRoute
 }
 
 export interface FileRoutesById {
@@ -131,9 +179,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
+  '/observations': typeof ObservationsRoute
   '/deployments/': typeof DeploymentsIndexRoute
-  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRoute
+  '/deployments/$siteName/$dataFileId': typeof DeploymentsSiteNameDataFileIdRouteWithChildren
   '/deployments/$siteName/': typeof DeploymentsSiteNameIndexRoute
+  '/deployments/$siteName/$dataFileId/observations': typeof DeploymentsSiteNameDataFileIdObservationsRoute
 }
 
 export interface FileRouteTypes {
@@ -142,25 +192,31 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/map'
+    | '/observations'
     | '/deployments'
     | '/deployments/$siteName/$dataFileId'
     | '/deployments/$siteName'
+    | '/deployments/$siteName/$dataFileId/observations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/map'
+    | '/observations'
     | '/deployments'
     | '/deployments/$siteName/$dataFileId'
     | '/deployments/$siteName'
+    | '/deployments/$siteName/$dataFileId/observations'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/map'
+    | '/observations'
     | '/deployments/'
     | '/deployments/$siteName/$dataFileId'
     | '/deployments/$siteName/'
+    | '/deployments/$siteName/$dataFileId/observations'
   fileRoutesById: FileRoutesById
 }
 
@@ -168,8 +224,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
+  ObservationsRoute: typeof ObservationsRoute
   DeploymentsIndexRoute: typeof DeploymentsIndexRoute
-  DeploymentsSiteNameDataFileIdRoute: typeof DeploymentsSiteNameDataFileIdRoute
+  DeploymentsSiteNameDataFileIdRoute: typeof DeploymentsSiteNameDataFileIdRouteWithChildren
   DeploymentsSiteNameIndexRoute: typeof DeploymentsSiteNameIndexRoute
 }
 
@@ -177,8 +234,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
+  ObservationsRoute: ObservationsRoute,
   DeploymentsIndexRoute: DeploymentsIndexRoute,
-  DeploymentsSiteNameDataFileIdRoute: DeploymentsSiteNameDataFileIdRoute,
+  DeploymentsSiteNameDataFileIdRoute:
+    DeploymentsSiteNameDataFileIdRouteWithChildren,
   DeploymentsSiteNameIndexRoute: DeploymentsSiteNameIndexRoute,
 }
 
@@ -195,6 +254,7 @@ export const routeTree = rootRoute
         "/",
         "/login",
         "/map",
+        "/observations",
         "/deployments/",
         "/deployments/$siteName/$dataFileId",
         "/deployments/$siteName/"
@@ -209,14 +269,24 @@ export const routeTree = rootRoute
     "/map": {
       "filePath": "map.tsx"
     },
+    "/observations": {
+      "filePath": "observations.tsx"
+    },
     "/deployments/": {
       "filePath": "deployments/index.tsx"
     },
     "/deployments/$siteName/$dataFileId": {
-      "filePath": "deployments/$siteName/$dataFileId.tsx"
+      "filePath": "deployments/$siteName/$dataFileId.tsx",
+      "children": [
+        "/deployments/$siteName/$dataFileId/observations"
+      ]
     },
     "/deployments/$siteName/": {
       "filePath": "deployments/$siteName/index.tsx"
+    },
+    "/deployments/$siteName/$dataFileId/observations": {
+      "filePath": "deployments/$siteName/$dataFileId/observations.tsx",
+      "parent": "/deployments/$siteName/$dataFileId"
     }
   }
 }

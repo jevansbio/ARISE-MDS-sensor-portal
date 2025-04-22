@@ -4,47 +4,60 @@ import { useContext } from "react";
 import AuthContext from "@/auth/AuthContext";
 
 interface DownloadButtonProps {
-  deviceId: string;
   fileId: string;
   fileFormat: string;
   className?: string;
 }
 
-export default function DownloadButton({ deviceId, fileId, fileFormat, className = "" }: DownloadButtonProps) {
-  const authContext = useContext(AuthContext) as any;
+type AuthContextType = {
+  authTokens: {
+    access: string;
+  } | null;
+};
+
+export default function DownloadButton({
+  fileId,
+  fileFormat,
+  className = "",
+}: DownloadButtonProps) {
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
 
   const handleDownload = async () => {
     try {
-      console.log('Starting download for file:', fileId);
-      const response = await fetch(`/api/devices/${deviceId}/datafiles/${fileId}/download`, {
+      if (!authTokens?.access) {
+        throw new Error("Authentication token is missing");
+      }
+
+      const response = await fetch(`/api/datafile/${fileId}/download/`, {
         headers: {
-          'Authorization': `Bearer ${authTokens.access}`
-        }
+          Authorization: `Bearer ${authTokens.access}`,
+        },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        console.error('Download failed:', response.status, errorData);
-        throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+        console.error("Download failed:", response.status, errorData);
+        throw new Error(
+          `Download failed: ${response.status} ${response.statusText}`
+        );
       }
 
       const blob = await response.blob();
-      console.log('Received blob:', blob);
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      
-      const cleanFormat = fileFormat.toLowerCase().replace(/\./g, '');
+
+      const cleanFormat = fileFormat.toLowerCase().replace(/\./g, "");
       a.download = `audio_file_${fileId}.${cleanFormat}`;
-      
+
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Failed to download file. Please check the console for details.');
+      console.error("Error downloading file:", error);
+      alert("Failed to download file. Please check the console for details.");
     }
   };
 
@@ -58,4 +71,4 @@ export default function DownloadButton({ deviceId, fileId, fileFormat, className
       Download
     </Button>
   );
-} 
+}

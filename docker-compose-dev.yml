@@ -15,23 +15,7 @@ services:
       restart: unless-stopped
       volumes:      
         - ./file_storage:/file_storage
-        - ./sensor_portal/static:/backend_static  
-  sensor_portal_frontend:
-    build:
-      context: .
-      dockerfile: ./dockerfiles/sensor_portal_frontend.dockerfile
-    image: sensor_portal_frontend_image
-    ports:
-      - "3000"
-    volumes:
-      - ./frontend/src:/app/frontend/src
-      - ./frontend/public:/app/frontend/public
-    command: npm start
-    restart: always
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-      - REACT_APP_API_BASE_URL=api
+        - ./sensor_portal/static:/backend_static
   sensor_portal_frontend_pam:
     build:
       context: .

@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { FaHome, FaMicrochip, FaMap } from 'react-icons/fa'
+import { FaHome, FaMicrochip, FaMap, FaListAlt } from 'react-icons/fa'
 import { useState } from 'react';
 import { HiMenu, HiX } from 'react-icons/hi';
 
@@ -7,8 +7,8 @@ function Sidebar() {
   const location = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Sjekker om vi er på en "/devices" side (inkluderer f.eks. "/devices/deviceDashboard")
   const isDevicesActive = location.pathname.startsWith('/device')
+  const isObservationsActive = location.pathname.startsWith('/observations')
 
   return (
 <div className={`h-screen border-r bg-gray-50 transition-all duration-300 ${isCollapsed ? 'sm:w-16' : 'w-16 sm:w-64'}`}>
@@ -47,6 +47,14 @@ function Sidebar() {
           >
             <FaMap className="h-5 w-5" />
             {!isCollapsed && <span className="hidden md:inline">Map</span>}
+          </Link>
+
+          <Link 
+            to="/observations" 
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 ${isObservationsActive ? 'font-bold bg-gray-100' : ''} ${isCollapsed ? 'justify-center' : ''}`}
+          >
+            <FaListAlt className="h-5 w-5" />
+            {!isCollapsed && <span>Observations</span>}
           </Link>
         </div>
       </nav>

@@ -22,13 +22,12 @@ export async function postData(url, token, data) {
 		},
 		body: JSON.stringify(data),
 	});
-	let response_json = await response.json();
-	response_json["ok"] = response.ok;
-	response_json["statusText"] = response.statusText;
-	// if (!response.ok) {
-	// 	throw new Error(response.statusText);
-	// }
-	return response_json;
+
+	if (!response.ok) {
+		throw new Error(response.statusText);
+	}
+
+	return response.json();
 }
 
 // Patch data to API

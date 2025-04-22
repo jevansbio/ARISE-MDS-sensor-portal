@@ -34,7 +34,7 @@ from .general_functions import check_dt
 
 class Site(BaseModel):
     name = models.CharField(max_length=50)
-    short_name = models.CharField(max_length=10, blank=True)
+    short_name = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
         return self.name
@@ -54,7 +54,7 @@ class DataType(BaseModel):
 
 class Project(BaseModel):
     # Metadata
-    project_ID = models.CharField(max_length=10, unique=True, blank=True)
+    project_ID = models.CharField(max_length=50, unique=True, blank=True)
     name = models.CharField(max_length=50)
 
     objectives = models.CharField(max_length=500, blank=True)
@@ -140,7 +140,7 @@ class Device(BaseModel):
 
     # Device status and configuration fields
     device_status = models.CharField(max_length=50, blank=True, null=True)
-    configuration = models.CharField(max_length=20, choices=[('summer', 'Summer'), ('winter', 'Winter')], blank=True, null=True)
+    configuration = models.CharField(max_length=20, blank=True, null=True)
     sim_card_icc = models.CharField(max_length=50, blank=True, null=True)
     sim_card_batch = models.CharField(max_length=50, blank=True, null=True)
     sd_card_size = models.FloatField(help_text="Size in GB", blank=True, null=True)
@@ -205,9 +205,9 @@ class Device(BaseModel):
         if all_files.exists():
             return all_files.aggregate(last_upload=models.Max('upload_dt'))['last_upload']
         return None
-
+    
     def save(self, *args, **kwargs):
-        if not self.type:
+        if self.model and not self.type:
             self.type = self.model.type
         super().save(*args, **kwargs)
 
@@ -317,20 +317,19 @@ class Device(BaseModel):
 
 class Deployment(BaseModel):
     deployment_device_ID = models.CharField(
-        max_length=100, blank=True, editable=False, unique=True)
+        max_length=100, blank=True, editable=False, unique=True, null=True)
     deployment_ID = models.CharField(max_length=50)
     device_type = models.ForeignKey(
-        DataType, models.PROTECT, related_name="deployments", null=True)
+        DataType, models.PROTECT, related_name="deployments", null=True, blank=True)
     device_n = models.IntegerField(default=1)
 
-    deployment_start = models.DateTimeField(default=djtimezone.now)
+    deployment_start = models.DateTimeField(default=djtimezone.now, blank=True, null=True)
     deployment_end = models.DateTimeField(blank=True, null=True)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name="deployments", null=True, blank=True)
 
-    device = models.ForeignKey(
-        Device, on_delete=models.PROTECT, related_name="deployments")
-    site = models.ForeignKey(Site, models.PROTECT, related_name="deployments")
+    site = models.ForeignKey(Site, models.PROTECT, related_name="deployments", null=True, blank=True)
     project = models.ManyToManyField(
-        Project, related_name="deployments", blank=True)
+        Project, related_name="deployments", blank=True, null=True)
 
     latitude = models.DecimalField(
         max_digits=8, decimal_places=6, blank=True, null=True)
@@ -370,19 +369,19 @@ class Deployment(BaseModel):
         DataStorageInput, null=True, blank=True, related_name="linked_deployments", on_delete=models.SET_NULL)
 
     extra_data = models.JSONField(default=dict, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, blank=True, null=True)
 
-    time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE)
+    time_zone = TimeZoneField(use_pytz=True, default=settings.TIME_ZONE, null=True, blank=True)
 
     # User ownership
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_deployments",
                               on_delete=models.SET_NULL, null=True)
     managers = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name="managed_deployments")
+        settings.AUTH_USER_MODEL, blank=True, related_name="managed_deployments", null=True)
     viewers = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_deployments")
+        settings.AUTH_USER_MODEL, blank=True, related_name="viewable_deployments", null=True)
     annotators = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_deployments")
+        settings.AUTH_USER_MODEL, blank=True, related_name="annotatable_deployments", null=True)
 
     combo_project = models.CharField(
         max_length=100, blank=True, null=True, editable=False)
@@ -397,29 +396,37 @@ class Deployment(BaseModel):
 
     def __str__(self):
         return self.deployment_device_ID
-
+    
     def clean(self):
-        # result, message = validators.deployment_check_type(
-        #     self.device_type, self.device)
-        # if not result:
-        #     raise ValidationError(message)
-
+        # Check that deployment_start is before deployment_end
         result, message = validators.deployment_start_time_after_end_time(
-            self.deployment_start, self.deployment_end)
+            self.deployment_start, self.deployment_end
+        )
         if not result:
             raise ValidationError(message)
-        result, message = validators.deployment_check_overlap(
-            self.deployment_start, self.deployment_end, self.device, self.pk)
-        if not result:
-            raise ValidationError(message)
+        
+        # Only perform the overlap check if a device is attached.
+        if self.device is not None:
+            result, message = validators.deployment_check_overlap(
+                self.deployment_start, self.deployment_end, self.device, self.pk
+            )
+            if not result:
+                raise ValidationError(message)
+        
         super(Deployment, self).clean()
 
     def save(self, *args, **kwargs):
-        self.deployment_device_ID = f"{self.deployment_ID}_{self.device.type.name}_{self.device_n}"
+
+        if self.device is not None and self.device.type is not None:
+            device_type_name = self.device.type.name
+        else:
+            device_type_name = "NoDevice"
+
+        self.deployment_device_ID = f"{self.deployment_ID}_{device_type_name}_{self.device_n}"
 
         self.is_active = self.check_active()
 
-        if self.device_type is None:
+        if self.device is not None and self.device_type is None:
             self.device_type = self.device.type
 
         if self.longitude and self.latitude:
@@ -482,8 +489,16 @@ class Deployment(BaseModel):
             self.thumb_url = None
 
     def get_folder_size(self, unit="MB"):
-        """Calculate the total size of all files in this deployment"""
-        return self.files.file_size(unit) if self.files.exists() else 0
+   
+        agg = self.files.aggregate(total_size=Sum('file_size'))
+        
+        total = agg['total_size'] or 0
+
+        if unit.upper() == "KB":
+            return total * 1024
+        elif unit.upper() == "GB":
+            return total / 1024
+        return total
         
     def get_last_upload(self):
         """Get the datetime of the most recent file upload for this deployment"""
@@ -692,13 +707,21 @@ class DataFile(BaseModel):
         super().save(*args, **kwargs)
 
     def clean(self):
-        result, message = validators.data_file_in_deployment(
-            self.recording_dt, self.deployment)
+        result, message = validators.deployment_start_time_after_end_time(
+            self.deployment_start, self.deployment_end
+        )
         if not result:
             raise ValidationError(message)
-        super(DataFile, self).clean()
-
-
+        
+        if self.device is not None:
+            result, message = validators.deployment_check_overlap(
+                self.deployment_start, self.deployment_end, self.device, self.pk
+            )
+            if not result:
+                raise ValidationError(message)
+        
+        super(Deployment, self).clean()
+        
 @receiver(post_save, sender=DataFile)
 def post_save_file(sender, instance, created, **kwargs):
     instance.deployment.set_thumb_url()

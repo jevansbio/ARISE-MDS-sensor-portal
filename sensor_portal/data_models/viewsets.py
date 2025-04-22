@@ -16,7 +16,7 @@ from utils.viewsets import (AddOwnerViewSetMixIn, CheckAttachmentViewSetMixIn,
 
 from .file_handling_functions import create_file_objects
 from .filtersets import *
-from .models import DataFile, DataType, Deployment, Device, Project, Site
+from .models import DataFile, DataType, Deployment, Device, DeviceModel, Project, Site
 from .permissions import perms
 from .plotting_functions import get_all_file_metric_dicts
 from .serializers import (DataFileSerializer, DataFileUploadSerializer,
@@ -24,6 +24,7 @@ from .serializers import (DataFileSerializer, DataFileUploadSerializer,
                           DeploymentSerializer_GeoJSON, DeviceSerializer,
                           ProjectSerializer, SiteSerializer)
 from data_models.services.audio_quality import AudioQualityChecker
+
 
 
 class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
@@ -42,44 +43,153 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             return DeploymentSerializer_GeoJSON
         else:
             return DeploymentSerializer
-
+        
     @action(detail=False, methods=['post'])
     def upsert_deployment(self, request):
-        data = request.data
-        deployment_id = data.get('deployment_ID')
-        if not deployment_id:
-            return Response({"error": "deployment_ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        """
+        Update or create (upsert) a Deployment object based on the provided fields.
         
-        deployment_data = {
-            'start_date': data.get('start_date'),
-            'end_date': data.get('end_date'),
-            'country': data.get('country'),
-            'site_name': data.get('site_name'),
-            'latitude': data.get('latitude'),
-            'longitude': data.get('longitude'),
-            'coordinate_uncertainty': data.get('coordinate_uncertainty'),
-            'gps_device': data.get('gps_device'),
-            'mic_height': data.get('mic_height'),
-            'mic_direction': data.get('mic_direction'),
-            'habitat': data.get('habitat'),
-            'score': data.get('score'),
-            'protocol_checklist': data.get('protocol_checklist'),
-            'user_email': data.get('user_email'),
-            'comment': data.get('comment'),
+        - deployment_ID is required.
+        - If deployment_ID exists, update the Deployment object with the provided (non-empty) fields.
+        - Otherwise, create a new Deployment using the provided data.
+        - If 'site' is not provided, a default Site object is used.
+        
+        Returns:
+        - 200 OK with the updated deployment if found/updated.
+        - 201 Created if a new deployment is created.
+        - 400 Bad Request if required fields are missing.
+        - 200 OK with a message if no deployment-related fields are provided.
+        """
+
+        user = request.user
+        data = request.data.copy()  
+
+        # Mapping from external field names to internal field names
+        field_mapping = {
+            'DeploymentID': 'deployment_ID',
+            'Country': 'country',
+            'Site': 'site_name',
+            'StartDate': 'deployment_start',
+            'EndDate': 'deployment_end',
+            'Latitude': 'latitude',
+            'Longitude': 'longitude',
+            'Coordinate Uncertainty': 'coordinate_uncertainty',
+            'GPS device': 'gps_device',
+            'Microphone Height': 'mic_height',
+            'Microphone Direction': 'mic_direction',
+            'Habitat': 'habitat',
+            'Score': 'score',
+            'Protocol Checklist': 'protocol_checklist',
+            'Adresse e-mail': 'user_email',
+            'Comment/remark': 'comment',
         }
-        
-        deployment, created = Deployment.objects.get_or_create(deployment_ID=deployment_id, defaults=deployment_data)
-        if not created:
-            serializer = DeploymentSerializer(deployment, data=deployment_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Translate field names and filter out empty values
+        translated_data = {
+            field_mapping.get(key, key): value
+            for key, value in data.items()
+            if value not in [None, ""]
+        }
+
+        # Handle any ActiveData if present
+        active_data = data.get("ActiveData")
+        if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
+            translated_data["battery_level"] = active_data["batteryLevel"]
+
+        # If device_ID is provided, upsert the Device and link it (no error if missing)
+        if device_id := data.get("device_ID"):
+            # create or update minimal Device so relation never breaks
+            device_defaults = {'model': DeviceModel.objects.first()}  # use default model
+            device_obj, _ = Device.objects.get_or_create(
+                device_ID=device_id,
+                defaults=device_defaults
+            )
+            translated_data["device"] = device_obj
+
+        # Handle the 'site' field
+        if "site" not in translated_data:
+            default_site = Site.objects.first()
+            if default_site:
+                translated_data["site"] = default_site
+            else:
+                return Response(
+                    {"error": "No Site instance found in the database."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         else:
-            serializer = DeploymentSerializer(deployment)
+            site_val = translated_data["site"]
+            if not isinstance(site_val, Site):
+                try:
+                    translated_data["site"] = Site.objects.get(pk=int(site_val))
+                except (ValueError, Site.DoesNotExist):
+                    try:
+                        translated_data["site"] = Site.objects.get(short_name=site_val)
+                    except Site.DoesNotExist:
+                        return Response(
+                            {"error": f"Provided Site '{site_val}' does not exist."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    
+        many_to_many_projects = translated_data.pop("project", None)
+        if many_to_many_projects is None:
+            default_project = Project.objects.first()
+            if default_project:
+                many_to_many_projects = [default_project.pk]
+
+        deployment_field_keys = [
+            "country", "site_name", "deployment_start", "deployment_end", "latitude",
+            "longitude", "coordinate_uncertainty", "gps_device", "mic_height",
+            "mic_direction", "habitat", "score", "protocol_checklist", "user_email", "comment"
+        ]
+
+        deployment_fields_provided = any(key in translated_data for key in deployment_field_keys)
+        if not deployment_fields_provided:
+            return Response(
+                {"message": "No deployment information provided. Deployment was not updated/created."},
+                status=status.HTTP_200_OK
+            )
+
+        deployment_id = translated_data.get("deployment_ID")
+        if not deployment_id:
+            return Response(
+                {"error": "Deployment ID is required when providing deployment information."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        deployment, created = Deployment.objects.get_or_create(
+            deployment_ID=deployment_id,
+            defaults=translated_data
+        )
+
+        if many_to_many_projects:
+            if not isinstance(many_to_many_projects, list):
+                many_to_many_projects = [many_to_many_projects]
+            deployment.project.set(many_to_many_projects)
+
+        serializer = DeploymentSerializer(deployment, data=translated_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        if created:
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
     def by_site(self, request, site_name=None):
+        """
+        Fetch a single Deployment based on site_name (case-insensitive).
+
+        - Expects site_name to be provided in the URL.
+        - Assumes that site_name is unique across Deployments.
+        - Returns 404 if no matching Deployment is found.
+
+        Returns:
+            - 200 OK with serialized deployment data if found.
+            - 400 Bad Request if site_name is not provided.
+            - 404 Not Found if no Deployment matches the given site_name.
+        """
         if site_name is None:
             return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -141,55 +251,6 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         deployment.save()
         return Response(DeploymentSerializer(deployment).data, status=status.HTTP_200_OK)
         
-    @action(detail=False, methods=['post'])
-    def create_from_form(self, request):
-        user = request.user
-        
-        data = request.data
-        
-        # Map form field names to model field names
-        field_mapping = {
-            'DeploymentID': 'deployment_ID',
-            'Country': 'country',
-            'Site': 'site_name',
-            'StartDate': 'deployment_start',
-            'EndDate': 'deployment_end',
-            'Latitude': 'latitude',
-            'Longitude': 'longitude',
-            'Coordinate Uncertainty': 'coordinate_uncertainty',
-            'GPS device': 'gps_device',
-            'Microphone Height': 'mic_height',
-            'Microphone Direction': 'mic_direction',
-            'Habitat': 'habitat',
-            'Score': 'score',
-            'Protocol Checklist': 'protocol_checklist',
-            'Adresse e-mail': 'user_email',
-            'Comment/remark': 'comment'
-        }
-        
-        # Create deployment data dictionary
-        deployment_data = {}
-        
-        # Map form fields to model fields
-        for form_field, model_field in field_mapping.items():
-            if form_field in data:
-                deployment_data[model_field] = data[form_field]
-        
-        # Handle active data if present
-        if 'ActiveData' in data and isinstance(data['ActiveData'], dict):
-            active_data = data['ActiveData']
-            if 'batteryLevel' in active_data:
-                deployment_data['battery_level'] = active_data['batteryLevel']
-            # We no longer store last_upload or folder_size as they're calculated on-demand
-        
-        # Create serializer with the formatted data
-        serializer = self.get_serializer(data=deployment_data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
     def check_attachment(self, serializer):
         project_objects = serializer.validated_data.get('project')
         if project_objects is not None:
@@ -232,6 +293,63 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         else:
             return Response({'last_upload': None}, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['post'])
+    def check_quality_bulk(self, request, pk=None):
+        """
+        Trigger quality check for all audio files in a deployment
+        """
+        try:
+            deployment = self.get_object()
+            if not request.user.has_perm('data_models.change_deployment', deployment):
+                raise PermissionDenied("You don't have permission to check quality for this deployment")
+
+            # Get all audio files for this deployment
+            audio_files = DataFile.objects.filter(
+                deployment=deployment,
+                file_format__in=['.wav', '.WAV', '.mp3', '.MP3']  # Common audio formats
+            )
+
+            if not audio_files.exists():
+                return Response({
+                    "error": "No audio files found in this deployment"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Start quality checks for each file
+            results = []
+            for data_file in audio_files:
+                try:
+                    quality_data = AudioQualityChecker.update_file_quality(data_file)
+                    results.append({
+                        'file_id': data_file.id,
+                        'file_name': data_file.file_name,
+                        'status': 'completed',
+                        'quality_score': quality_data.get('quality_score')
+                    })
+                except Exception as e:
+                    results.append({
+                        'file_id': data_file.id,
+                        'file_name': data_file.file_name,
+                        'status': 'failed',
+                        'error': str(e)
+                    })
+
+            return Response({
+                'deployment_id': pk,
+                'total_files': len(audio_files),
+                'results': results
+            }, status=status.HTTP_200_OK)
+
+        except PermissionDenied as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     serializer_class = ProjectSerializer
@@ -271,18 +389,37 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
             'configuration': data.get('configuration'),
             'sim_card_icc': data.get('sim_card_icc'),
             'sim_card_batch': data.get('sim_card_batch'),
-            'sd_card_size': data.get('sd_card_size'),
+            'sd_card_size': float(data['sd_card_size']) if data.get('sd_card_size') not in [None, ""] else None,
         }
         
-        device, created = Device.objects.get_or_create(device_ID=device_id, defaults=device_data)
+        model = DeviceModel.objects.first()
+        if not model:
+            return Response({"error": "No default device model found."}, status=status.HTTP_400_BAD_REQUEST)
+        device_data['model'] = model
+
+        device, created = Device.objects.get_or_create(
+            device_ID=device_id,
+            defaults=device_data
+        )
+
         if not created:
             serializer = DeviceSerializer(device, data=device_data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            serializer = DeviceSerializer(device)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Connect the device to an existing deployment if deployment_ID is provided
+        deployment_id = data.get('deployment_ID')
+        if deployment_id:
+            # create or fetch the Deployment so we never 400 on missing
+            dep_defaults = {}  # you can supply default fields here if you like
+            deployment, _ = Deployment.objects.get_or_create(
+                deployment_ID=deployment_id,
+                defaults=dep_defaults
+            )
+            device.deployments.add(deployment)  # Associate (or re‑associate) the device
+
+        serializer = DeviceSerializer(device)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='by_site/(?P<site_name>[^/]+)')
     def by_site(self, request, site_name=None):
@@ -336,22 +473,20 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], url_path='datafiles/(?P<datafile_id>[^/.]+)/download')
-    def download_datafile(self, request, device_ID=None, datafile_id=None):
+    def download_datafile(self, request, pk=None, datafile_id=None):
         """Download a specific data file from a device"""
         device = self.get_object()
         user = request.user
 
         try:
             datafile = DataFile.objects.get(deployment__device=device, pk=datafile_id)
-            if not datafile.path:
-                return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
         except DataFile.DoesNotExist:
             return Response({"error": "DataFile not found."}, status=status.HTTP_404_NOT_FOUND)
 
         if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=datafile_id)).first():
             raise PermissionDenied("You don't have permission to download this datafile")
 
-        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        file_path = datafile.full_path()
         
         if not os.path.exists(file_path):
             return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
@@ -361,12 +496,8 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
                 file_content = f.read()
                 mime_type = 'audio/mpeg' if datafile.file_format.lower().replace('.', '') == 'mp3' else f"audio/{datafile.file_format.lower().replace('.', '')}"
                 response = HttpResponse(file_content, content_type=mime_type)
-                response['Content-Disposition'] = f'inline; filename="audio_file_{datafile_id}.{datafile.file_format.lower().replace(".", "")}"'
+                response['Content-Disposition'] = f'inline; filename="{datafile.file_name}{datafile.file_format}"'
                 response['Content-Length'] = len(file_content)
-                response['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
-                response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-                response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-                response['Access-Control-Allow-Credentials'] = 'true'
                 return response
         except IOError as e:
             return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -516,7 +647,98 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
                      '=tag',
                      'config',
                      'sample_rate']
+    
+    @action(detail=False, methods=['get'])
+    def date_range(self, request):
+        """
+        Get the first and last recording dates for a site
+        """
+        site_name = request.query_params.get('site_name')
+        if not site_name:
+            return Response({"error": "site_name is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Get the first and last recording dates for the site
+        first_date = DataFile.objects.filter(
+            deployment__site_name=site_name
+        ).order_by('recording_dt').values_list('recording_dt', flat=True).first()
+
+        last_date = DataFile.objects.filter(
+            deployment__site_name=site_name
+        ).order_by('-recording_dt').values_list('recording_dt', flat=True).first()
+
+        return Response({
+            'first_date': first_date,
+            'last_date': last_date
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        """Download a specific data file"""
+        datafile = self.get_object()
+        user = request.user
+
+        # Check permissions
+        if not perms['data_models.view_datafile'].filter(user, DataFile.objects.filter(pk=pk)).first():
+            raise PermissionDenied("You don't have permission to download this datafile")
+
+        if not datafile.path:
+            return Response({"error": "File path not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Construct full path by joining the base directory with local_path
+        file_path = os.path.join(datafile.path, datafile.local_path, f"{datafile.file_name}{datafile.file_format}")
+        
+        if not os.path.exists(file_path):
+            return Response({"error": f"File not found at {file_path}"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+                mime_type = 'audio/mpeg' if datafile.file_format.lower().replace('.', '') == 'mp3' else f"audio/{datafile.file_format.lower().replace('.', '')}"
+                response = HttpResponse(file_content, content_type=mime_type)
+                response['Content-Disposition'] = f'inline; filename="{datafile.file_name}{datafile.file_format}"'
+                response['Content-Length'] = len(file_content)
+                return response
+        except IOError as e:
+            return Response({"error": f"Error reading file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    @action(detail=False, methods=['get'])
+    def filter_by_date(self, request):
+        # Retrieve the query parameters: start_date and end_date
+        start_date = request.GET.get('start_date', None)
+        end_date = request.GET.get('end_date', None)
+        site_name = request.GET.get('site_name', None)
+        
+        # Validate the date format
+        if start_date and end_date:
+            try:
+                start_date = djtimezone.datetime.strptime(start_date, '%m-%d-%Y')
+                end_date = djtimezone.datetime.strptime(end_date, '%m-%d-%Y')
+                
+                # Add one day to end_date to include the entire end date
+                end_date = end_date + djtimezone.timedelta(days=1)
+            except ValueError:
+                return Response({"error": "Invalid date format. Use MM-DD-YYYY."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "Both start_date and end_date are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Build the initial queryset to filter by date range
+        filters = {
+            'recording_dt__gte': start_date,
+            'recording_dt__lt': end_date
+        }
+
+        # If site_name is provided, filter by the related Deployment's site_name as well
+        if site_name:
+            filters['deployment__site_name'] = site_name
+
+        # Perform the filtering in a single query using the filters dictionary
+        result_queryset = DataFile.objects.filter(**filters)
+        
+        # Serialize and return the results
+        serializer = self.get_serializer(result_queryset, many=True)
+        return Response(serializer.data)
+        
+        
     @action(detail=False, methods=['get'])
     def test(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

@@ -6,7 +6,6 @@ import {
 	TileLayer,
 } from "react-leaflet";
 import { Map as LeafletMap, FeatureGroup as LeafletFeatureGroup} from "leaflet";
-import { Icon } from "leaflet";
 import "../../../misc/BeautifyMarker/leaflet-beautify-marker-icon.css";
 import { Marker as CompMarker } from "@adamscybot/react-leaflet-component-marker";
 
@@ -18,7 +17,6 @@ import { getPinColor, timeSinceLastUpload } from "@/utils/timeFormat";
 import { Deployment } from "@/types";
 
 interface Props {
-	//should be changed from any
 	deployments: Deployment[];
 }
 
@@ -29,8 +27,6 @@ interface IconProps {
 	textColor?: string;
 	borderWidth?: number;
 	iconSize?: [number, number];
-	symbolSize?: number;
-	symbol?: string;
 }
 
 const DeploymentIcon = ({
@@ -40,8 +36,6 @@ const DeploymentIcon = ({
 	textColor = "#000",
 	borderWidth = 2,
 	iconSize = [28, 28],
-	symbolSize = 16,
-	symbol = "FaCamera",
 }: IconProps) => {
 	return (
 		<div className={"beautify-marker"}>
@@ -62,29 +56,15 @@ const DeploymentIcon = ({
 					style={{
 						height: "100%",
 						width: "100%",
+						color: textColor,
 					}}
-				>
-					{/* <img
-						style={{ height: "100%", objectFit: "cover" }}
-						src={logo}
-						alt="Logo"
-					/> */}
-				</div>
+				/>
 			</div>
 		</div>
 	);
 };
 
 const DeploymentMap = ({ deployments }: Props) => {
-	const defaultIcon = new Icon({
-		iconUrl:
-			"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-		iconSize: [25, 41],
-		iconAnchor: [12, 41],
-		popupAnchor: [1, -34],
-		shadowSize: [41, 41],
-	});
-
 	const featureGroupRef = useRef<LeafletFeatureGroup | null>(null);
   	const [map, setMap] = useState<LeafletMap | null>(null);
 	const mapRef = useRef<LeafletMap | null>(null);
@@ -120,11 +100,10 @@ const DeploymentMap = ({ deployments }: Props) => {
 				/>
 				<FeatureGroup ref={featureGroupRef}>
 					{deployments.map((deploymentData) => {
-						let latLng = {
+						const latLng = {
 							lat: deploymentData.latitude,
 							lng: deploymentData.longitude,
 						};
-						console.log("Deploymentdata.lastUpload: ", deploymentData.lastUpload)
 						const pinColor = getPinColor(deploymentData.lastUpload);
 
 						return (

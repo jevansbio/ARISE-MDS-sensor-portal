@@ -2,9 +2,14 @@ import { FormEvent, useContext, useEffect } from 'react';
 import { useNavigate } from "@tanstack/react-router";
 import AuthContext from '../../auth/AuthContext';
 
+type UserType = {
+  username: string;
+  email: string;
+};
+
 type AuthContextType = {
-  loginUser: (e: FormEvent<HTMLFormElement>) => void;
-  user: any;
+  loginUser: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+  user: UserType | null;
 };
 
 function LoginPage() {
