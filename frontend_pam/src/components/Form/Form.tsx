@@ -8,44 +8,50 @@ import AuthContext from "@/auth/AuthContext";
 import { postData } from "@/utils/FetchFunctions";
 import { useContext } from "react";
 
+// Define schema with conditional requirement: if deploymentId is provided, site must be non-empty
 const formSchema = z.object({
   // Device Fields
-  deviceId: z.string().optional(),
-  simCardICC: z.string().optional(),
-  simCardBatch: z.string().optional(),
-  sdCardSize: z.string().optional(),
-  configuration: z.string().optional(),
+  deviceId:        z.string().optional(),
+  simCardICC:      z.string().optional(),
+  simCardBatch:    z.string().optional(),
+  sdCardSize:      z.string().optional(),
+  configuration:   z.string().optional(),
 
   // Deployment Fields
-  deploymentId: z.string().optional(),
-  country: z.string().optional(),
-  site: z.string().optional(),
-  date: z.string().optional(),
-  time: z.string().optional(),
-  latitude: z
-    .string()
-    .optional()
-    .refine((val) => !val || /^-?\d{1,2}\.\d{6}$/.test(val), {
-      message:
-        "Latitude must have 1–2 digits before the dot and exactly 6 decimal places (e.g. 45.123456)",
-    }),
-  longitude: z
-    .string()
-    .optional()
-    .refine((val) => !val || /^-?\d{1,3}\.\d{6}$/.test(val), {
-      message:
-        "Longitude must have 1–3 digits before the dot and exactly 6 decimal places (e.g. 123.123456)",
-    }),
-  coordUncertainty: z.string().optional(),
-  gpsDevice: z.string().optional(),
-  micHeight: z.string().optional(),
-  micDirection: z.string().optional(),
-  habitat: z.string().optional(),
-  score: z.string().optional(),
+  deploymentId:    z.string().optional(),
+  country:         z.string().optional(),
+  site:            z.string().optional(),
+  date:            z.string().optional(),
+  time:            z.string().optional(),
+  latitude:        z.string().optional().refine(
+                      (val) => !val || /^-?\d{1,2}\.\d{6}$/.test(val), {
+                        message: "Latitude must have 1–2 digits before the dot and exactly 6 decimal places",
+                      }
+                    ),
+  longitude:       z.string().optional().refine(
+                      (val) => !val || /^-?\d{1,3}\.\d{6}$/.test(val), {
+                        message: "Longitude must have 1–3 digits before the dot and exactly 6 decimal places",
+                      }
+                    ),
+  coordUncertainty:z.string().optional(),
+  gpsDevice:       z.string().optional(),
+  micHeight:       z.string().optional(),
+  micDirection:    z.string().optional(),
+  habitat:         z.string().optional(),
+  score:           z.string().optional(),
   protocolChecklist: z.string().optional(),
-  email: z.string().optional(),
-  comment: z.string().optional(),
-});
+  email:           z.string().optional(),
+  comment:         z.string().optional(),
+})
+.refine(
+  (data) =>
+    // either there's no deploymentId, or site is a non-empty string
+    !data.deploymentId || (data.site?.trim().length ?? 0) > 0,
+  {
+    message: "Site is required when Deployment ID is provided",
+    path: ["site"],
+  }
+);
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -67,60 +73,71 @@ export default function Form({ onSave }: FormProps) {
   };
   const token = authContext?.authTokens?.access;
 
+  // Handle form submission
   const onSubmit = async (values: FormValues) => {
     try {
       if (!token) {
         throw new Error("Authentication token is missing");
       }
 
-      if (values.deviceId && values.deviceId.trim() !== "") {
+      // 1) Upsert Device if deviceId is provided
+      if (values.deviceId?.trim()) {
         const devicePayload = {
-          device_ID: values.deviceId,
-          configuration: values.configuration,
-          sim_card_icc: values.simCardICC,
+          device_ID:      values.deviceId,
+          configuration:  values.configuration,
+          sim_card_icc:   values.simCardICC,
           sim_card_batch: values.simCardBatch,
-          sd_card_size: values.sdCardSize,
-          deployment_ID: values.deploymentId
+          sd_card_size:   values.sdCardSize,
+          // only include deployment_ID if provided
+          ...(values.deploymentId?.trim() && { deployment_ID: values.deploymentId }),
         };
-        const deviceUrl = `devices/upsert_device/`;
-        const deviceResponse = await postData(deviceUrl, token, devicePayload);
-
-        if (!deviceResponse.ok) {
-          throw new Error("Failed to update device info");
+        const deviceJson = await postData(
+          "devices/upsert_device/",
+          token,
+          devicePayload
+        );
+        // validate that response contains device_ID
+        if (!deviceJson || !deviceJson.device_ID) {
+          const msg = deviceJson?.error || "Unknown error updating device";
+          throw new Error(msg);
         }
       }
 
-      // Payload for deployment
-      const deploymentPayload = {
-        deployment_ID: values.deploymentId,
-        deployment_start: values.date,
-        deployment_end: "",
-        country: values.country,
-        site_name: values.site,
-        latitude: values.latitude,
-        longitude: values.longitude,
-        coordinate_uncertainty: values.coordUncertainty,
-        gps_device: values.gpsDevice,
-        mic_height: values.micHeight,
-        mic_direction: values.micDirection,
-        habitat: values.habitat,
-        score: values.score,
-        protocol_checklist: values.protocolChecklist,
-        user_email: values.email,
-        comment: values.comment,
-      };
-
-      const deploymentUrl = `deployment/upsert_deployment/`;
-      const deploymentResponse = await postData(
-        deploymentUrl,
-        token,
-        deploymentPayload
-      );
-
-      if (!deploymentResponse.ok) {
-        throw new Error("Failed to update deployment info");
+      // 2) Upsert Deployment if deploymentId is provided
+      if (values.deploymentId?.trim()) {
+        const deploymentPayload = {
+          deployment_ID:          values.deploymentId,
+          deployment_start:       values.date,
+          deployment_end:         "",
+          country:                values.country,
+          site_name:              values.site,
+          latitude:               values.latitude,
+          longitude:              values.longitude,
+          coordinate_uncertainty: values.coordUncertainty,
+          gps_device:             values.gpsDevice,
+          mic_height:             values.micHeight,
+          mic_direction:          values.micDirection,
+          habitat:                values.habitat,
+          score:                  values.score,
+          protocol_checklist:     values.protocolChecklist,
+          user_email:             values.email,
+          comment:                values.comment,
+          // only include device_ID if provided
+          ...(values.deviceId?.trim() && { device_ID: values.deviceId }),
+        };
+        const deploymentJson = await postData(
+          "deployment/upsert_deployment/",
+          token,
+          deploymentPayload
+        );
+        // validate that response contains deployment_ID
+        if (!deploymentJson || !deploymentJson.deployment_ID) {
+          const msg = deploymentJson?.error || "Unknown error updating deployment";
+          throw new Error(msg);
+        }
       }
 
+      // Notify success once
       window.alert("Your information was submitted successfully!");
       onSave();
     } catch (error: any) {

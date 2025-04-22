@@ -7,7 +7,6 @@ function Sidebar() {
   const location = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Sjekker om vi er på en "/devices" side (inkluderer f.eks. "/devices/deviceDashboard")
   const isDevicesActive = location.pathname.startsWith('/device')
   const isObservationsActive = location.pathname.startsWith('/observations')
 
