@@ -8,47 +8,70 @@ import { useQuery } from "@tanstack/react-query";
 import { Deployment } from "@/types";
 import { timeSinceLastUpload } from "@/utils/timeFormat";
 
+interface AuthContextType {
+  authTokens: {
+    access: string;
+  } | null;
+}
+
+interface ApiDeployment {
+  deployment_ID: string;
+  deployment_start: string;
+  deployment_end: string | null;
+  folder_size: number;
+  last_upload: string;
+  site_name: string;
+  coordinate_uncertainty: string;
+  gps_device: string;
+  mic_height: string;
+  mic_direction: string;
+  habitat: string;
+  protocol_checklist: string;
+  comment: string;
+  user_email: string;
+  country: string;
+  longitude: number;
+  latitude: number;
+  score: number;
+}
+
 export default function SiteDetailPage() {
   const { siteName } = Route.useParams();
 
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
-
-  if (!authTokens) {
-    return <p>Loading authentication...</p>;
-  }
   const apiURL = `deployment/by_site/${siteName}/`;
 
   const getDataFunc = async (): Promise<Deployment> => {
     if (!authTokens?.access) {
-			throw new Error("No access token");
-		}
-					
-    const response_json = await getData(apiURL, authTokens.access);
-		console.log("respone_json site deployment map: ", response_json);
+      throw new Error("No access token");
+    }
+          
+    const response_json = await getData<ApiDeployment>(apiURL, authTokens.access);
+    console.log("respone_json site deployment map: ", response_json);
 
     const deployment: Deployment = {
-			deploymentId: response_json.deployment_ID,
-			startDate: response_json.deployment_start,
-			endDate: response_json.deployment_end,
-			folderSize: response_json.folder_size,
-			lastUpload: response_json.last_upload,
-			batteryLevel: 0,
-			action: "",
-			siteName: response_json.site_name,
-			coordinateUncertainty: response_json.coordinate_uncertainty,
-			gpsDevice: response_json.gps_device,
-			micHeight: response_json.mic_height,
-			micDirection: response_json.mic_direction,
-			habitat: response_json.habitat,
-			protocolChecklist: response_json.protocol_checklist,
-			score: response_json.score,
-			comment: response_json.comment,
-			userEmail: response_json.user_email,
-			country: response_json.country,
-			longitude: response_json.longitude,
-			latitude: response_json.latitude,
-		}
+      deploymentId: response_json.deployment_ID,
+      startDate: response_json.deployment_start,
+      endDate: response_json.deployment_end || "",
+      folderSize: response_json.folder_size,
+      lastUpload: response_json.last_upload,
+      batteryLevel: 0,
+      action: "",
+      siteName: response_json.site_name,
+      coordinateUncertainty: response_json.coordinate_uncertainty,
+      gpsDevice: response_json.gps_device,
+      micHeight: parseFloat(response_json.mic_height) || 0,
+      micDirection: response_json.mic_direction,
+      habitat: response_json.habitat,
+      protocolChecklist: response_json.protocol_checklist,
+      score: response_json.score,
+      comment: response_json.comment,
+      userEmail: response_json.user_email,
+      country: response_json.country,
+      longitude: response_json.longitude,
+      latitude: response_json.latitude,
+    }
     return deployment;
   };
 
@@ -62,7 +85,9 @@ export default function SiteDetailPage() {
     enabled: !!authTokens?.access,
   });
 
-  console.log(deployment);
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
 
   if (isLoading) {
     return <p>Loading deployment...</p>;

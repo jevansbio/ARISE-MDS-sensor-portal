@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
@@ -6,8 +6,14 @@ import { formatTime } from '@/utils/timeFormat';
 import AuthContext from '@/auth/AuthContext';
 import { useContext } from 'react';
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
 interface AuthContextType {
-  user: any;
+  user: User | null;
   authTokens: {
     access: string;
     refresh: string;
@@ -17,9 +23,7 @@ interface AuthContextType {
 }
 
 interface AudioWaveformPlayerProps {
-  deviceId: string;
   fileId: string;
-  fileFormat: string;
   className?: string;
   startTime?: number;
   endTime?: number;
@@ -27,9 +31,7 @@ interface AudioWaveformPlayerProps {
 }
 
 export default function AudioWaveformPlayer({ 
-  deviceId, 
   fileId, 
-  fileFormat, 
   className = "",
   startTime = 0,
   endTime,
@@ -51,8 +53,103 @@ export default function AudioWaveformPlayer({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const { authTokens } = useContext(AuthContext) as AuthContextType;
 
+  const loadAudio = useCallback(async (isInitialLoad = false) => {
+    if (!authTokens?.access || !audioContextRef.current) {
+      if (!isInitialLoad) {
+        setError("No authentication token available");
+      }
+      return false;
+    }
+
+    try {
+      if (!isInitialLoad) {
+        setIsLoading(true);
+        setError(null);
+      }
+
+      if (!audioRef.current || !audioRef.current.src) {
+        const audioUrl = `/api/datafile/${fileId}/download/`;
+        const response = await fetch(audioUrl, {
+          headers: {
+            'Authorization': `Bearer ${authTokens.access}`,
+            'Accept': '*/*'  // Accept any content type
+          },
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          console.error('Response status:', response.status);
+          console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+          
+          if (response.status === 404) {
+            throw new Error('Audio file not found');
+          }
+          if (response.status === 403) {
+            throw new Error('Authentication failed');
+          }
+          if (response.status === 406) {
+            throw new Error('Server cannot provide audio in requested format');
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        
+        if (audioRef.current) {
+          audioRef.current.src = objectUrl;
+          audioRef.current.load();
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error loading audio:', error);
+      setError(error instanceof Error ? error.message : 'Error loading audio file');
+      setIsLoading(false);
+      return false;
+    }
+  }, [authTokens, fileId]);
+
+  const drawWaveform = useCallback(() => {
+    if (!canvasRef.current || !audioRef.current || !analyserRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const analyser = analyserRef.current;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteTimeDomainData(dataArray);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#4f46e5';
+    ctx.beginPath();
+
+    const sliceWidth = canvas.width / bufferLength;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = v * canvas.height / 2;
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+
+      x += sliceWidth;
+    }
+
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
+  }, []);
+
   useEffect(() => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
     audioContextRef.current = audioContext;
     
     const analyser = audioContext.createAnalyser();
@@ -127,6 +224,7 @@ export default function AudioWaveformPlayer({
       if (authTokens?.access && !isInitialized) {
         try {
           await loadAudio(true);
+          setIsInitialized(true);
         } catch (error) {
           console.error('Error initializing audio:', error);
         }
@@ -134,13 +232,13 @@ export default function AudioWaveformPlayer({
     };
     
     initAudio();
-  }, [authTokens, isInitialized]);
+  }, [authTokens, isInitialized, loadAudio]);
 
   useEffect(() => {
     if (canvasRef.current && audioRef.current && !isLoading) {
       drawWaveform();
     }
-  }, [currentTime, isPlaying, duration]);
+  }, [currentTime, isPlaying, duration, isLoading, drawWaveform]);
 
   // Reset current time when start time changes
   useEffect(() => {
@@ -156,133 +254,6 @@ export default function AudioWaveformPlayer({
       setDuration(endTime - startTime);
     }
   }, [startTime, endTime]);
-
-  const loadAudio = async (isInitialLoad = false) => {
-    if (!authTokens?.access || !audioContextRef.current) {
-      if (!isInitialLoad) {
-        setError("No authentication token available");
-      }
-      return false;
-    }
-
-    try {
-      if (!isInitialLoad) {
-        setIsLoading(true);
-        setError(null);
-      }
-
-      if (!audioRef.current || !audioRef.current.src) {
-        const audioUrl = `/api/datafile/${fileId}/download/`;
-        const response = await fetch(audioUrl, {
-          headers: {
-            'Authorization': `Bearer ${authTokens.access}`,
-            'Accept': '*/*'  // Accept any content type
-          },
-          credentials: 'include'
-        });
-        
-        if (!response.ok) {
-          console.error('Response status:', response.status);
-          console.error('Response headers:', Object.fromEntries(response.headers.entries()));
-          
-          if (response.status === 404) {
-            throw new Error('Audio file not found');
-          }
-          if (response.status === 403) {
-            throw new Error('Authentication failed');
-          }
-          if (response.status === 406) {
-            throw new Error('Server cannot provide audio in requested format');
-          }
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        console.log('Received blob:', blob);
-        console.log('Blob type:', blob.type);
-        
-        // Determine MIME type from file format or blob type
-        let mimeType = blob.type;
-        if (!mimeType || mimeType === 'application/octet-stream') {
-          // If no MIME type or generic binary, try to determine from file format
-          const format = fileFormat.toLowerCase().replace('.', '');
-          switch (format) {
-            case 'mp3':
-              mimeType = 'audio/mpeg';
-              break;
-            case 'wav':
-              mimeType = 'audio/wav';
-              break;
-            case 'ogg':
-              mimeType = 'audio/ogg';
-              break;
-            case 'm4a':
-              mimeType = 'audio/mp4';
-              break;
-            default:
-              mimeType = `audio/${format}`;
-          }
-        }
-        console.log('Using MIME type:', mimeType);
-        
-        // Create a new blob with the determined MIME type
-        const audioBlob = new Blob([blob], { type: mimeType });
-        const objectUrl = URL.createObjectURL(audioBlob);
-        
-        if (audioRef.current) {
-          audioRef.current.src = objectUrl;
-          await new Promise((resolve, reject) => {
-            if (!audioRef.current) {
-              reject(new Error('Audio element not available'));
-              return;
-            }
-            
-            const handleCanPlay = () => {
-              audioRef.current?.removeEventListener('canplay', handleCanPlay);
-              audioRef.current?.removeEventListener('error', handleError);
-              resolve(true);
-            };
-            
-            const handleError = (e: Event) => {
-              audioRef.current?.removeEventListener('canplay', handleCanPlay);
-              audioRef.current?.removeEventListener('error', handleError);
-              const audioError = (e.target as HTMLAudioElement).error;
-              console.error('Audio error details:', {
-                code: audioError?.code,
-                message: audioError?.message,
-                mimeType,
-                fileFormat
-              });
-              reject(new Error(`Audio format not supported: ${audioError?.message || 'unknown error'}. MIME type: ${mimeType}, File format: ${fileFormat}`));
-            };
-            
-            audioRef.current.addEventListener('canplay', handleCanPlay);
-            audioRef.current.addEventListener('error', handleError);
-            audioRef.current.load();
-          });
-          
-          if (analyserRef.current && audioContextRef.current) {
-            try {
-              const source = audioContextRef.current.createMediaElementSource(audioRef.current);
-              source.connect(analyserRef.current);
-              analyserRef.current.connect(audioContextRef.current.destination);
-              setIsInitialized(true);
-            } catch (error) {
-              console.error('Error connecting audio nodes:', error);
-              // Don't throw here, as the audio might still play without visualization
-            }
-          }
-        }
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error loading audio:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load audio');
-      setIsLoading(false);
-      return false;
-    }
-  };
 
   const togglePlayPause = async () => {
     if (!audioRef.current) return;
@@ -317,7 +288,7 @@ export default function AudioWaveformPlayer({
           if (playPromise !== undefined) {
             await playPromise;
           }
-        } catch (playError) {
+        } catch {
           throw new Error('Failed to play audio: format not supported');
         }
       }
@@ -327,99 +298,6 @@ export default function AudioWaveformPlayer({
       setIsPlaying(false);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const drawWaveform = () => {
-    if (!canvasRef.current || !analyserRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.fillStyle = '#f9fafb';
-    ctx.fillRect(0, 0, width, height);
-    
-    // Draw observation boundaries if available
-    if (startTime !== undefined && endTime !== undefined && totalDuration) {
-      const startX = (startTime / totalDuration) * width;
-      const endX = (endTime / totalDuration) * width;
-      
-      // Draw highlighted region
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
-      ctx.fillRect(startX, 0, endX - startX, height);
-      
-      // Draw boundary lines
-      ctx.strokeStyle = 'rgb(59, 130, 246)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(startX, 0);
-      ctx.lineTo(startX, height);
-      ctx.moveTo(endX, 0);
-      ctx.lineTo(endX, height);
-      ctx.stroke();
-    }
-    
-    // Draw waveform
-    if (analyserRef.current) {
-      const bufferLength = analyserRef.current.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyserRef.current.getByteTimeDomainData(dataArray);
-      
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgb(59, 130, 246)';
-      ctx.beginPath();
-      
-      const sliceWidth = width / bufferLength;
-      let x = 0;
-      
-      for (let i = 0; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0;
-        const y = (v * height) / 2;
-        
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-        
-        x += sliceWidth;
-      }
-      
-      ctx.lineTo(width, height / 2);
-      ctx.stroke();
-    }
-    
-    // Draw playhead
-    if (audioRef.current && duration) {
-      const playheadX = (currentTime / duration) * width;
-      ctx.strokeStyle = 'rgb(239, 68, 68)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(playheadX, 0);
-      ctx.lineTo(playheadX, height);
-      ctx.stroke();
-    }
-    
-    // Request next frame
-    animationFrameRef.current = requestAnimationFrame(drawWaveform);
-  };
-
-  const handleTimeUpdate = () => {
-    if (!audioRef.current) return;
-    const time = audioRef.current.currentTime;
-    setCurrentTime(time);
-    
-    // If we're past the end time, reset to start
-    if (endTime && time >= endTime) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      audioRef.current.currentTime = startTime || 0;
-      setCurrentTime(startTime || 0);
     }
   };
 

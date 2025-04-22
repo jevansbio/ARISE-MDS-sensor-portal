@@ -10,11 +10,39 @@ import { Link } from "@tanstack/react-router";
 import { LuExternalLink } from "react-icons/lu";
 import { type Observation } from '@/types';
 
+type AuthContextType = {
+  authTokens: {
+    access: string;
+    refresh: string;
+  } | null;
+};
+
+type ApiResponse = {
+  results: Observation[];
+  count: number;
+  next: string | null;
+};
+
+type QueryData = {
+  results: Observation[];
+  count: number;
+};
+
+type TaxonType = {
+  id: number;
+  species_name: string;
+  species_common_name: string;
+};
+
+type RawObservation = Omit<Observation, 'taxon'> & {
+  taxon: number | TaxonType | null;
+};
+
 export default function AllObservationsList() {
-  const { authTokens } = useContext(AuthContext) as any;
+  const { authTokens } = useContext(AuthContext) as AuthContextType;
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [taxonCache, setTaxonCache] = useState<Record<number, { id: number; species_name: string; species_common_name: string }>>({});
+  const [taxonCache, setTaxonCache] = useState<Record<number, TaxonType>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 100;
@@ -25,14 +53,14 @@ export default function AllObservationsList() {
     queryFn: async () => {
       if (!authTokens?.access) return { results: [], count: 0 };
       try {
-        const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}&expand=data_files.deployment.device&include_deployment=true`, authTokens.access);
+        const data = await getData(`observation/?page=${currentPage}&page_size=${pageSize}&expand=data_files.deployment.device&include_deployment=true`, authTokens.access) as ApiResponse;
         
         const observations = data.results || [];
         const totalCount = data.count || 0;
         setTotalPages(Math.ceil(totalCount / pageSize));
         
-        const processedObservations = observations.map((obs: any) => {
-          const processedDataFiles = obs.data_files?.map((df: any) => ({
+        const processedObservations = observations.map((obs: RawObservation) => {
+          const processedDataFiles = obs.data_files?.map((df) => ({
             ...df,
             deployment: df.deployment ? {
               ...df.deployment,
@@ -46,19 +74,20 @@ export default function AllObservationsList() {
           if (obs.taxon && typeof obs.taxon === 'object') {
             const taxonId = obs.taxon.id;
             if (taxonId) {
-              setTaxonCache(prev => ({ ...prev, [taxonId]: obs.taxon }));
+              setTaxonCache(prev => ({ ...prev, [taxonId]: obs.taxon as TaxonType }));
             }
             return {
               ...obs,
               id: Number(obs.id),
               obs_dt: obs.obs_dt || new Date().toISOString(),
               needs_review: obs.needs_review,
-              taxon: obs.taxon,
+              taxon: obs.taxon as TaxonType,
               data_files: processedDataFiles
             };
           }
           
-          const taxonId = typeof obs.taxon === 'number' ? obs.taxon : obs.taxon?.id;
+          const taxonId = typeof obs.taxon === 'number' ? obs.taxon : 
+            (typeof obs.taxon === 'object' && obs.taxon !== null && 'id' in obs.taxon ? obs.taxon.id : undefined);
           if (taxonId && taxonCache[taxonId]) {
             return {
               ...obs,
@@ -113,11 +142,11 @@ export default function AllObservationsList() {
       setIsEditModalOpen(false);
 
       // Update the query cache
-      queryClient.setQueryData(['all-observations', currentPage], (oldData: any) => {
+      queryClient.setQueryData(['all-observations', currentPage], (oldData: QueryData | undefined) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
-          results: oldData.results.map((obs: any) => 
+          results: oldData.results.map((obs) => 
             obs.id === updatedObservation.id ? {
               ...updatedObservation,
               taxon: {
@@ -155,11 +184,11 @@ export default function AllObservationsList() {
       }
 
       // Update the query cache
-      queryClient.setQueryData(['all-observations', currentPage], (oldData: any) => {
+      queryClient.setQueryData(['all-observations', currentPage], (oldData: QueryData | undefined) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
-          results: oldData.results.filter((obs: any) => obs.id !== id)
+          results: oldData.results.filter((obs) => obs.id !== id)
         };
       });
     } catch (error) {
@@ -173,12 +202,12 @@ export default function AllObservationsList() {
 
     try {
       // Fetch all observations for download
-      const allObservations = [];
+      const allObservations: Observation[] = [];
       let page = 1;
       let hasMore = true;
 
       while (hasMore) {
-        const data = await getData(`observation/?page=${page}&page_size=1000`, authTokens.access);
+        const data = await getData(`observation/?page=${page}&page_size=1000`, authTokens.access) as ApiResponse;
         allObservations.push(...(data.results || []));
         hasMore = data.next !== null;
         page++;
@@ -213,7 +242,7 @@ export default function AllObservationsList() {
         obs.extra_data.avg_amplitude,
         obs.extra_data.auto_detected,
         obs.needs_review,
-        (obs.data_files || []).map((df: any) => df.file_name).join('; ')
+        (obs.data_files || []).map((df) => df.file_name).join('; ')
       ]);
 
       // Combine header and rows

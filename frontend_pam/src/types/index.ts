@@ -36,8 +36,8 @@ export type Deployment = {
 
 // Data File Types
 export interface ExtraData {
-    quality_metrics?: Record<string, any>;
-    temporal_evolution?: Record<string, any>;
+    quality_metrics?: Record<string, number>;
+    temporal_evolution?: Record<string, number | string | boolean | null>;
     observations?: string[];
     auto_detected_observations: number[];
 }
@@ -54,7 +54,7 @@ export type DataFile = {
     uploadDt: string;
     recordingDt: string;
     // Audio file specific fields
-    config: string | null;
+    config: Record<string, unknown> | null;
     sampleRate: number | null;
     fileLength: string | null;
     // Quality check fields

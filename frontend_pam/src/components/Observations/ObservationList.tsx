@@ -1,21 +1,33 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import AudioPlayer from "@/components/AudioPlayer/AudioPlayer";
-import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformPlayer";
-import { formatTime } from "@/utils/timeFormat";
 import AuthContext from "@/auth/AuthContext";
 import { getData, postData, patchData } from "@/utils/FetchFunctions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FaPlay } from "react-icons/fa";
 import ObservationEditModal from './ObservationEditModal';
 import { ObservationTable } from './ObservationTable';
 import { type Observation } from '@/types';
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  authTokens: {
+    access: string;
+    refresh: string;
+  } | null;
+  loginUser: (e: React.FormEvent) => void;
+  logoutUser: (e?: React.FormEvent) => void;
+}
+
 export default function ObservationList() {
   const { siteName, dataFileId } = useParams({ from: '/deployments/$siteName/$dataFileId/observations' });
   const navigate = useNavigate();
-  const { authTokens } = useContext(AuthContext) as any;
+  const { authTokens } = useContext(AuthContext) as AuthContextType;
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -34,34 +46,6 @@ export default function ObservationList() {
     retry: 1
   });
 
-  // Custom hook for fetching taxon data
-  const useTaxon = (taxonId: number | undefined) => {
-    return useQuery({
-      queryKey: ['taxon', taxonId],
-      queryFn: async () => {
-        if (!taxonId || !authTokens?.access) return null;
-        try {
-          const data = await getData(`taxon/${taxonId}/`, authTokens.access);
-          if (!data || !data.species_name) {
-            console.warn(`Invalid taxon data received for ID ${taxonId}`);
-            return null;
-          }
-          return {
-            id: taxonId,
-            species_name: data.species_name,
-            species_common_name: data.species_common_name || 'Unknown'
-          };
-        } catch (error) {
-          console.error(`Failed to fetch taxon data for ID ${taxonId}:`, error);
-          return null;
-        }
-      },
-      enabled: !!taxonId && !!authTokens?.access,
-      staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-      gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
-    });
-  };
-
   // Query for observations
   const { data: observations = [], isLoading: isLoadingObs, error: obsError } = useQuery<Observation[]>({
     queryKey: ['observations', dataFileId],
@@ -70,7 +54,7 @@ export default function ObservationList() {
       try {
         console.log('Fetching observations for data file:', dataFileId);
         // Fetch all pages of observations
-        let allObservations: any[] = [];
+        let allObservations: Observation[] = [];
         let page = 1;
         let hasMore = true;
         
@@ -89,7 +73,7 @@ export default function ObservationList() {
         console.log(`Total observations fetched: ${allObservations.length}`);
         
         // Process observations with taxon data
-        const processedObservations: Observation[] = allObservations.map((obs: any) => {
+        const processedObservations: Observation[] = allObservations.map((obs) => {
           // Ensure taxon data is properly structured
           let taxonData = {
             id: 0,
@@ -199,83 +183,35 @@ export default function ObservationList() {
   };
 
   const handleSaveObservation = async (updatedObservation: Observation) => {
-    console.log('handleSaveObservation called with:', updatedObservation);
+    if (!authTokens?.access) return;
     
     try {
-      // Close edit modal
+      await patchData(`observation/${updatedObservation.id}/`, JSON.stringify(updatedObservation), authTokens.access);
+      queryClient.invalidateQueries({ queryKey: ['observations', dataFileId] });
       setIsEditModalOpen(false);
-      console.log('Edit modal closed');
-      
-      // Update the observation in the backend
-      if (!authTokens?.access) {
-        throw new Error('No authentication token available');
-      }
-      
-      // Format the taxon data correctly
-      const formattedObservation = {
-        ...updatedObservation,
-        taxon: {
-          id: updatedObservation.taxon.id,
-          species_name: updatedObservation.taxon.species_name,
-          species_common_name: updatedObservation.taxon.species_common_name
-        }
-      };
-      
-      const response = await patchData(
-        `observation/${updatedObservation.id}/`,
-        authTokens.access,
-        formattedObservation
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to update observation');
-      }
-      
-      // Invalidate and refetch observations
-      await queryClient.invalidateQueries({ queryKey: ['observations', dataFileId] });
-      console.log('Observations cache invalidated');
-      
     } catch (error) {
-      console.error('Error saving observation:', error);
-      // Reopen the modal if there was an error
-      setIsEditModalOpen(true);
-      throw error;
+      console.error('Failed to save observation:', error);
     }
   };
 
   const handleDeleteObservation = async (id: number) => {
+    if (!authTokens?.access) return;
+    
     try {
-      if (!authTokens?.access) {
-        throw new Error('No authentication token available');
-      }
-      
-      const response = await postData(
-        `observation/${id}/delete/`,
-        authTokens.access,
-        {}
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete observation');
-      }
-      
-      // Invalidate and refetch observations
-      await queryClient.invalidateQueries({ queryKey: ['observations', dataFileId] });
-      
+      await postData(`observation/${id}/delete/`, JSON.stringify({}), authTokens.access);
+      queryClient.invalidateQueries({ queryKey: ['observations', dataFileId] });
     } catch (error) {
-      console.error('Error deleting observation:', error);
-      throw error;
+      console.error('Failed to delete observation:', error);
     }
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Observations</h1>
-        <Button onClick={handleBack} variant="outline">Back to Data File</Button>
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-4">
+        <Button onClick={handleBack}>Back to Data File</Button>
       </div>
-
-      <ObservationTable
+      
+      <ObservationTable 
         deviceId={siteName}
         fileId={dataFileId}
         fileFormat={dataFile?.file_format || 'wav'}
@@ -284,7 +220,7 @@ export default function ObservationList() {
         onEdit={handleEditClick}
         onDelete={handleDeleteObservation}
       />
-
+      
       {isEditModalOpen && selectedObservation && (
         <ObservationEditModal
           isOpen={isEditModalOpen}

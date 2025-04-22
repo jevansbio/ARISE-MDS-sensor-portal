@@ -9,10 +9,6 @@ export default function DeviceDetailPage() {
   const authContext = useContext(AuthContext) as { authTokens: { access: string } | null };
   const { authTokens } = authContext || { authTokens: null };
 
-  if (!authTokens) {
-    return <p>Loading authentication...</p>;
-  }
-
   const apiURL = `devices/by_site/${siteName}/`;
 
   // Definer et fallback-objekt med tomme felter
@@ -31,12 +27,16 @@ export default function DeviceDetailPage() {
     return responseJson;
   };
 
-  const { data: device, isLoading, error } = useQuery({
+  const { data: device, isLoading } = useQuery({
     queryKey: [apiURL],
     queryFn: getDeviceFunc,
     enabled: !!authTokens?.access,
     retry: false // Ikke prøv å gjenta fetch hvis det feiler
   });
+
+  if (!authTokens) {
+    return <p>Loading authentication...</p>;
+  }
 
   if (isLoading) {
     return <p>Loading device...</p>;

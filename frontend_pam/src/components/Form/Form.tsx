@@ -140,8 +140,9 @@ export default function Form({ onSave }: FormProps) {
       // Notify success once
       window.alert("Your information was submitted successfully!");
       onSave();
-    } catch (error: any) {
-      window.alert("Error: " + (error.message || String(error)));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      window.alert("Error: " + errorMessage);
     }
   };
 

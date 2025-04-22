@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,20 @@ import { Switch } from "@/components/ui/switch";
 import { useContext } from 'react';
 import AuthContext from "@/auth/AuthContext";
 import { type Observation } from '@/types';
+
+interface AuthContextType {
+  authTokens: {
+    access: string;
+    refresh: string;
+  } | null;
+  user: {
+    username: string;
+    email: string;
+  } | null;
+  loginUser: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+  logoutUser: () => void;
+  refreshToken: () => Promise<void>;
+}
 
 interface ObservationEditModalProps {
   isOpen: boolean;
@@ -19,13 +33,17 @@ export default function ObservationEditModal({ isOpen, onClose, observation, onS
   const [editedObservation, setEditedObservation] = useState<Observation>(observation);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { authTokens } = useContext(AuthContext) as any;
+  const { authTokens } = useContext(AuthContext) as AuthContextType;
 
   useEffect(() => {
     setEditedObservation(observation);
   }, [observation]);
 
   const handleSave = async () => {
+    if (!authTokens) {
+      setError('Not authenticated');
+      return;
+    }
     console.log('=== Starting handleSave in ObservationEditModal ===');
     console.log('Current edited observation:', editedObservation);
     console.log('Current taxon data:', editedObservation.taxon);

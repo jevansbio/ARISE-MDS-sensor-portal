@@ -9,8 +9,7 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
-  ChartOptions
+  Legend
 } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
@@ -166,8 +165,8 @@ const AudioQualityCard: React.FC<AudioQualityCardProps> = ({ dataFile, deviceId,
             {dataFile.qualityCheckStatus === 'in_progress' ? 'Checking...' : 'Check Quality'}
           </Button>
           <Link 
-            to="/devices/$deviceId/$dataFileId/observations"
-            params={{
+            to="/observations"
+            search={{
               deviceId: deviceId,
               dataFileId: dataFile.id
             }}

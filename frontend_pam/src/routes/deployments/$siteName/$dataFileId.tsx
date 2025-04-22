@@ -11,8 +11,8 @@ import AudioWaveformPlayer from "@/components/AudioWaveformPlayer/AudioWaveformP
 import DownloadButton from "@/components/DownloadButton/DownloadButton";
 
 export interface ExtraData {
-  quality_metrics?: Record<string, any>;
-  temporal_evolution?: Record<string, any>;
+  quality_metrics?: Record<string, unknown>;
+  temporal_evolution?: Record<string, unknown>;
   observations?: string[];
   auto_detected_observations: number[];
 }
@@ -74,14 +74,30 @@ export const Route = createFileRoute('/deployments/$siteName/$dataFileId')({
   }
 })
 
+interface AuthContextType {
+  authTokens: {
+    access: string;
+  } | null;
+}
+
+interface Observation {
+  taxon?: {
+    species_name: string;
+  };
+  extra_data?: {
+    start_time?: number;
+    end_time?: number;
+  };
+}
+
 function RouteComponent() {
   const { siteName, dataFileId } = Route.useParams()
   const { observationId } = Route.useSearch()
   const location = useLocation()
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
   const queryClient = useQueryClient();
-  const [currentObservation, setCurrentObservation] = useState<any>(null);
+  const [currentObservation, setCurrentObservation] = useState<Observation | null>(null);
 
   const apiURL = `datafile/${dataFileId}/`;
 
