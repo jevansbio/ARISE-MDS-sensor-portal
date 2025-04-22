@@ -62,7 +62,11 @@ class DeploymentFieldsMixIn(InstanceGetMixIn, OwnerMixIn, ManagerMixIn, CreatedM
 
     # Add new field for last_upload
     last_upload = serializers.SerializerMethodField()
+    folder_size = serializers.SerializerMethodField()
 
+    def get_folder_size(self, instance):
+        return instance.get_folder_size()
+    
     def get_last_upload(self, instance):
         """Get the datetime of the most recent file upload for this deployment"""
         return instance.get_last_upload()

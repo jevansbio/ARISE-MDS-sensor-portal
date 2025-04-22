@@ -416,19 +416,16 @@ class Deployment(BaseModel):
         super(Deployment, self).clean()
 
     def save(self, *args, **kwargs):
-        # Bruk en fallback-streng dersom self.device er None,
-        # eller dersom self.device.type er None.
+
         if self.device is not None and self.device.type is not None:
             device_type_name = self.device.type.name
         else:
             device_type_name = "NoDevice"
 
-        # Bygg deployment_device_ID med fallback-verdien
         self.deployment_device_ID = f"{self.deployment_ID}_{device_type_name}_{self.device_n}"
 
         self.is_active = self.check_active()
 
-        # Hvis self.device er satt, men self.device_type ikke er satt, sett det
         if self.device is not None and self.device_type is None:
             self.device_type = self.device.type
 
@@ -492,8 +489,16 @@ class Deployment(BaseModel):
             self.thumb_url = None
 
     def get_folder_size(self, unit="MB"):
-        """Calculate the total size of all files in this deployment"""
-        return self.files.file_size(unit) if self.files.exists() else 0
+   
+        agg = self.files.aggregate(total_size=Sum('file_size'))
+        
+        total = agg['total_size'] or 0
+
+        if unit.upper() == "KB":
+            return total * 1024
+        elif unit.upper() == "GB":
+            return total / 1024
+        return total
         
     def get_last_upload(self):
         """Get the datetime of the most recent file upload for this deployment"""

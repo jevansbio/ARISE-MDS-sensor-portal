@@ -96,16 +96,15 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         if isinstance(active_data, dict) and active_data.get("batteryLevel") not in [None, ""]:
             translated_data["battery_level"] = active_data["batteryLevel"]
 
-        # Check if device information is provided in the payload.
-        if "device_ID" in data and data.get("device_ID"):
-            try:
-                device_instance = Device.objects.get(device_ID=data.get("device_ID"))
-                translated_data["device"] = device_instance
-            except Device.DoesNotExist:
-                return Response(
-                    {"error": f"Device with ID {data.get('device_ID')} does not exist."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        # If device_ID is provided, upsert the Device and link it (no error if missing)
+        if device_id := data.get("device_ID"):
+            # create or update minimal Device so relation never breaks
+            device_defaults = {'model': DeviceModel.objects.first()}  # use default model
+            device_obj, _ = Device.objects.get_or_create(
+                device_ID=device_id,
+                defaults=device_defaults
+            )
+            translated_data["device"] = device_obj
 
         # Handle the 'site' field
         if "site" not in translated_data:
@@ -411,11 +410,13 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
         # Connect the device to an existing deployment if deployment_ID is provided
         deployment_id = data.get('deployment_ID')
         if deployment_id:
-            try:
-                deployment = Deployment.objects.get(deployment_ID=deployment_id)
-                device.deployments.add(deployment)  # Associate the device with the deployment
-            except Deployment.DoesNotExist:
-                return Response({"error": f"Deployment with ID {deployment_id} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+            # create or fetch the Deployment so we never 400 on missing
+            dep_defaults = {}  # you can supply default fields here if you like
+            deployment, _ = Deployment.objects.get_or_create(
+                deployment_ID=deployment_id,
+                defaults=dep_defaults
+            )
+            device.deployments.add(deployment)  # Associate (or re‑associate) the device
 
         serializer = DeviceSerializer(device)
         return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
