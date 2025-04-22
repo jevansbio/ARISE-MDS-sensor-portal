@@ -59,9 +59,8 @@ export default function DeploymentsPage() {
   const getDataFunc = async (): Promise<Deployment[]> => {
     if (!authTokens?.access) return [];
     const response_json = await getData<ApiDeployment[]>(apiURL, authTokens.access);
-    const apiDeployments = response_json.data ?? [];
 
-    const deployments: Deployment[] = apiDeployments.map((deployment): Deployment => ({
+    const deployments: Deployment[] = response_json.map((deployment): Deployment => ({
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
       endDate: deployment.deployment_end || "",
