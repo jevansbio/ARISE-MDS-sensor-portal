@@ -380,17 +380,38 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
 
     @action(detail=False, methods=['post'])
     def upsert_device(self, request):
+        """
+        Update or create (upsert) a Device object based on the provided fields.
+        
+        - device_ID is required.
+        - Filters out empty or null values so only the fields you send are updated.
+        - Uses a default DeviceModel if none exists.
+        - If device_ID exists, performs a partial update on that Device.
+        - Otherwise, creates a new Device with the provided data.
+        - Optionally links the Device to a Deployment if deployment_ID is provided.
+        
+        Returns:
+        - 200 OK with the updated Device if found and updated.
+        - 201 Created if a new Device is created.
+        - 400 Bad Request if device_ID is missing or no default model is available.
+        """
         data = request.data
         device_id = data.get('device_ID')
         if not device_id:
             return Response({"error": "device_ID is required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        device_data = {
+        device_data_raw = {
             'configuration': data.get('configuration'),
             'sim_card_icc': data.get('sim_card_icc'),
             'sim_card_batch': data.get('sim_card_batch'),
             'sd_card_size': float(data['sd_card_size']) if data.get('sd_card_size') not in [None, ""] else None,
         }
+        device_data = {
+            k: v
+            for k, v in device_data_raw.items()
+            if v is not None and v != ""
+        }
+
         
         model = DeviceModel.objects.first()
         if not model:

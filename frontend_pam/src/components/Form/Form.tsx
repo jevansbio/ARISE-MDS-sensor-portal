@@ -122,8 +122,6 @@ export default function Form({ onSave }: FormProps) {
           protocol_checklist:     values.protocolChecklist,
           user_email:             values.email,
           comment:                values.comment,
-          // only include device_ID if provided
-          ...(values.deviceId?.trim() && { device_ID: values.deviceId }),
         };
         const deploymentJson = await postData(
           "deployment/upsert_deployment/",
