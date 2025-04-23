@@ -1,7 +1,5 @@
 # PAM
 
-Link to our website: ""
-
 PAM is a dashboard where you can have an overview over deployments in the field, with their associated audio files.
 
 ## Contributors
@@ -14,32 +12,17 @@ PAM is a dashboard where you can have an overview over deployments in the field,
 - Siri Arnesen
 - Marius Bølset Gisleberg
 
-
-# Må endre
 ## Table of contents
 - [PAM](#pam)
   - [Contributors](#contributors)
   - [Table of contents](#table-of-contents)
   - [Environment](#environment)
-    - [Setting Up the Correct Versions](#setting-up-the-correct-versions)
-    - [Start development](#start-development)
-  - [Login system](#login-system)
-  - [Dataset](#dataset)
   - [Technologies](#technologies)
     - [Frontend](#frontend)
-    - [Backend](#backend)
-    - [Database](#database)
   - [Features](#features)
   - [Tests](#tests)
   - [Responsiveness](#responsiveness)
-  - [HTML Web Storage API](#html-web-storage-api)
-    - [LocalStorage Implementation](#localstorage-implementation)
-    - [SessionStorage Implementation](#sessionstorage-implementation)
   - [Version Control](#version-control)
-  - [Web accessibility](#web-accessibility)
-    - [Testing with Lighthouse](#testing-with-lighthouse)
-  - [Sustainable web development](#sustainable-web-development)
-    - [Supporting the UN’s Sustainable Development Goals (SDGs):](#supporting-the-uns-sustainable-development-goals-sdgs)
   - [Architecture](#architecture)
 
 ## Environment
