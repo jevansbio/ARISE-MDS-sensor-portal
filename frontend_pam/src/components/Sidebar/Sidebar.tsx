@@ -54,7 +54,7 @@ function Sidebar() {
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 ${isObservationsActive ? 'font-bold bg-gray-100' : ''} ${isCollapsed ? 'justify-center' : ''}`}
           >
             <FaListAlt className="h-5 w-5" />
-            {!isCollapsed && <span>Observations</span>}
+            {!isCollapsed && <span className="hidden md:inline">Observations</span>}
           </Link>
         </div>
       </nav>
