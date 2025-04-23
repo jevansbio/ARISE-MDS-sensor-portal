@@ -265,3 +265,37 @@ GCS_MEDIA_BUCKET_NAME = os.environ.get('GCS_MEDIA_BUCKET_NAME', 'media-files')
 
 # URL for GCS public files (fake or real)
 GCS_PUBLIC_URL = os.environ.get('GCS_PUBLIC_URL', '/file_storage/fake_gcs')
+
+# Add logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'data_models': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'data_models.services.audio_quality': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

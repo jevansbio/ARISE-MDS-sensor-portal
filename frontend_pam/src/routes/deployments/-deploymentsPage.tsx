@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData, TValue> {
+    className?: string;
+  }
+}
 import { TbArrowsUpDown } from "react-icons/tb";
 import { Deployment } from "@/types";
 import { useQuery } from "@tanstack/react-query";
@@ -24,23 +30,48 @@ import AuthContext from "@/auth/AuthContext";
 import { getData } from "@/utils/FetchFunctions";
 import { bytesToMegabytes } from "@/utils/convertion";
 import Modal from "@/components/Modal/Modal";
-import DeviceForm from "@/components/DeviceForm";
 import { timeSinceLastUpload } from "@/utils/timeFormat";
+import Form from "@/components/Form";
+
+interface AuthContextType {
+  authTokens: {
+    access: string;
+  } | null;
+}
+
+interface ApiDeployment {
+  deployment_ID: string;
+  deployment_start: string;
+  deployment_end: string | null;
+  folder_size: number;
+  last_upload: string;
+  site_name: string;
+  coordinate_uncertainty: string;
+  gps_device: string;
+  mic_height: string;
+  mic_direction: string;
+  habitat: string;
+  protocol_checklist: string;
+  comment: string;
+  user_email: string;
+  country: string;
+  longitude: number;
+  latitude: number;
+}
 
 export default function DeploymentsPage() {
-
-  const authContext = useContext(AuthContext) as any;
+  const authContext = useContext(AuthContext) as AuthContextType;
   const { authTokens } = authContext || { authTokens: null };
   const apiURL = "deployment/";
 
   const getDataFunc = async (): Promise<Deployment[]> => {
     if (!authTokens?.access) return [];
-    const response_json = await getData(apiURL, authTokens.access);
-  
-    const deployments: Deployment[] = response_json.map((deployment: any): Deployment => ({
+    const response_json = await getData<ApiDeployment[]>(apiURL, authTokens.access);
+
+    const deployments: Deployment[] = response_json.map((deployment): Deployment => ({
       deploymentId: deployment.deployment_ID,
       startDate: deployment.deployment_start,
-      endDate: deployment.deployment_end,
+      endDate: deployment.deployment_end || "",
       folderSize: deployment.folder_size,
       lastUpload: deployment.last_upload,
       batteryLevel: 0,
@@ -48,18 +79,18 @@ export default function DeploymentsPage() {
       siteName: deployment.site_name,
       coordinateUncertainty: deployment.coordinate_uncertainty,
       gpsDevice: deployment.gps_device,
-      micHeight: deployment.mic_height,
+      micHeight: parseFloat(deployment.mic_height) || 0,
       micDirection: deployment.mic_direction,
       habitat: deployment.habitat,
       protocolChecklist: deployment.protocol_checklist,
-      score: deployment,
+      score: 0,
       comment: deployment.comment,
       userEmail: deployment.user_email,
       country: deployment.country,
       longitude: deployment.longitude,
       latitude: deployment.latitude
     }));
-    console.log(deployments)
+
     return deployments;
   };
 
@@ -73,7 +104,7 @@ export default function DeploymentsPage() {
 
   const columns: ColumnDef<Deployment>[] = [
     {
-      accessorKey: "site",
+      accessorKey: "siteName",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -88,29 +119,29 @@ export default function DeploymentsPage() {
         <Link
           to="/deployments/$siteName"
           params={{ siteName: row.original.siteName }}
-           className="text-blue-500 hover:underline"
+          className="text-blue-500 hover:underline"
         >
           {row.original.siteName}
         </Link>
       ),
     },
     {
-      accessorKey: "id",
+      accessorKey: "deploymentId",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="w-full justify-start"
         >
-          Device
+          Deployment ID
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => row.original.deploymentId,
-
     },
     {
       accessorKey: "startDate",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -122,10 +153,10 @@ export default function DeploymentsPage() {
         </Button>
       ),
       cell: ({ row }) => row.original.startDate,
-
     },
     {
       accessorKey: "endDate",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -136,11 +167,11 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => row.original.endDate,
-
+      cell: ({ row }) => row.original.endDate || "Ongoing",
     },
     {
       accessorKey: "lastUpload",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -155,6 +186,7 @@ export default function DeploymentsPage() {
     },
     {
       accessorKey: "folderSize",
+      meta: { className: "hidden md:table-cell" },
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -165,12 +197,46 @@ export default function DeploymentsPage() {
           <TbArrowsUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${bytesToMegabytes(row.original.folderSize)} MB`,    
+      cell: ({ row }) => `${bytesToMegabytes(row.original.folderSize)} MB`,
     },
   ];
 
-  const table = useReactTable({
-    data: data,
+  // Filtered data based on the selected country
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Extract unique countries from the data
+  const countries = useMemo(() => {
+    return Array.from(new Set(data.map((deployment) => deployment.country)));
+  }, [data]);
+
+  const filteredData = useMemo(() => {
+    if (selectedCountry) {
+      return data.filter(
+        (deployment) => deployment.country === selectedCountry
+      );
+    }
+    return data;
+  }, [selectedCountry, data]);
+
+  // Active deployments based on filtered data
+  const activeDeployments = useMemo(() => {
+    return filteredData.filter(
+      (deployment) =>
+        !deployment.endDate || new Date(deployment.endDate) > new Date()
+    );
+  }, [filteredData]);
+
+  // Ended deployments based on filtered data
+  const endedDeployments = useMemo(() => {
+    return filteredData.filter(
+      (deployment) =>
+        deployment.endDate && new Date(deployment.endDate) <= new Date()
+    );
+  }, [filteredData]);
+
+  const activeTable = useReactTable({
+    data: activeDeployments,
     columns,
     state: {
       sorting,
@@ -180,35 +246,93 @@ export default function DeploymentsPage() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+  const endedTable = useReactTable({
+    data: endedDeployments,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
   
-    const handleSave = () => {
-      closeModal();
-    };
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    console.log("Deployemnts data:", data);
-  
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+  const handleSave = () => closeModal();
+
+
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+
+  const handleCountrySelect = (country: string) => {
+    setSelectedCountry(country);
+    setIsDropdownOpen(false);
+  };
 
   return (
     <div>
-      <button onClick={openModal} className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all block w-30 ml-auto mr-4 my-4">
-        Add info
-      </button>
-    
+      <div className="flex items-center justify-end space-x-4 my-4 mr-4 relative">
+        {/* Country selector + its dropdown */}
+        <div className="relative">
+          <button
+            onClick={toggleDropdown}
+            className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all"
+          >
+            {selectedCountry ? `Country: ${selectedCountry}` : "Select Country"}
+          </button>
+
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg border z-10">
+              <ul>
+                {countries.map((country) => (
+                  <li
+                    key={country}
+                    onClick={() => handleCountrySelect(country)}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {country}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* Clear selection button */}
+        {selectedCountry && (
+          <button
+            onClick={() => setSelectedCountry(null)}
+            className="bg-red-900 text-white py-2 px-8 rounded-lg hover:bg-red-700 transition-all"
+          >
+            Clear Selection
+          </button>
+        )}
+
+        {/* Add info button */}
+        <button
+          onClick={openModal}
+          className="bg-green-900 text-white py-2 px-8 rounded-lg hover:bg-green-700 transition-all"
+        >
+          Add info
+        </button>
+      </div>
+
+      {/* Modal and tables below… */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <DeviceForm onSave={handleSave} />
+        <Form onSave={handleSave} />
       </Modal>
 
+      {/* Active Deployments Table */}
+      <h2 className="text-2xl font-bold mb-4">Active Deployments</h2>
       <div className="rounded-md border m-5 shadow-md">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {activeTable.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="px-0 py-0">
+                  <TableHead key={header.id} className={header.column.columnDef.meta?.className ?? ""}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -221,10 +345,44 @@ export default function DeploymentsPage() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
+            {activeTable.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="px-4 py-2">
+                  <TableCell key={cell.id} className={cell.column.columnDef.meta?.className ?? "px-4 py-2"}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Ended Deployments Table */}
+      <h2 className="text-2xl font-bold mb-4">Ended Deployments</h2>
+      <div className="rounded-md border sm:m-5 mx-2 shadow-md">
+        <Table>
+          <TableHeader>
+            {endedTable.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className={header.column.columnDef.meta?.className ?? ""}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {endedTable.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className={cell.column.columnDef.meta?.className ?? "px-4 py-2"}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

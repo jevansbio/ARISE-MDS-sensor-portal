@@ -3,9 +3,14 @@ import AuthContext from '@/auth/AuthContext';
 import { Link } from '@tanstack/react-router';
 import { FaUser, FaDoorClosed } from "react-icons/fa";
 
+type UserType = {
+  username: string;
+  // Add other user properties as needed
+};
+
 type AuthContextType = {
-  user: any;
-  logoutUser: any;
+  user: UserType | null;
+  logoutUser: () => void;
 };
 
 function Navbar() {
@@ -18,7 +23,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-green-900 p-3">
+    <nav className="bg-green-900 p-3 w-full">
       <div className="flex flex-wrap items-center justify-between w-full">
         <div className="flex items-center space-x-6 ">
           <Link to="/" className="text-white text-3xl sm:text-4xl">PAM</Link>
@@ -26,7 +31,7 @@ function Navbar() {
         <div className="flex items-center space-x-4 mt-2 sm:mt-0">
           
           <Link to="/" className="sm:block text-white text-lg sm:text-2xl">
-            {user.username}
+            {user?.username}
           </Link>
           <Link to="/">
             <FaUser className="text-white text-2xl sm:text-3xl" />

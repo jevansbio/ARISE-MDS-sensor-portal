@@ -1,5 +1,5 @@
-import DeviceForm from '@/components/DeviceForm';
-import { ModalProps } from '@/types';
+import Form from "@/components/Form";
+import { ModalProps } from "@/types";
 
 function Modal({ isOpen, onClose }: ModalProps) {
   if (!isOpen) return null;
@@ -13,12 +13,12 @@ function Modal({ isOpen, onClose }: ModalProps) {
         >
           ✕
         </button>
-   
+
         <h2 className="text-2xl font-bold mb-6">
-          Fill out extra information about a device
+          Fill out extra information
         </h2>
 
-        <DeviceForm onSave={onClose} />
+        <Form onSave={onClose} />
       </div>
     </div>
   );

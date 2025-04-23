@@ -1,7 +1,13 @@
 declare module '@/utils/FetchFunctions' {
-    export function getData(url: string, token: string): Promise<any>;
-    export function postData(url: string, token: string, data: any): Promise<any>;
-    export function patchData(url: string, token: string, data: any): Promise<any>;
-    export function deleteData(url: string, token: string): Promise<any>;
-  }
+    export interface ApiResponse<T = unknown> {
+        ok: boolean;
+        data?: T;
+        error?: string;
+    }
+
+    export function getData<T = unknown>(url: string, token: string): Promise<ApiResponse<T>>;
+    export function postData<T = unknown>(url: string, token: string, data: unknown): Promise<ApiResponse<T>>;
+    export function patchData<T = unknown>(url: string, token: string, data: unknown): Promise<ApiResponse<T>>;
+    export function deleteData<T = unknown>(url: string, token: string): Promise<ApiResponse<T>>;
+}
   

@@ -17,7 +17,7 @@ const ResetLocation = ({ handleChangeLatLong = () => {} }: Props) => {
 
 	const map = useMap();
 
-	const resetLocation = function(e: any) {
+	const resetLocation = () => {
 		map.locate();
 		handleChangeLatLong();
 	};
