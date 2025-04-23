@@ -53,7 +53,7 @@ To meet the requirements of our application, we have implemented key features th
 
 ## Tests
 
-# MÅ GJØRE NOE HER
+We have implemented basic component tests in the frontend to ensure that the most important parts of the user interface function as expected. Using React Testing Library and Vitest, we tested key components with a focus on correct data rendering and the handling of typical user interactions and state changes.
 
 ## Responsiveness
 This was not been a huge focus, but there are some pages that are suited to smaller devices like phones.
