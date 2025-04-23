@@ -236,7 +236,7 @@ function RouteComponent() {
 
       {dataFile.fileFormat.toLowerCase().includes('mp3') && (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Audio Preview</h2>
+          <h2 className="text-xl font-semibold m-2 mb-4">Audio Preview</h2>
           <AudioWaveformPlayer
             deviceId={siteName}
             fileId={dataFileId}
@@ -284,7 +284,7 @@ function RouteComponent() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">File Information</h2>
+          <h2 className="md:text-2xl text-xl font-semibold">File Information</h2>
           <div className="space-y-2">
             <p><span className="font-medium">File Name:</span> {dataFile.fileName}</p>
             <p><span className="font-medium">File Format:</span> {dataFile.fileFormat}</p>
@@ -294,22 +294,23 @@ function RouteComponent() {
             <p><span className="font-medium">File Length:</span> {dataFile.fileLength}</p>
             <p><span className="font-medium">Quality Score:</span> {dataFile.qualityScore}</p>
           </div>
-        </div>
+      
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Recording Information</h2>
+          <h2 className="md:text-2xl text-xl font-semibold">Recording Information</h2>
           <div className="space-y-2">
             <p><span className="font-medium">Upload Date:</span> {new Date(dataFile.uploadDt).toLocaleString()}</p>
             <p><span className="font-medium">Recording Date:</span> {new Date(dataFile.recordingDt).toLocaleString()}</p>
             <p><span className="font-medium">Quality Check Date:</span> {dataFile.qualityCheckDt ? new Date(dataFile.qualityCheckDt).toLocaleString() : 'Not checked'}</p>
             <p><span className="font-medium">Quality Check Status:</span> {dataFile.qualityCheckStatus}</p>
           </div>
-        </div>
-      </div>
+          </div>
+        
+      
 
       {dataFile.qualityIssues && dataFile.qualityIssues.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-4">Quality Issues</h2>
+          <h2 className="md:text-2xl text-xl font-semibold mb-4">Quality Issues</h2>
           <ul className="list-disc list-inside space-y-2">
             {dataFile.qualityIssues.map((issue: string, index: number) => (
               <li key={index}>{issue}</li>
@@ -317,26 +318,11 @@ function RouteComponent() {
           </ul>
         </div>
       )}
+      
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* File Information */}
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h3 className="text-lg font-semibold">File Information</h3>
-          <div className="space-y-2">
-            <div className="text-sm">
-              <span className="font-semibold">Storage:</span>{' '}
-              {dataFile.localStorage ? 'Local' : 'Remote'}
-            </div>
-            {dataFile.extraData && Object.keys(dataFile.extraData).length > 0 && (
-              <div className="text-sm">
-                <span className="font-semibold">Additional Data:</span>
-                <pre className="mt-1 p-2 bg-gray-50 rounded text-xs">
-                  {JSON.stringify(dataFile.extraData, null, 2)}
-                </pre>
-              </div>
-            )}
-          </div>
-        </div>
+      <div>
+       
 
         {/* Quality Information */}
         <AudioQualityCard
@@ -345,6 +331,7 @@ function RouteComponent() {
           onCheckQuality={handleCheckQuality}
         />
       </div>
+    </div>
     </div>
   );
 }

@@ -65,7 +65,7 @@ export default function DownloadButton({
     <Button
       variant="ghost"
       onClick={handleDownload}
-      className={`flex items-center gap-2 ${className}`}
+      className={`gap-2 w-1/2 sm:w-auto ${className}`}
     >
       <FaDownload className="h-4 w-4" />
       Download

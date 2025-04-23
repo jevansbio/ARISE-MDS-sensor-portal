@@ -15,8 +15,8 @@ function Breadcrumbs() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold px-3 py-2">{currentPage}</h1>
-      <nav className="p-3 w-full border-b border-gray-300">
+      <h1 className="text-lg lg:text-2xl font-bold px-3 py-2 ">{currentPage}</h1>
+      <nav className="p-3 w-full border-b border-gray-300 hidden sm:block">
         <ol className="list-reset flex text-black">
           <li>
             <Link to="/" className="hover:underline text-black">Overview</Link>

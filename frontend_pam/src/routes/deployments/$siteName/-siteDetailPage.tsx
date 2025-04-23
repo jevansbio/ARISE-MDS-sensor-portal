@@ -104,7 +104,7 @@ export default function SiteDetailPage() {
       <h2 className="text-2xl font-bold mb-4">Site Details</h2>
         <div
           key={deployment.deploymentId}
-          className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 max-w-3xl"
         >
           <p>
             <strong>Deployment ID:</strong> {deployment.deploymentId}
