@@ -1,20 +1,20 @@
 services:
   sensor_portal_nginx:
-      build: 
-          context: .
-          dockerfile: ./dockerfiles/sensor_portal_nginx.dockerfile
-      ports:
-          - "8080:80"
-      depends_on:
-        sensor_portal_django:
-          condition: service_healthy
-          restart: true
-        sensor_portal_frontend:
-          condition: service_started
-          restart: true
-      restart: unless-stopped
-      volumes:
-        - ./file_storage:/file_storage
+    build: 
+        context: .
+        dockerfile: ./dockerfiles/sensor_portal_nginx.dockerfile
+    ports:
+        - "8080:80"
+    depends_on:
+      sensor_portal_django:
+        condition: service_healthy
+        restart: true
+      sensor_portal_frontend:
+        condition: service_started
+        restart: true
+    restart: unless-stopped
+    volumes:
+      - /data/file_storage:/file_storage:z
   sensor_portal_frontend:
     build:
       context: .
@@ -35,7 +35,7 @@ services:
     image: sensor_portal_django_image
     command: bash -c "python manage.py wait_for_db && gunicorn sensor_portal.wsgi:application --bind 0.0.0.0:8000  --limit-request-line 0 --workers 40 --threads 2 --timeout 120 --graceful-timeout 120 --max-requests 1200 --max-requests-jitter 50"
     volumes:
-      - ./file_storage:/media/file_storage
+      - /data/file_storage:/media/file_storage:z
     ports:
       - "8000"
     environment:
@@ -70,7 +70,7 @@ services:
     image: sensor_portal_django_image
     command: bash -c "celery -A sensor_portal worker --autoscale 10,1 --loglevel=INFO -Q main_worker"
     volumes:
-      - ./file_storage:/media/file_storage
+      - /data/file_storage:/media/file_storage:z
     environment:
       - POSTGRES_NAME=${POSTGRES_NAME}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -130,7 +130,7 @@ services:
     image: postgis/postgis:14-3.3
     shm_size: 1g
     volumes:
-      - ./sensor_portal_database:/var/lib/postgresql/data
+      - /data/sensor_portal_database:/var/lib/postgresql/data:z
     environment:
       - POSTGRES_DB=${POSTGRES_NAME}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -143,14 +143,14 @@ services:
       start_period: 80s 
     restart: always
   sensor_portal_redis:
-      image: "redis:alpine"
-      healthcheck:
-        test: [ "CMD", "redis-cli", "ping"]
-        interval: 30s
-        timeout: 60s
-        retries: 100
-        start_period: 80s    
-      restart: always
+    image: "redis:alpine"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 60s
+      retries: 100
+      start_period: 80s    
+    restart: always
 volumes:
-  file_storage:
-  sensor_portal_database:
+  /data/file_storage:
+  /data/sensor_portal_database:
