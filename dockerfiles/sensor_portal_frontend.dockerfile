@@ -9,10 +9,6 @@ RUN npm install
 
 
 
-RUN npm install
-
-
-
 
 
 
