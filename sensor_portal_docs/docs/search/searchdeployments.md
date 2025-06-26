@@ -20,4 +20,4 @@ A general search function and filters are available to subset **deployments**
   
 **Select job** There are currently no job options to select at device level.  
   
-**Add new deployment** allows uers with _Manager_ permissions to register and manage a (new) deployment.  
+**Add new deployment** allows uers with _Manager_ permissions to register a new deployment.  
