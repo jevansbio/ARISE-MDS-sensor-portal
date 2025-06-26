@@ -20,6 +20,38 @@ from .models import DataFile, Deployment, Device, Project
 logger = logging.getLogger(__name__)
 
 
+@app.task(name="end_deployments")
+@register_job("End deployments", "end_deployments", "deployment", True,
+              default_args={})
+def end_deployments(deployment_pks: List[int], no_delete: bool = False, **kwargs):
+    """
+    Ends deployments
+    Args:
+        deployment_pks (List[int]): List of deployment primary keys to update.
+
+    """
+    deployment_objs = Deployment.objects.filter(
+        pk__in=deployment_pks, deployment_end=None)
+    logger.info(deployment_objs.count())
+    deployment_objs.update(deployment_end=timezone.now(), is_active=False)
+
+
+@app.task(name="flag_no_delete")
+@register_job("Change no delete flag", "flag_no_delete", "datafile", True,
+              default_args={"no_delete": True})
+def flag_no_delete(datafile_pks: List[int], no_delete: bool = False, **kwargs):
+    """
+    Set the do_not_remove flag on data files.
+    Args:
+        datafile_pks (List[int]): List of data file primary keys to update.
+        no_delete (bool, optional): Value to set the flag to. Defaults to False.
+    """
+    file_objs = DataFile.objects.filter(
+        pk__in=datafile_pks)
+    logger.info(file_objs.count())
+    file_objs.update(do_not_remove=no_delete)
+
+
 @app.task(name="flag_humans")
 @register_job("Change human flag", "flag_humans", "datafile", True,
               default_args={"has_human": False})
@@ -102,9 +134,12 @@ def check_device_status():
         autoupdate=True,
     )
 
+    logger.info("Checking device status for auto_devices.count()")
+
     bad_devices_pks = []
     bad_devices_values = []
     for device in auto_devices:
+        logger.info(f"Device {device.device_ID} checking...")
         # get the last file time for each device
         last_file_time = device.deployments.filter(is_active=True).aggregate(
             Max('files__recording_dt')).get('files__recording_dt__max')
@@ -126,44 +161,49 @@ def check_device_status():
             # add the device to the list of bad devices
             bad_devices_pks.append(device.pk)
             bad_devices_values.append({
+                'pk': device.pk,
                 'device_ID': device.device_ID,
                 'name': device.name,
                 'file_hours': file_age.total_seconds() / 3600  # convert to hours
             })
 
     bad_devices = Device.objects.filter(pk__in=bad_devices_pks)
-
+    logger.info(
+        f"Found {len(bad_devices_pks)}  bad devices.")
     # get all unique managers
     all_bad_device_users = User.objects.filter(
-        deviceuser__isnull=True).filter(
-            Q(owned_projects__deployments__device__in=bad_devices) |
+        deviceuser__isnull=True, is_active=True).filter(
         Q(managed_projects__deployments__device__in=bad_devices) |
-        Q(owned_devices__in=bad_devices) |
-        Q(managed_devices__in=bad_devices) |
-        Q(owned_deployments__device__in=bad_devices)
+        Q(managed_devices__in=bad_devices)
     ).distinct()
 
     for user in all_bad_device_users:
+        logger.info(
+            f"Getting bad devices for {user.username}")
         # for each manager, get their bad devices
         users_bad_devices = perms['data_models.change_device'].filter(
-            user, bad_devices_values).distinct()
-
+            user, bad_devices).distinct()
+        logger.info(
+            f"Got bad devices for {user.username}")
         if not users_bad_devices.exists():
             continue
-
+        # get PKs
+        user_bad_device_pks = users_bad_devices.values_list('pk', flat=True)
         device_list = [
-            f'{x.get("device_ID")} - {x.get("name")} - {x.get("file_hours")}' for x in users_bad_devices]
+            f'{x.get("device_ID")} - {x.get("name")} - {x.get("file_hours")}' for x in bad_devices_values if x.get('pk') in user_bad_device_pks]
         device_list_string = " \n".join(device_list)
+        logger.info(
+            f"Got bad device info for {user.username}")
 
         # send them an email
         email_body = f"""
         Dear {user.first_name} {user.last_name},\n
         \n
-        The following devices which you manage have not transmitted in their alloted time: \n
+        The following devices which you manage have not transmitted in their allotted time: \n
         {device_list_string}
         """
 
         send_email_to_user(
             user,
-            subject=f"{Site.objects.get_current().name} - {users_bad_devices.count()} devices have not transmitted in alloted time",
+            subject=f"{Site.objects.get_current().name} - {users_bad_devices.count()} devices have not transmitted in allotted time",
             body=email_body)

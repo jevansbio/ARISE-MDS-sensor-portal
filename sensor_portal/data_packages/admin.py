@@ -7,7 +7,8 @@ from .models import DataPackage
 
 
 @admin.register(DataPackage)
-class ObservationAdmin(AddOwnerAdmin):
+class DataPackageAdmin(AddOwnerAdmin):
     model = DataPackage
     raw_id_fields = ["data_files"]
     readonly_fields = ["file_url"]
+    list_display = ["created_on", "name", "owner", "status", "includes_files"]

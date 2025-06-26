@@ -60,7 +60,7 @@ class Taxon(BaseModel):
     taxon_source = models.IntegerField(
         choices=source_choice, default=0, help_text="Source of the taxon code. 0 = custom, 1 = GBIF.")
     extra_data = models.JSONField(
-        default=dict,  help_text="Extra data about the taxon, e.g. avibaseID, or other relevant information.")
+        default=dict,  help_text="Extra data about the taxon, e.g. avibaseID, or other relevant information.", blank=True)
     parents = models.ManyToManyField(
         "self", symmetrical=False, related_name="children", blank=True, help_text="Parent taxons of this taxon.")
     taxonomic_level = models.IntegerField(
@@ -200,6 +200,9 @@ class Observation(BaseModel):
         help_text="If this observation is a validation of another observation, this field will contain the original observation(s).")
 
     objects = ObservationQuerySet.as_manager()
+
+    def get_absolute_url(self):
+        return f"/datafiles/{self.data_files.all().values_list('pk',flat=True)[0]}"
 
     def get_taxonomic_level(self, level=0):
         return self.taxon.get_taxonomic_level(level)

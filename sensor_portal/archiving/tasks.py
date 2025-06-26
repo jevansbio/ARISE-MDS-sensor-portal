@@ -4,6 +4,7 @@ from posixpath import join as posixjoin
 from typing import Any, Callable, List, Optional
 
 from celery import chord, group, shared_task
+from data_models.job_handling_functions import register_job
 from data_models.models import DataFile, TarFile
 from django.conf import settings
 from django.utils import timezone as djtimezone
@@ -17,6 +18,15 @@ from .models import Archive
 from .tar_functions import check_tar_status, create_tar_files
 
 logger = logging.getLogger(__name__)
+
+
+@app.task(name="unarchive_files")
+@register_job("Unarchive files", "unarchive_files", "datafile", True,
+              default_args={})
+def unarchive_files(datafile_pks: List[int], **kwargs):
+    file_objs = DataFile.objects.filter(
+        pk__in=datafile_pks, archived=True, local_storage=False)
+    get_files_from_archive_task(list(file_objs.values_list('pk', flat=True)))
 
 
 @app.task()

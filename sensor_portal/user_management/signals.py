@@ -32,6 +32,7 @@ def on_change(sender: type, instance: User, **kwargs: Any) -> None:
     from utils.email import send_email_to_user, send_email_to_users
 
     if instance.id is None:  # new object will be created
+
         # send email confirming registration
         send_email_to_user(
             instance,

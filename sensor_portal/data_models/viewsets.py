@@ -428,9 +428,7 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
     start_job=extend_schema(summary="Start a job from these objects",
                             filters=True,
                             request=inline_id_serializer_optional,
-                            responses=inline_job_start_serializer)
-
-
+                            responses=inline_job_start_serializer),
 )
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     """
@@ -756,7 +754,101 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
                                            ctdp_parameter,
                                        ]),
     favourite_file=extend_schema(exclude=True),
-    observations=extend_schema(exclude=True)
+    observations=extend_schema(exclude=True),
+    deployment_datafiles_queryset_count=extend_schema(
+        summary="Count DataFiles for Deployment",
+        description="Return the count of DataFile objects for a given deployment. Returns an integer.",
+        parameters=[
+            OpenApiParameter("deployment_pk", OpenApiTypes.INT,
+                             OpenApiParameter.PATH, description="Deployment ID"),
+        ],
+        responses=OpenApiTypes.INT
+    ),
+    deployment_datafiles_start_job=extend_schema(
+        summary="Start a Job on Deployment DataFiles",
+        description="Start a job on DataFiles for a given deployment.",
+        parameters=[
+            OpenApiParameter("deployment_pk", OpenApiTypes.INT,
+                             OpenApiParameter.PATH, description="Deployment ID"),
+            OpenApiParameter("job_name", OpenApiTypes.STR,
+                             OpenApiParameter.PATH, description="Job name"),
+        ],
+        # or whatever serializer describes your POST body
+        request=inline_id_serializer_optional,
+        responses=inline_job_start_serializer,
+    ),
+    project_datafiles_queryset_count=extend_schema(
+        summary="Count DataFiles for Project",
+        description="Return the count of DataFile objects for a given project. Returns an integer.",
+        parameters=[
+            OpenApiParameter("project_id", OpenApiTypes.INT,
+                             OpenApiParameter.PATH, description="Project ID"),
+        ],
+        responses=OpenApiTypes.INT
+    ),
+    project_datafiles_start_job=extend_schema(
+        summary="Start a Job on Project DataFiles",
+        description="Start a job on DataFiles for a given project.",
+        parameters=[
+            OpenApiParameter("project_id", OpenApiTypes.INT,
+                             OpenApiParameter.PATH, description="Project ID"),
+            OpenApiParameter("job_name", OpenApiTypes.STR,
+                             OpenApiParameter.PATH, description="Job name"),
+        ],
+        request=inline_id_serializer_optional,
+        responses=inline_job_start_serializer,
+    ),
+    device_datafiles_queryset_count=extend_schema(
+        summary="Count DataFiles for Device",
+        description="Return the count of DataFile objects for a given device. Returns an integer.",
+        parameters=[
+            OpenApiParameter("device_id", OpenApiTypes.INT,
+                             OpenApiParameter.PATH, description="Device ID"),
+        ],
+        responses=OpenApiTypes.INT
+    ),
+    device_datafiles_start_job=extend_schema(
+        summary="Start a Job on Device DataFiles",
+        description="Start a job on DataFiles for a given device.",
+        parameters=[
+            OpenApiParameter("device_id", OpenApiTypes.INT,
+                             OpenApiParameter.PATH, description="Device ID"),
+            OpenApiParameter("job_name", OpenApiTypes.STR,
+                             OpenApiParameter.PATH, description="Job name"),
+        ],
+        request=inline_id_serializer_optional,
+        responses=inline_job_start_serializer,
+    ),
+    user_favourite_datafiles_queryset_count=extend_schema(
+        summary="Count User Favourite DataFiles",
+        description="Return the count of DataFile objects favourited by the current user. Returns an integer.",
+        responses=OpenApiTypes.INT
+    ),
+    user_favourite_datafiles_start_job=extend_schema(
+        summary="Start a Job on User Favourite DataFiles",
+        description="Start a job on DataFiles favourited by the current user.",
+        parameters=[
+            OpenApiParameter("job_name", OpenApiTypes.STR,
+                             OpenApiParameter.PATH, description="Job name"),
+        ],
+        request=inline_id_serializer_optional,
+        responses=inline_job_start_serializer,
+    ),
+    favourited_datafiles_queryset_count=extend_schema(
+        summary="Count Favourited DataFiles",
+        description="Return the count of DataFile objects favourited by any user. Returns an integer.",
+        responses=OpenApiTypes.INT
+    ),
+    favourited_datafiles_start_job=extend_schema(
+        summary="Start a Job on Favourited DataFiles",
+        description="Start a job on DataFiles favourited by any user.",
+        parameters=[
+            OpenApiParameter("job_name", OpenApiTypes.STR,
+                             OpenApiParameter.PATH, description="Job name"),
+        ],
+        request=inline_id_serializer_optional,
+        responses=inline_job_start_serializer,
+    ),
 )
 class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixIn):
     """
@@ -963,6 +1055,8 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         return Response({"uploaded_files": uploaded_files, "invalid_files": invalid_files, "existing_files": existing_files},
                         status=status_code, headers=headers)
 
+    # --- Deployment DataFiles ---
+
     @action(detail=False, methods=['get'], url_path=r'deployment/(?P<deployment_pk>\w+)', url_name="deployment_datafiles")
     def deployment_datafiles(self, request, deployment_pk=None):
         # Filter data files based on the deployment primary key (deployment_pk)
@@ -985,6 +1079,28 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         serializer = self.get_serializer(
             data_file_qs, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'deployment/(?P<deployment_pk>\w+)/queryset_count')
+    def deployment_datafiles_queryset_count(self, request, deployment_pk=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(deployment__pk=deployment_pk))
+        return Response(queryset.file_count(), status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path=r'deployment/(?P<deployment_pk>\w+)/start_job/(?P<job_name>\w+)')
+    def deployment_datafiles_start_job(self, request, deployment_pk=None, job_name=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(deployment__pk=deployment_pk))
+        user_pk = request.user.pk
+        obj_pks = request.data.get("ids") or list(
+            queryset.values_list('pk', flat=True))
+        if "ids" in request.data:
+            request.data.pop("ids")
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "datafile", obj_pks, job_args, user_pk)
+        return Response({"detail": detail}, status=job_status)
+
+    # --- Project DataFiles ---
 
     @action(detail=False, methods=['get'], url_path=r'project/(?P<project_id>\w+)', url_name="project_datafiles")
     def project_datafiles(self, request, project_id=None):
@@ -1010,6 +1126,28 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
             data_file_qs, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'], url_path=r'project/(?P<project_id>\w+)/queryset_count')
+    def project_datafiles_queryset_count(self, request, project_id=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(project__pk=project_id))
+        return Response(queryset.file_count(), status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path=r'project/(?P<project_id>\w+)/start_job/(?P<job_name>\w+)')
+    def project_datafiles_start_job(self, request, project_id=None, job_name=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(project__pk=project_id))
+        user_pk = request.user.pk
+        obj_pks = request.data.get("ids") or list(
+            queryset.values_list('pk', flat=True))
+        if "ids" in request.data:
+            request.data.pop("ids")
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "datafile", obj_pks, job_args, user_pk)
+        return Response({"detail": detail}, status=job_status)
+
+    # --- Device DataFiles ---
+
     @action(detail=False, methods=['get'], url_path=r'device/(?P<device_id>\w+)', url_name="device_datafiles")
     def device_datafiles(self, request, device_id=None):
         # Filter data files based on the device primary key (device_id) through deployments
@@ -1034,6 +1172,28 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         serializer = self.get_serializer(
             data_file_qs, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'device/(?P<device_id>\w+)/queryset_count')
+    def device_datafiles_queryset_count(self, request, device_id=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(device__pk=device_id))
+        return Response(queryset.file_count(), status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path=r'device/(?P<device_id>\w+)/start_job/(?P<job_name>\w+)')
+    def device_datafiles_start_job(self, request, device_id=None, job_name=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(device__pk=device_id))
+        user_pk = request.user.pk
+        obj_pks = request.data.get("ids") or list(
+            queryset.values_list('pk', flat=True))
+        if "ids" in request.data:
+            request.data.pop("ids")
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "datafile", obj_pks, job_args, user_pk)
+        return Response({"detail": detail}, status=job_status)
+
+    # --- User Favourite DataFiles ---
 
     @action(detail=False, methods=['get'], url_path=r'user', url_name="user_favourite_datafiles")
     def user_favourite_datafiles(self, request):
@@ -1061,6 +1221,28 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         serializer = self.get_serializer(
             data_file_qs, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='user_favourite/queryset_count')
+    def user_favourite_datafiles_queryset_count(self, request):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(favourites=request.user))
+        return Response(queryset.file_count(), status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='user_favourite/start_job/(?P<job_name>\w+)')
+    def user_favourite_datafiles_start_job(self, request, job_name=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(favourites=request.user))
+        user_pk = request.user.pk
+        obj_pks = request.data.get("ids") or list(
+            queryset.values_list('pk', flat=True))
+        if "ids" in request.data:
+            request.data.pop("ids")
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "datafile", obj_pks, job_args, user_pk)
+        return Response({"detail": detail}, status=job_status)
+
+    # --- Favourited DataFiles (by any user) ---
 
     @action(detail=False, methods=['get'], url_path=r'highlights', url_name="highlight_datafiles")
     def favourited_datafiles(self, request):
@@ -1090,6 +1272,26 @@ class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixI
         serializer = self.get_serializer(
             data_file_qs, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='favourited/queryset_count')
+    def favourited_datafiles_queryset_count(self, request):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(favourites__isnull=False).distinct())
+        return Response(queryset.file_count(), status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='favourited/start_job/(?P<job_name>\w+)')
+    def favourited_datafiles_start_job(self, request, job_name=None):
+        queryset = self.filter_queryset(
+            DataFile.objects.filter(favourites__isnull=False).distinct())
+        user_pk = request.user.pk
+        obj_pks = request.data.get("ids") or list(
+            queryset.values_list('pk', flat=True))
+        if "ids" in request.data:
+            request.data.pop("ids")
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "datafile", obj_pks, job_args, user_pk)
+        return Response({"detail": detail}, status=job_status)
 
 
 @extend_schema(summary="Site",
@@ -1274,8 +1476,8 @@ class GenericJobViewSet(viewsets.ViewSet):
             job_list = [x for x in job_list if x["data_type"] == data_type]
         return job_list
 
-    @method_decorator(cache_page(60 * 60 * 2))
-    @method_decorator(vary_on_cookie)
+    # @method_decorator(cache_page(60 * 60 * 2))
+    # @method_decorator(vary_on_cookie)
     def list(self, request):
 
         serializer = self.serializer_class(
@@ -1283,8 +1485,8 @@ class GenericJobViewSet(viewsets.ViewSet):
 
         return Response(serializer.data)
 
-    @method_decorator(cache_page(60 * 60 * 2))
-    @method_decorator(vary_on_cookie)
+    # @method_decorator(cache_page(60 * 60 * 2))
+    # @method_decorator(vary_on_cookie)
     def retrieve(self, request, pk=None):
         try:
             job_dict = list(settings.GENERIC_JOBS.values())[int(pk)]

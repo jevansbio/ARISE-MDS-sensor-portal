@@ -911,7 +911,7 @@ class DataFile(BaseModel):
         return f"{self.file_name}{self.file_format}"
 
     def get_absolute_url(self):
-        return f"/datafiles/{self.pk}"
+        return (f"/datafiles/{self.pk}")
 
     def add_favourite(self, user: "User") -> None:
         """
