@@ -120,18 +120,52 @@ logger = logging.getLogger(__name__)
     ids_count=extend_schema(summary="Count selected IDs",
                             request=inline_id_serializer,
                             responses=inline_count_serializer),
-    queryset_count=extend_schema(summary="Count filtered projects",
+    queryset_count=extend_schema(summary="Count filtered deployments",
                                  filters=True,
                                  responses=inline_count_serializer),
     start_job=extend_schema(summary="Start a job from these objects",
                             filters=True,
                             request=inline_id_serializer_optional,
-                            responses=inline_job_start_serializer)
+                            responses=inline_job_start_serializer),
+    project_queryset_count=extend_schema(summary="Count filtered deployments",
+                                         filters=True,
+                                         responses=inline_count_serializer,
+                                         parameters=[OpenApiParameter(
+                                             "project_id",
+                                             OpenApiTypes.INT,
+                                             OpenApiParameter.PATH,
+                                             description="Database ID of project from which to get deployments.")]),
+    project_start_job=extend_schema(summary="Start a job from these objects",
+                                    filters=True,
+                                    request=inline_id_serializer_optional,
+                                    responses=inline_job_start_serializer,
+                                    parameters=[OpenApiParameter(
+                                        "project_id",
+                                        OpenApiTypes.INT,
+                                        OpenApiParameter.PATH,
+                                        description="Database ID of project from which to get deployments.")]),
+    device_queryset_count=extend_schema(summary="Count filtered deployments",
+                                        filters=True,
+                                        responses=inline_count_serializer,
+                                        parameters=[OpenApiParameter(
+                                            "device_id",
+                                            OpenApiTypes.INT,
+                                            OpenApiParameter.PATH,
+                                            description="Database ID of device from which to get deployments.")]),
+    device_start_job=extend_schema(summary="Start a job from these objects",
+                                   filters=True,
+                                   request=inline_id_serializer_optional,
+                                   responses=inline_job_start_serializer,
+                                   parameters=[OpenApiParameter(
+                                       "device_id",
+                                       OpenApiTypes.INT,
+                                       OpenApiParameter.PATH,
+                                       description="Database ID of device from which to get deployments.")])
 
 )
 class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, CheckFormViewSetMixIn, OptionalPaginationViewSetMixIn):
     """
-    A viewset for managing Deployment objects with various functionalities such as filtering, pagination, 
+    A viewset for managing Deployment objects with various functionalities such as filtering, pagination,
     and custom actions. This viewset integrates multiple mixins to provide extended capabilities.
     Attributes:
         search_fields (list): Fields to enable search functionality.
@@ -183,7 +217,7 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         project_objects = serializer.validated_data.get('project')
         if project_objects is not None:
             for project_object in project_objects:
-                if (not self.request.user.has_perm('data_models.change_project', project_object)) and\
+                if (not self.request.user.has_perm('data_models.change_project', project_object)) and \
                         (project_object.name != settings.GLOBAL_PROJECT_ID):
                     raise PermissionDenied(
                         f"You don't have permission to add a deployment to {project_object.project_ID}")
@@ -254,6 +288,36 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
             deployment_qs, many=True, context={'request': request})
         return Response(deployment_serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'], url_path=r'project/(?P<project_id>\w+)/queryset_count')
+    def project_queryset_count(self, request, project_id, *args, **kwargs):
+
+        queryset = Deployment.objects.filter(
+            project__pk=project_id)
+
+        queryset = self.filter_queryset(queryset)
+        return Response({"object_n": queryset.count()}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path=r'project/(?P<project_id>\w+)/start_job/(?P<job_name>\w+)')
+    def project_start_job(self, request, project_id, job_name, *args, **kwargs):
+
+        queryset = Deployment.objects.filter(
+            project__pk=project_id)
+
+        queryset = self.filter_queryset(queryset)
+
+        user_pk = request.user.pk
+
+        if not (obj_pks := request.data.get("ids")):
+            obj_pks = list(queryset.values_list('pk', flat=True))
+        else:
+            request.data.pop("ids")
+
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "deployment", obj_pks, job_args, user_pk)
+
+        return Response({"detail": detail}, status=job_status)
+
     @action(detail=False, methods=['get'], url_path=r'device/(?P<device_id>\w+)', url_name="device_deployments")
     def device_deployments(self, request, device_id=None):
         # Filter deployments based on the device primary key (device_id)
@@ -277,6 +341,36 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
         deployment_serializer = self.get_serializer(
             deployment_qs, many=True, context={'request': request})
         return Response(deployment_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'device/(?P<device_id>\w+)/queryset_count')
+    def device_queryset_count(self, request, device_id, *args, **kwargs):
+
+        queryset = Deployment.objects.filter(
+            device__pk=device_id)
+
+        queryset = self.filter_queryset(queryset)
+        return Response({"object_n": queryset.count()}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path=r'device/(?P<device_id>\w+)/start_job/(?P<job_name>\w+)')
+    def device_start_job(self, request, device_id, job_name, *args, **kwargs):
+
+        queryset = Deployment.objects.filter(
+            device__pk=device_id)
+
+        queryset = self.filter_queryset(queryset)
+
+        user_pk = request.user.pk
+
+        if not (obj_pks := request.data.get("ids")):
+            obj_pks = list(queryset.values_list('pk', flat=True))
+        else:
+            request.data.pop("ids")
+
+        job_args = request.data
+        success, detail, job_status = start_job_from_name(
+            job_name, "deployment", obj_pks, job_args, user_pk)
+
+        return Response({"detail": detail}, status=job_status)
 
 
 @extend_schema(summary="Projects",
@@ -336,10 +430,11 @@ class DeploymentViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Check
                             request=inline_id_serializer_optional,
                             responses=inline_job_start_serializer)
 
+
 )
 class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     """
-    A viewset for managing Project objects with additional functionality for filtering, searching, 
+    A viewset for managing Project objects with additional functionality for filtering, searching,
     and performing custom actions.
     Attributes:
         serializer_class (ProjectSerializer): Serializer class for Project objects.
@@ -354,11 +449,11 @@ class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
             Count the number of files in the filtered queryset.
             Returns the file count.
         start_job (POST):
-            Start a job with the specified job name and project IDs. If no IDs are provided, 
+            Start a job with the specified job name and project IDs. If no IDs are provided,
             the job will be started for all objects in the filtered queryset.
             Returns the job status and details.
         species_list (GET):
-            Retrieve a distinct list of species names associated with the project's data files 
+            Retrieve a distinct list of species names associated with the project's data files
             that the user has permission to view.
             Returns the species list.
         metrics (GET):
@@ -482,7 +577,7 @@ class ProjectViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
 )
 class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
     """
-    A viewset for managing Device objects with additional functionality for filtering, searching, 
+    A viewset for managing Device objects with additional functionality for filtering, searching,
     and performing custom actions.
     Attributes:
         serializer_class (DeviceSerializer): The serializer class used for Device objects.
@@ -665,7 +760,7 @@ class DeviceViewSet(AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
 )
 class DataFileViewSet(CheckAttachmentViewSetMixIn, OptionalPaginationViewSetMixIn):
     """
-    DataFileViewSet is a Django REST Framework viewset that provides various actions for managing and interacting 
+    DataFileViewSet is a Django REST Framework viewset that provides various actions for managing and interacting
     with DataFile objects. It includes filtering, searching, pagination, and custom actions for specific use cases.
     Attributes:
         filterset_class (DataFileFilter): Specifies the filter class for filtering querysets.
