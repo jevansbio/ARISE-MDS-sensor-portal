@@ -2,6 +2,10 @@ import django_filters.rest_framework
 
 
 class GenericFilterMixIn(django_filters.FilterSet):
+    """
+    A mixin for generic filtering of objects based on their ID, creation, and modification dates.
+    Also provides functionality to attach help text to filters based on field names and lookup expressions.
+    """
     created_after = django_filters.DateFilter(
         field_name='created_on', lookup_expr='gt', help_text="Object was created after this date")
     created_before = django_filters.DateFilter(
@@ -47,6 +51,9 @@ class GenericFilterMixIn(django_filters.FilterSet):
 
 
 class ExtraDataFilterMixIn(django_filters.FilterSet):
+    """
+    Implements a method for filtering by extra data JSON fields.
+    """
     extra_data = django_filters.CharFilter(
         method='extra_data_filter', help_text="Filter by extra data. Format: extra_data__key__value.")
 

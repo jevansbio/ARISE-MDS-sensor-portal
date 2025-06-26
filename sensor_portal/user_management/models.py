@@ -12,6 +12,10 @@ from rest_framework.authtoken.models import Token
 
 
 class User(AbstractUser):
+    """
+    Custom user model that extends Django's AbstractUser to include additional fields
+    such as organisation and bio, and to manage device users.   
+    """
     is_active = models.BooleanField(
         _('active'),
         default=False,
@@ -27,6 +31,9 @@ class User(AbstractUser):
 
 
 class DeviceUser(User):
+    """
+    DeviceUser model that extends the User model to represent a user associated with a specific device.
+    """
     device = models.OneToOneField(
         Device, related_name="device_user", on_delete=models.CASCADE, null=True, help_text="Device linked to this device user.")
     organisation = None

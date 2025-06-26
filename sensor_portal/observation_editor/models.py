@@ -37,7 +37,20 @@ taxonomic_level_choice = (
 
 
 class TaxonQuerySet(ApproximateCountQuerySet):
+    """
+    Custom QuerySet for the Taxon model, providing helper methods for taxonomic queries.
+    """
+
     def get_taxonomic_level(self, target_level=1):
+        """
+        Annotate and filter queryset to get taxons at a specified taxonomic level.
+
+        Args:
+            target_level (int): The desired taxonomic level.
+
+        Returns:
+            QuerySet: The filtered and annotated queryset.
+        """
         annotated_qs = self.annotate(
             parent_taxon_pk=Case(
                 When(taxonomic_level=target_level, then=F('pk')),
@@ -48,6 +61,10 @@ class TaxonQuerySet(ApproximateCountQuerySet):
 
 
 class Taxon(BaseModel):
+    """
+    Model representing a biological taxon (e.g., species, genus, family) with support for hierarchical relationships.
+    """
+
     species_name = models.CharField(
         max_length=100, unique=False, db_index=True,
         help_text="Scientific name of the species, e.g. 'Aquila chrysaetos'.")
@@ -56,7 +73,6 @@ class Taxon(BaseModel):
     taxon_code = models.CharField(max_length=100, blank=True, db_index=True,
                                   help_text="Taxon code from a taxonomic database, e.g. GBIF ID,\
                                       or another common identifier such as 'vehicle'.")
-
     taxon_source = models.IntegerField(
         choices=source_choice, default=0, help_text="Source of the taxon code. 0 = custom, 1 = GBIF.")
     extra_data = models.JSONField(
@@ -68,13 +84,22 @@ class Taxon(BaseModel):
 
     objects = TaxonQuerySet.as_manager()
 
-    # if GBIF ID, on save, from own taxonomic level through to 6, generate parents, attach parents
-    # custom handlers to return different taxonomic level. If taxon has lower than desired taxonomic leve, return parent
-
     def __str__(self):
+        """
+        Returns the scientific name of the taxon.
+        """
         return self.species_name
 
     def get_taxonomic_level(self, level=0):
+        """
+        Retrieve the Taxon instance at the specified taxonomic level.
+
+        Args:
+            level (int): Desired taxonomic level.
+
+        Returns:
+            Taxon or None: The taxon at the specified level or None if not found.
+        """
         logger.info(self.taxonomic_level, level)
         if self.taxonomic_level == level:
             return self
@@ -86,6 +111,9 @@ class Taxon(BaseModel):
             return taxon_obj
 
     def get_taxon_code(self):
+        """
+        Retrieve or generate the taxon code for this taxon, updating extra data and common name as necessary.
+        """
         if self.taxon_code is None or self.taxon_code == "":
             taxon_codes = GBIF_taxoncode_from_search(self.species_name)
             logger.info(taxon_codes)
@@ -108,6 +136,9 @@ class Taxon(BaseModel):
             self.taxon_source = 0
 
     def save(self, *args, **kwargs):
+        """
+        Custom save logic for Taxon instances, including taxon code generation and duplicate species handling.
+        """
         try:
             self.get_taxon_code()
         except ConnectionError or ConnectTimeout as e:
@@ -131,12 +162,28 @@ class Taxon(BaseModel):
 
 @receiver(post_save, sender=Taxon)
 def post_taxon_save(sender, instance, created, **kwargs):
+    """
+    Signal handler to trigger parent taxon creation after saving a Taxon instance with a GBIF code.
+    """
     if instance.taxon_code is not None and instance.taxon_code != "" and instance.taxon_source == 1:
         create_taxon_parents.apply_async([instance.pk])
 
 
 class ObservationQuerySet(ApproximateCountQuerySet):
+    """
+    Custom QuerySet for the Observation model, providing helper methods for taxonomic queries.
+    """
+
     def get_taxonomic_level(self, target_level=1):
+        """
+        Annotate and filter queryset to get observations at a specified taxonomic level.
+
+        Args:
+            target_level (int): The desired taxonomic level.
+
+        Returns:
+            QuerySet: The filtered and annotated queryset.
+        """
         annotated_qs = self.annotate(
             parent_taxon_pk=Case(
                 When(taxon__taxonomic_level=target_level, then=F('taxon__pk')),
@@ -162,6 +209,11 @@ class ObservationQuerySet(ApproximateCountQuerySet):
 
 
 class Observation(BaseModel):
+    """
+    Model representing an observation of a taxon, potentially including metadata such as data files,
+    bounding box, confidence, sex, lifestage, and validation status.
+    """
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="observations",
                               on_delete=models.SET_NULL, null=True, db_index=True,
                               help_text="User who created the observation.\
@@ -202,21 +254,48 @@ class Observation(BaseModel):
     objects = ObservationQuerySet.as_manager()
 
     def get_absolute_url(self):
+        """
+        Get the absolute URL for this observation's associated data file.
+
+        Returns:
+            str: URL path to the data file.
+        """
         return f"/datafiles/{self.data_files.all().values_list('pk',flat=True)[0]}"
 
     def get_taxonomic_level(self, level=0):
+        """
+        Retrieve the Taxon instance for this Observation at the specified taxonomic level.
+
+        Args:
+            level (int): Desired taxonomic level.
+
+        Returns:
+            Taxon or None: The taxon at the specified level or None if not found.
+        """
         return self.taxon.get_taxonomic_level(level)
 
     def __str__(self):
+        """
+        Returns the label of the observation.
+        """
         return self.label
 
     def get_label(self):
+        """
+        Generate a label for the observation based on the taxon and associated data file.
+
+        Returns:
+            str: Generated label.
+        """
         if self.data_files.all().exists():
             return f"{self.taxon.species_name}_{self.data_files.all().first().file_name}"
         else:
             return self.label
 
     def save(self, *args, **kwargs):
+        """
+        Custom save logic for Observation instances, including automatic label generation and observation datetime assignment.
+        """
         if self.id:
             if self.label is None or self.label == "":
                 self.label = self.get_label()
@@ -229,24 +308,35 @@ class Observation(BaseModel):
         super().save(*args, **kwargs)
 
     def check_data_files_human(self):
+        """
+        Check and update associated data files if the observation is of a human.
+        """
         for data_file in self.data_files.all():
             data_file.check_human()
 
 
 @receiver(m2m_changed, sender=Observation.data_files.through)
 def update_observation_data_files(sender, instance, action, reverse, *args, **kwargs):
-
+    """
+    Signal handler to update the Observation instance when its data files are changed.
+    """
     if (action == 'post_add' or action == 'post_remove'):
         instance.save()
 
 
 @receiver(post_delete, sender=Observation)
 def check_human_delete(sender, instance, **kwargs):
+    """
+    Signal handler to check and update data files when a human observation is deleted.
+    """
     if instance.taxon.taxon_code == settings.HUMAN_TAXON_CODE:
         instance.check_data_files_human()
 
 
 @receiver(post_save, sender=Observation)
 def check_human_save(sender, instance, created, **kwargs):
+    """
+    Signal handler to check and update data files when a human observation is saved.
+    """
     if instance.taxon.taxon_code == settings.HUMAN_TAXON_CODE:
         instance.check_data_files_human()

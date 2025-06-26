@@ -2,7 +2,6 @@ site_name: ARISE MDS sensor portal help
 nav:
     - Home: "index.md"
     - About: "about.md"
-    - Core features: "functions/index.md"
     - Data structure: 
       - Overview: "structure/index.md"
       - Project: "structure/project.md"
@@ -11,6 +10,8 @@ nav:
       - Datafile: "structure/datafile.md"
     - For developers: 
       - Overview: "developers/index.md"
+      - Data handlers: "developers/data_handlers.md"
+      - Generic jobs: "developers/generic_jobs.md"
       - Code Reference: "reference/"
     - For admin:
       - Overview: "admin/index.md"
@@ -26,5 +27,8 @@ plugins:
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../sensor_portal]
 

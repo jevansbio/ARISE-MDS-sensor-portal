@@ -44,34 +44,39 @@ def create_file_objects(
     int
 ]:
     """
-    Creates file objects and handles file uploads, validations, and database record creation.
+    Create file objects, handle uploads, validations, and database record creation.
+
     Args:
-        files (list): List of file objects to be processed.
-        check_filename (bool, optional): Flag to check for duplicate filenames in the database. Defaults to False.
-        recording_dt (list, optional): List of recording datetime values for the files. Defaults to None.
-        extra_data (list, optional): List of additional metadata for the files. Defaults to None.
-        deployment_object (Deployment, optional): Deployment object associated with the files. Defaults to None.
-        device_object (Device, optional): Device object associated with the files. Defaults to None.
-        data_types (list, optional): List of data types for the files. Defaults to None.
-        request_user (User, optional): User object for permission checks. Defaults to None.
-        multipart (bool, optional): Flag to handle multipart file uploads. Defaults to False.
-        verbose (bool, optional): Flag to enable verbose logging. Defaults to False.
+        files (List[Union[object, UploadedFile]]): List of file objects to process.
+        check_filename (bool, optional): If True, check for duplicate filenames in the database. Defaults to False.
+        recording_dt (Optional[List[Optional[datetime]]], optional): List of recording datetimes for the files. Defaults to None.
+        extra_data (Optional[List[Dict[str, Union[str, int, float, bool, None]]]], optional): List of additional metadata for the files. Defaults to None.
+        deployment_object (Optional[Deployment], optional): Deployment object associated with the files. Defaults to None.
+        device_object (Optional[Device], optional): Device object associated with the files. Defaults to None.
+        data_types (Optional[List[str]], optional): List of data types for the files. Defaults to None.
+        request_user (Optional[User], optional): User object for permission checks. Defaults to None.
+        multipart (bool, optional): If True, handle multipart file uploads. Defaults to False.
+        verbose (bool, optional): If True, enable verbose logging. Defaults to False.
+
     Returns:
-        tuple: A tuple containing:
-            - uploaded_files (list): List of successfully uploaded file objects.
-            - invalid_files (list): List of invalid files with error messages.
-            - existing_files (list): List of files already present in the database.
-            - final_status (int): HTTP status code indicating the result of the operation.
+        Tuple[
+            List[DataFile],  # Successfully uploaded file objects
+            List[Dict[str, Dict[str, Union[str, int]]]],  # Invalid files with errors
+            List[Dict[str, Dict[str, Union[str, int]]]],  # Files already in DB
+            int  # HTTP status code
+        ]
+
     Raises:
         ValidationError: If there is an error validating the database records.
         Exception: For any other errors during file handling or database operations.
+
     Notes:
         - Handles duplicate filename checks and multipart uploads.
-        - Validates file types based on the associated device model.
+        - Validates file types based on the device model.
         - Checks permissions for attaching files to deployments.
         - Filters files based on recording datetime and deployment validity.
-        - Creates database records for valid files and saves them to the specified path.
-        - Supports automated tasks and checksum validation for multipart uploads.
+        - Creates database records and saves valid files.
+        - Supports automated tasks and checksum validation.
     """
 
     from data_models.models import DataFile, DataType, ProjectJob
@@ -695,22 +700,19 @@ def handle_uploaded_file(
     verbose: bool = False
 ) -> None:
     """
-    Handles the uploading and saving of a file to the specified filepath.
-    Parameters:
-        file (UploadedFile): The file object to be saved. It is expected to have a `chunks()` method for reading data in chunks.
-        filepath (str): The full path where the file should be saved.
-        multipart (bool, optional): If True, appends the file content to an existing file at the filepath. Defaults to False.
-        verbose (bool, optional): If True, prints debug information about the file handling process. Defaults to False.
-    Behavior:
-        - Creates the directory structure for the filepath if it does not exist.
-        - Writes the file in binary mode ('wb+') if `multipart` is False.
-        - Appends the file in binary mode ('ab+') if `multipart` is True and the file already exists.
-        - Prints debug information if `verbose` is True.
+    Upload and save a file to the specified filepath.
+
+    Args:
+        file (Union[object, UploadedFile]): The file object to save. Must provide a `chunks()` method.
+        filepath (str): The destination path.
+        multipart (bool, optional): If True, append to an existing file. Defaults to False.
+        verbose (bool, optional): If True, log debug info. Defaults to False.
+
     Raises:
-        OSError: If there is an issue creating directories or writing to the file.
+        OSError: If creating directories or writing to the file fails.
+
     Example:
-        handle_uploaded_file(
-            uploaded_file, '/path/to/save/file.txt', multipart=True, verbose=True)
+        handle_uploaded_file(uploaded_file, '/path/to/save/file.txt', multipart=True, verbose=True)
     """
     os.makedirs(os.path.split(filepath)[0], exist_ok=True)
     if multipart and os.path.exists(filepath):
@@ -735,18 +737,17 @@ def get_new_name(
     file_n: Optional[int] = None
 ) -> str:
     """
-    Generates a new unique name for a file based on deployment, recording datetime, and file count.
+    Generate a unique file name based on deployment, recording datetime, and file count.
 
     Args:
-        deployment (Deployment): The deployment object associated with the file.
-        recording_dt (datetime): The recording datetime of the file.
-        file_local_path (str): The root local path where files are stored.
-        file_path (str): The relative path for the file within the storage root.
-        file_n (Optional[int], optional): The file count for uniqueness. Defaults to None.
+        deployment (Deployment): Associated deployment object.
+        recording_dt (datetime): File recording datetime.
+        file_local_path (str): Root local path for storage.
+        file_path (str): Relative file path within storage root.
+        file_n (Optional[int], optional): File count for uniqueness. Defaults to None.
 
     Returns:
-        str: A unique name for the file in the format:
-             "{deployment_device_ID}_{YYYY-MM-DD_HH-MM-SS}_({file_n})"
+        str: Unique file name in the format "{deployment_device_ID}_{YYYY-MM-DD_HH-MM-SS}_({file_n})"
     """
     if file_n is None:
         file_n = get_n_files(os.path.join(file_local_path, file_path)) + 1
@@ -756,14 +757,13 @@ def get_new_name(
 
 def get_n_files(dir_path: str) -> int:
     """
-    Counts the number of files in a directory that have an extension.
+    Count the number of files in a directory that have an extension.
 
     Args:
-        dir_path (str): The path to the directory to count files in.
+        dir_path (str): Directory path.
 
     Returns:
-        int: The number of files in the directory with an extension.
-             Returns 0 if the directory does not exist.
+        int: Number of files with an extension, or 0 if directory does not exist.
     """
     if os.path.exists(dir_path):
         all_files = os.listdir(dir_path)
@@ -780,21 +780,19 @@ def group_files_by_size(
     max_size: float = settings.MAX_ARCHIVE_SIZE_GB
 ) -> list[dict[str, float | list[int]]]:
     """
-    Groups files into batches based on their size, ensuring that the total size
-    of each batch does not exceed the specified maximum size.
+    Group files into batches by size, ensuring each batch does not exceed max_size (GB).
+
     Args:
-        file_objs (QuerySet): A Django QuerySet containing file objects.
-            Each file object must have 'pk' (primary key) and 'file_size' attributes.
-        max_size (float, optional): The maximum size (in GB) allowed for each group.
-            Defaults to `settings.MAX_ARCHIVE_SIZE_GB`.
+        file_objs (QuerySet): Django QuerySet with 'pk' and 'file_size' attributes.
+        max_size (float, optional): Maximum group size in GB. Defaults to settings.MAX_ARCHIVE_SIZE_GB.
+
     Returns:
-        list[dict[str, float | list[int]]]: A list of dictionaries, where each dictionary
-        represents a group of files. Each dictionary contains:
-            - "file_pks" (list[int]): A list of primary keys of the files in the group.
-            - "total_size_gb" (float): The total size of the files in the group (in GB).
+        list[dict[str, float | list[int]]]: List of groups, where each dict contains:
+            - "file_pks": List[int] - Primary keys of files in the group.
+            - "total_size_gb": float - Total size of the group in GB.
+
     Notes:
-        - Files are grouped in order of their 'recording_dt' attribute.
-        - The `itertools.groupby` function is used to group files by their assigned key.
+        - Groups files in order of their 'recording_dt' attribute.
     """
 
     # Initialize variables to track the current group key, total size, and file information

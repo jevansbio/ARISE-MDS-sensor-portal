@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>viewsets - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "viewsets";
+        var mkdocs_page_input_path = "reference\\observation_editor\\viewsets.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">observation_editor</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">viewsets</a>
+    <ul class="current">
+    </ul>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">observation_editor</a></li>
+      <li class="breadcrumb-item active">viewsets</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="observation_editor.viewsets"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="observation_editor.viewsets.ObservationViewSet" class="doc doc-heading">
+            <code>ObservationViewSet</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="CheckAttachmentViewSetMixIn (utils.viewsets.CheckAttachmentViewSetMixIn)" href="../../utils/viewsets/#utils.viewsets.CheckAttachmentViewSetMixIn">CheckAttachmentViewSetMixIn</a></code>, <code><span title="utils.viewsets.AddOwnerViewSetMixIn">AddOwnerViewSetMixIn</span></code>, <code><a class="autorefs autorefs-internal" title="OptionalPaginationViewSetMixIn (utils.viewsets.OptionalPaginationViewSetMixIn)" href="../../utils/viewsets/#utils.viewsets.OptionalPaginationViewSetMixIn">OptionalPaginationViewSetMixIn</a></code></p>
+
+
+        <p>A ViewSet for listing, creating, updating, and deleting observations.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>observation_editor\viewsets.py</code></summary>
+                <pre class="highlight"><code class="language-python">@extend_schema(summary="Observations",
+               description="Observations are annotations of datafiles, made by human or AI.",
+               tags=["Observations"],
+               methods=["get", "post", "put", "patch", "delete"],
+               responses=DummyObservationSerializer,
+               request=DummyObservationSerializer,
+               )
+@extend_schema_view(
+    list=extend_schema(summary='List observations',
+                       parameters=obs_extra_parameters,
+                       ),
+    retrieve=extend_schema(summary='Get a single observation',
+                           parameters=[
+                               OpenApiParameter(
+                                   "id",
+                                   OpenApiTypes.INT,
+                                   OpenApiParameter.PATH,
+                                   description="Database ID of observation to get.")]),
+    partial_update=extend_schema(summary='Partially update an observation',
+                                 parameters=[
+                                     OpenApiParameter(
+                                         "id",
+                                         OpenApiTypes.INT,
+                                         OpenApiParameter.PATH,
+                                         description="Database ID of observation to update.")]),
+    update=extend_schema(summary='Update an observation',
+                         parameters=[
+                             OpenApiParameter(
+                                 "id",
+                                 OpenApiTypes.INT,
+                                 OpenApiParameter.PATH,
+                                 description="Database ID of observation to update.")]),
+    create=extend_schema(summary='Create an observation'),
+    destroy=extend_schema(summary='Delete an observation',
+                          parameters=[
+                              OpenApiParameter(
+                                  "id",
+                                  OpenApiTypes.INT,
+                                  OpenApiParameter.PATH,
+                                  description="Database ID of observation to delete.")]),
+    datafile_observations=extend_schema(summary="Observations from datafile",
+                                        description="Get observations from a specific datafile.",
+                                        filters=True,
+                                        parameters=obs_extra_parameters + [
+                                            OpenApiParameter(
+                                                "datafile_id",
+                                                OpenApiTypes.INT,
+                                                OpenApiParameter.PATH,
+                                                description="Database ID of datafile from which to get observations.")]),
+    deployment_observations=extend_schema(summary="Observations from deployment",
+                                          filters=True,
+                                          description="Get observations from a specific deployment.",
+                                          parameters=obs_extra_parameters + [
+                                              OpenApiParameter(
+                                                  "deployment_id",
+                                                  OpenApiTypes.INT,
+                                                  OpenApiParameter.PATH,
+                                                  description="Database ID of deployment from which to get observations.")]),
+)
+class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
+    """
+
+    A ViewSet for listing, creating, updating, and deleting observations. 
+
+    """
+    search_fields = ["taxon__species_name", "taxon__species_common_name"]
+    ordering_fields = ["obs_dt", "created_on"]
+    queryset = Observation.objects.all().prefetch_related("taxon")
+    serializer_class = ObservationSerializer
+    filter_backend = viewsets.ModelViewSet.filter_backends
+    filterset_class = ObservationFilter
+
+    def get_queryset(self):
+        qs = Observation.objects.all().prefetch_related("taxon")
+        if (target_taxon_level := self.request.GET.get("target_taxon_level")) is not None:
+            qs = qs.get_taxonomic_level(target_taxon_level).filter(
+                parent_taxon_pk__isnull=False)
+
+        if 'ctdp' in self.request.GET.keys():
+            qs = get_ctdp_obs_qs(qs)
+
+        return qs
+
+    def get_serializer_class(self):
+        if 'ctdp' in self.request.GET.keys():
+            return ObservationSerializerCTDP
+        else:
+            return ObservationSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update(
+            {"target_taxon_level": self.request.GET.get("target_taxon_level")})
+        return context
+
+    def check_attachment(self, serializer):
+        data_files_objects = serializer.validated_data.get('data_files')
+        if data_files_objects is not None:
+            for data_file_object in data_files_objects:
+                if not self.request.user.has_perm('data_models.annotate_datafile', data_file_object):
+                    raise PermissionDenied(
+                        f"You don't have permission to add an observation to {data_file_object.file_name}")
+
+    @action(detail=False, methods=['get'], url_path=r'datafile/(?P&lt;datafile_id&gt;\w+)', url_name="datafile_observations")
+    def datafile_observations(self, request, datafile_id=None):
+
+        # Filter observations based on URL query parameters
+        observation_qs = Observation.objects.filter(
+            data_files__pk=datafile_id).select_related('taxon', 'owner')
+        observation_qs = self.filter_queryset(observation_qs)
+
+        if 'ctdp' in self.request.GET.keys():
+            observation_qs = get_ctdp_obs_qs(observation_qs)
+
+        # Paginate the queryset
+        page = self.paginate_queryset(observation_qs)
+        if page is not None:
+            observation_serializer = self.get_serializer(
+                page, many=True, context={'request': request})
+
+            return self.get_paginated_response(observation_serializer.data)
+
+        # If no pagination, serialize all data
+
+        observation_serializer = self.get_serializer(
+            page, many=True, context={'request': request})
+        return Response(observation_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'deployment/(?P&lt;deployment_id&gt;\w+)', url_name="deployment_observations")
+    def deployment_observations(self, request, deployment_id=None):
+
+        # Filter observations based on URL query parameters
+        observation_qs = Observation.objects.filter(
+            data_files__deployment=deployment_id).select_related('taxon', 'owner')
+        observation_qs = self.filter_queryset(observation_qs)
+
+        if 'ctdp' in self.request.GET.keys():
+            observation_qs = get_ctdp_obs_qs(observation_qs)
+
+        # Paginate the queryset
+        page = self.paginate_queryset(observation_qs)
+        if page is not None:
+            observation_serializer = self.get_serializer(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(observation_serializer.data)
+
+        # If no pagination, serialize all data
+        observation_serializer = self.get_serializer(
+            observation_qs, many=True, context={'request': request})
+        return Response(observation_serializer.data, status=status.HTTP_200_OK)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="observation_editor.viewsets.TaxonAutocompleteViewset" class="doc doc-heading">
+            <code>TaxonAutocompleteViewset</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.viewsets.ReadOnlyModelViewSet">ReadOnlyModelViewSet</span></code></p>
+
+
+        <p>A ViewSet for providing autocomplete functionality for taxon names.
+This ViewSet allows users to search for taxon names and common names,
+returning a limited number of results for efficient searching.
+It integrates with the GBIF species search API to supplement local taxon data.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>observation_editor\viewsets.py</code></summary>
+                <pre class="highlight"><code class="language-python">@extend_schema(
+    exclude=True
+)
+class TaxonAutocompleteViewset(viewsets.ReadOnlyModelViewSet):
+    """
+    A ViewSet for providing autocomplete functionality for taxon names.
+    This ViewSet allows users to search for taxon names and common names,
+    returning a limited number of results for efficient searching.
+    It integrates with the GBIF species search API to supplement local taxon data.
+    """
+    http_method_names = ['get']
+    search_fields = ["species_name", "species_common_name"]
+    queryset = Taxon.objects.all().distinct()
+    serializer_class = EvenShorterTaxonSerialier
+    pagination.PageNumberPagination.page_size = 5
+
+    def list(self, request, pk=None):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        serializer_data = serializer.data
+        if (n_database_records := len(serializer_data)) &lt; pagination.PageNumberPagination.page_size:
+            try:
+                gbif_record_n = pagination.PageNumberPagination.page_size - n_database_records
+                existing_species = [x.get("species_name")
+                                    for x in serializer_data]
+                gbif_results, scores = GBIF_species_search(
+                    self.request.GET.get("search"))
+                gbif_results = [x for x in gbif_results if (canon_name := x.get(
+                    "canonicalName")) and canon_name not in existing_species and canon_name != ""]
+                if len(gbif_results) &gt; 0:
+                    gbif_results = gbif_results[:gbif_record_n]
+                    new_gbif_results = []
+                    for gbif_result in gbif_results:
+                        if (vernacular_name := gbif_result.get("vernacularName")) is None:
+                            vernacular_names = gbif_result.get(
+                                "vernacularNames", [])
+                            vernacular_name = ""
+                            for x in vernacular_names:
+                                if x.get("language", "") == "eng":
+                                    vernacular_name = x.get(
+                                        "vernacularName", "")
+                                    break
+
+                        new_gbif_result = {"id": "",
+                                           "species_name": gbif_result.get("canonicalName", ""),
+                                           "species_common_name": vernacular_name,
+                                           "taxon_souce": 1}
+                        new_gbif_results.append(new_gbif_result)
+                    serializer_data += new_gbif_results
+            except Exception as e:
+                logger.error(e)
+
+        return self.get_paginated_response(serializer_data)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../tasks/" class="btn btn-neutral float-left" title="tasks"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../user_management/" class="btn btn-neutral float-right" title="user_management">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../tasks/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../user_management/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

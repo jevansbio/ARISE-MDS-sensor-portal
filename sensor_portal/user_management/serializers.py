@@ -14,6 +14,9 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the User model, used for displaying basic user information.
+    """
     email = serializers.EmailField(
         required=True,
         # validators=[UniqueValidator(queryset=User.objects.all())]
@@ -55,7 +58,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-
+    """
+    Serializer for the User model, used for displaying extensive user information for profile views.
+    This serializer includes related fields for projects, devices, and deployments owned, managed, annotatable, and viewable by the user.
+    It is used to provide a comprehensive overview of the user's interactions with the system.
+    """
     owned_projects = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='project_ID', help_text="Project ID of projects owned by the user.")
     owned_projects_ID = serializers.PrimaryKeyRelatedField(
@@ -128,7 +135,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-
+    """
+    Custom serializer for obtaining JWT tokens, extending the default TokenObtainPairSerializer to use captcha validation.
+    """
     recaptcha = ReCaptchaV3Field(
         action="login",
         required_score=0.6,

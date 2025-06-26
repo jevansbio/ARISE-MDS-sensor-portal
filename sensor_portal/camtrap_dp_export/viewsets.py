@@ -17,6 +17,9 @@ from .serializers import SequenceSerializer
     retrieve=extend_schema(exclude=True)
 )
 class SequenceViewsetCTDP(OptionalPaginationViewSetMixIn):
+    """
+    A ViewSet for listing sequences of observations in Camtrap DP format.
+    """
     http_method_names = ['get', 'head']
     queryset = get_ctdp_seq_qs(Observation.objects.all())
     serializer_class = SequenceSerializer

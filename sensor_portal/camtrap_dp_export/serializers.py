@@ -8,6 +8,11 @@ from rest_framework import serializers
 
 
 class DeploymentSerializerCTDP(serializers.Serializer):
+    """
+    Serializer for representing deployment metadata in the Camtrap DP export format.
+    Maps deployment fields to the expected Camtrap DP schema, including location,
+    coordinates, camera details, and deployment attributes.
+    """
     deploymentID = serializers.CharField(
         source='deployment_device_ID',
         help_text="Unique identifier for this deployment (required by Camtrap DP: deploymentID)."
@@ -67,6 +72,11 @@ class DeploymentSerializerCTDP(serializers.Serializer):
 
 
 class DataFileSerializerCTDP(serializers.Serializer):
+    """
+    Serializer for representing media file metadata in the Camtrap DP export format.
+    Maps file fields to the expected Camtrap DP schema, including media identifiers,
+    file paths, MIME types, and additional comments.
+    """
     mediaID = serializers.CharField(
         source='file_name',
         help_text="Unique identifier for the media file (Camtrap DP: mediaID)."
@@ -100,10 +110,22 @@ class DataFileSerializerCTDP(serializers.Serializer):
     )
 
     def get_fileMediatype(self, obj):
+        """
+        Guess the MIME type of the file based on its name.
+        Args:
+            obj: The object instance being serialized.
+        Returns:
+            str or None: The guessed MIME type, or None if unknown.
+        """
         return mimetypes.guess_type(obj.fileName)[0]
 
 
 class ObservationSerializerCTDP(serializers.Serializer):
+    """
+    Serializer for representing observation metadata in the Camtrap DP export format.
+    Maps observation fields to the expected Camtrap DP schema, including event,
+    taxonomic, and detection details.
+    """
     observationID = serializers.CharField(
         help_text="Unique identifier for this observation (Camtrap DP: observationID)."
     )
@@ -189,6 +211,11 @@ class ObservationSerializerCTDP(serializers.Serializer):
 
 
 class SequenceSerializer(serializers.Serializer):
+    """
+    Serializer for representing sequence (event) metadata in the Camtrap DP export format.
+    Maps sequence fields to the expected Camtrap DP schema, including event identifiers,
+    media associations, and timing details.
+    """
     eventID = serializers.CharField(
         help_text="Identifier for the sequence event (Camtrap DP: eventID)."
     )

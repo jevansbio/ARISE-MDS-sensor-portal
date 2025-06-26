@@ -15,6 +15,11 @@ class DummyJSONField(serializers.Field):
 
 
 class SlugRelatedGetOrCreateField(serializers.SlugRelatedField):
+    """
+    A SlugRelatedField that retrieves or creates an object based on the slug field.
+
+    """
+
     def to_internal_value(self, data):
         queryset = self.get_queryset()
         try:
@@ -24,13 +29,25 @@ class SlugRelatedGetOrCreateField(serializers.SlugRelatedField):
 
 
 class CheckFormMixIn():
+    """
+    A mixin to check if the data was submitted through a form.
+    It retrieves the form submission from the context and makes it available
+    as `self.form_submission` in the serializer.
+    """
+
     def __init__(self, *args, **kwargs):
         super(CheckFormMixIn, self).__init__(*args, **kwargs)
         self.form_submission = self.context.get("form")
 
 
 class InstanceGetMixIn():
-    def instance_get(self, attr_name, data):
+    """
+    A mixin to retrieve an attribute from the instance or data.
+    If the attribute is not found in the data, it checks if the instance has the attribute.
+    If the attribute is found in the instance, it returns that value; otherwise, it returns None.
+    """
+
+    def instance_get(self, attr_name: str, data: dict) -> any:
         if attr_name in data:
             return data[attr_name]
         if self.instance and hasattr(self.instance, attr_name):
@@ -39,6 +56,9 @@ class InstanceGetMixIn():
 
 
 class CreatedModifiedMixIn(serializers.ModelSerializer):
+    """
+    A mixin to add created_on and modified_on fields to a serializer.
+    """
     created_on = serializers.DateTimeField(
         default_timezone=djtimezone.utc, read_only=True, required=False)
     modified_on = serializers.DateTimeField(
@@ -46,6 +66,12 @@ class CreatedModifiedMixIn(serializers.ModelSerializer):
 
 
 class OwnerMixIn(serializers.ModelSerializer):
+    """
+    A mixin to add owner information to a serializer.
+    It includes a read-only field for the owner and a boolean field to indicate if the user is the owner.
+    The `to_representation` method customizes the output to include the owner and user_is_owner fields.
+    The owner field is removed from the final representation.
+    """
     owner = serializers.StringRelatedField(read_only=True)
 
     def to_representation(self, instance):
@@ -63,7 +89,14 @@ class OwnerMixIn(serializers.ModelSerializer):
 
 
 class ManagerMixIn(serializers.ModelSerializer):
-    # user_is_manager = serializers.BooleanField(read_only=True, default = False)
+    """
+    A mixin to add management-related fields to a serializer.
+    It includes fields for managers, annotators, and viewers, allowing them to be set by slug or primary key.
+    The `to_representation` method customizes the output to include user permissions and conditionally
+    removes management-related fields based on the user's permissions.
+    The `update` method ensures that the instance is saved after updating the management-related fields.
+
+    """
 
     managers = serializers.SlugRelatedField(many=True,
                                             slug_field="username",

@@ -12,6 +12,10 @@ from .models import Observation, Taxon
 
 
 class TaxonSerializer(CreatedModifiedMixIn, serializers.ModelSerializer):
+    """
+    Serializer for the Taxon model, including all fields.
+    Adds a read-only field for the taxonomic level display name.
+    """
     taxonomic_level_name = serializers.CharField(
         source="get_taxonomic_level_display", read_only=True)
 
@@ -21,6 +25,10 @@ class TaxonSerializer(CreatedModifiedMixIn, serializers.ModelSerializer):
 
 
 class ShortTaxonSerializer(serializers.ModelSerializer):
+    """
+    A shorter serializer for the Taxon model, excluding certain fields.
+    Adds the taxonomic level display, and renames 'extra_data' to 'taxon_extra_data' in output.
+    """
 
     taxonomic_level_name = serializers.CharField(
         source="get_taxonomic_level_display", read_only=True)
@@ -30,6 +38,9 @@ class ShortTaxonSerializer(serializers.ModelSerializer):
         exclude = ["id", "created_on", "modified_on", "parents"]
 
     def to_representation(self, instance):
+        """
+        Customize the output representation by renaming 'extra_data' to 'taxon_extra_data'.
+        """
         initial_rep = super(ShortTaxonSerializer,
                             self).to_representation(instance)
         initial_rep["taxon_extra_data"] = initial_rep.pop("extra_data")
@@ -38,12 +49,18 @@ class ShortTaxonSerializer(serializers.ModelSerializer):
 
 
 class EvenShorterTaxonSerialier(serializers.ModelSerializer):
-
+    """
+    An even more concise serializer for the Taxon model, exposing only a few fields.
+    Adds a combined string of species name and common name.
+    """
     class Meta:
         model = Taxon
         fields = ["id", "species_name", "species_common_name", "taxon_source"]
 
     def to_representation(self, instance):
+        """
+        Adds a 'full_string' field combining species name and common name.
+        """
         initial_rep = super(EvenShorterTaxonSerialier,
                             self).to_representation(instance)
         initial_rep["full_string"] = f"{initial_rep.get('species_name')} - {initial_rep.get('species_common_name')}"
@@ -51,6 +68,10 @@ class EvenShorterTaxonSerialier(serializers.ModelSerializer):
 
 
 class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, serializers.ModelSerializer):
+    """
+    Serializer for the Observation model, providing detailed taxon handling.
+    Handles relationships to Taxon and customizes output based on context.
+    """
     taxon_obj = ShortTaxonSerializer(
         source='taxon', read_only=True, required=False)
     taxon = serializers.PrimaryKeyRelatedField(
@@ -65,6 +86,9 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
                                                read_only=False)
 
     def to_representation(self, instance):
+        """
+        Customizes output: handles target taxon levels, annotator display, and merging taxon info.
+        """
         initial_rep = super(ObservationSerializer,
                             self).to_representation(instance)
         initial_rep.pop("species_name")
@@ -98,6 +122,10 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
         return initial_rep
 
     def validate(self, data):
+        """
+        Validates that either 'taxon' or 'species_name' is provided during creation,
+        using custom two-key check logic.
+        """
         data = super().validate(data)
         if not self.partial:
             result, message, data = check_two_keys(
@@ -112,6 +140,5 @@ class ObservationSerializer(OwnerMixIn, CreatedModifiedMixIn, CheckFormMixIn, se
         return data
 
     class Meta:
-
         model = Observation
         exclude = []

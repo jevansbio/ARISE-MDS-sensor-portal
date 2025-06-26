@@ -17,6 +17,10 @@ from .serializers import UserProfileSerializer, UserSerializer
     exclude=True
 )
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for managing User instances, allowing users to list, retrieve,
+    create, and search for users. This viewset is primarily used by managers.
+    """
     http_method_names = ['get', 'post', 'head']
     filterset_class = UserFilter
     serializer_class = UserSerializer
@@ -49,6 +53,11 @@ class UserViewSet(viewsets.ModelViewSet):
                                                    OpenApiParameter.PATH,
                                                    description="Database ID of user to get.")]),)
 class UserProfileViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for managing user profiles, allowing users to retrieve their own profile.
+    This viewset is primarily used for viewing user profiles, and it does not allow listing of all users.
+    Users can only retrieve their own profile unless they are staff members.
+    """
     http_method_names = ['get', 'head']
     filterset_class = UserFilter
     serializer_class = UserProfileSerializer

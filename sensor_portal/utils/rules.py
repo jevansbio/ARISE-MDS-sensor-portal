@@ -26,6 +26,10 @@ def check_super(user):
 
 
 class IsOwner(R):
+    """_summary_
+    Shared rule to check if a user is the owner of an instance.
+    """
+
     def check(self, user, instance=None):
         initial_bool = check_super(user)
 
