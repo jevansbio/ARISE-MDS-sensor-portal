@@ -9,7 +9,7 @@ A general search function and filters are available to subset **datafiles**
   
 **Device type** Allows a user to filter datafiles by device type. For example, a user can subset all datafiles from wildlife cameras.  
 
-**File type**  Allows a user to filter datafiles by the primary file type associated with a device type. For instance, the filter option _wildlifecamera_ will yield .JPEG files, despite that wildlife cameras may also collect other datatypes such as .txt.
+**File type** Allows a user to filter by the _data type_ of files. e.g. _wildlifecamera_ will show only images with this data type, excluding timelapsecamera and reports produced by the same device.  
 
 **File recorded after** Allows a user to filter for datafiles recorder after a specified date and time.  
 
