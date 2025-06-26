@@ -11,6 +11,20 @@ nav:
       - Datafile: "structure/datafile.md"
     - For developers: 
       - Overview: "developers/index.md"
+      - Code Reference: "reference/"
     - For admin:
       - Overview: "admin/index.md"
 theme: readthedocs
+markdown_extensions:
+  - pymdownx.highlight:
+      default_lang: python
+plugins:
+  - search
+  - gen-files:
+      scripts:
+      - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings
+
