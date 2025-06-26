@@ -1,18 +1,40 @@
 import json
 import os
+from typing import Tuple
 from zipfile import ZipFile
 
 from camtrap_dp_export.metadata_functions import create_camtrap_dp_metadata
 from data_models.metadata_functions import create_metadata_dict
 from django.conf import settings
-from django.db.models import F, Value
+from django.db.models import F, QuerySet, Value
 from django.db.models.functions import Concat
 from observation_editor.metadata_functions import \
     create_metadata_dict as create_obs_metadata_dict
 from observation_editor.models import Observation
 
 
-def create_zip(zip_name, file_objs, metadata_type, includes_files):
+def create_zip(
+    zip_name: str,
+    file_objs: QuerySet,
+    metadata_type: int,
+    includes_files: bool
+) -> Tuple[bool, str]:
+    """
+    Creates a zip archive containing data or media files along with associated metadata.
+
+    Args:
+        zip_name (str): The base name of the zip file. ".zip" will be appended if not present.
+        file_objs (QuerySet): A Django QuerySet of file objects to include in the zip.
+        metadata_type (int): Type of metadata to include.
+            0 = Standard metadata and observation metadata (metadata.json, observations.json).
+            1 = Camtrap DP metadata (media.csv, observations.csv, deployments.csv, events.csv, datapackage.json).
+        includes_files (bool): If True, only include files with local storage.
+
+    Returns:
+        Tuple[bool, str]: 
+            - Success status (True if the zip was created, False otherwise).
+            - Path to the created package directory (empty string if unsuccessful).
+    """
     if includes_files:
         file_objs = file_objs.filter(local_storage=True)
 

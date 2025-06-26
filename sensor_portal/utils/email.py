@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -8,12 +9,28 @@ from user_management.models import User
 logger = logging.getLogger(__name__)
 
 
-def send_email_to_users(users: list[User], subject: str, body: str):
+def send_email_to_users(users: List[User], subject: str, body: str) -> None:
+    """
+    Sends an email with the given subject and body to a list of User objects.
+
+    Args:
+        users (List[User]): List of user objects to send the email to.
+        subject (str): Subject of the email.
+        body (str): Email body content.
+    """
     for user in users:
         send_email_to_user(user, subject, body)
 
 
-def send_email_to_user(user: User, subject: str, body: str):
+def send_email_to_user(user: User, subject: str, body: str) -> None:
+    """
+    Sends an email to a single user if the user does not have a related deviceuser.
+
+    Args:
+        user (User): Django User object to send the email to.
+        subject (str): Subject of the email.
+        body (str): Email body content.
+    """
     try:
         user.deviceuser
         return
@@ -26,11 +43,22 @@ def send_email_to_user(user: User, subject: str, body: str):
     send_email(user.email, subject, new_body)
 
 
-def send_email(to_email, subject, body):
+def send_email(to_email: str | List[str], subject: str, body: str) -> None:
+    """
+    Sends an HTML email to one or more recipients.
+
+    Args:
+        to_email (str | List[str]): Recipient email address(es).
+        subject (str): Subject of the email.
+        body (str): HTML content of the email.
+
+    Raises:
+        ValueError: If 'to_email' is not provided.
+    """
     try:
         settings.EMAIL_HOST_USER
     except AttributeError:
-        logger.info("No email sender configured")
+        logger.error("No email sender configured")
         return
 
     if not to_email:

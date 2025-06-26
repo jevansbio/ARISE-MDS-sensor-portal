@@ -30,6 +30,19 @@ class DeviceAdmin(AddOwnerAdmin):
     list_filter = ['type']
     filter_horizontal = ['managers', 'annotators', 'viewers']
 
+    def get_field_queryset(self, db, db_field, request):
+        """
+        If the ModelAdmin specifies ordering, the queryset should respect that
+        ordering.  Otherwise don't specify the queryset, let the field decide
+        (returns None in that case).
+        """
+        if db_field.name in ["managers", "annotators", "viewers"]:
+
+            return db_field.remote_field.model._default_manager.filter(
+                deviceuser__isnull=True,
+                is_active=True
+            ).order_by("username")
+
     #  admin form hack to make sure device user is assigned to managers
     def save_related(self, request, form, formsets, change):
         """
@@ -67,6 +80,21 @@ class ProjectAdmin(AddOwnerAdmin):
     list_display = ['project_ID', 'name']
     search_fields = ['project_ID', 'name']
     filter_horizontal = ['managers', 'annotators', 'viewers']
+
+    def get_field_queryset(self, db, db_field, request):
+        """
+        If the ModelAdmin specifies ordering, the queryset should respect that
+        ordering.  Otherwise don't specify the queryset, let the field decide
+        (returns None in that case).
+        """
+        if db_field.name in ["managers", "annotators", "viewers"]:
+
+            return db_field.remote_field.model._default_manager.filter(
+                deviceuser__isnull=True,
+                is_active=True
+            ).order_by("username")
+
+        super().get_field_queryset(db, db_field, request)
 
     def save_related(self, request, form, formsets, change):
         """

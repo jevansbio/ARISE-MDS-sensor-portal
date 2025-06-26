@@ -1,34 +1,32 @@
+from typing import TypeVar
+
 from data_models.models import DataFile, Deployment
 from django.conf import settings
-from django.db.models import (
-    BooleanField,
-    Case,
-    CharField,
-    Count,
-    ExpressionWrapper,
-    F,
-    FloatField,
-    IntegerField,
-    Max,
-    Min,
-    Q,
-    Subquery,
-    Value,
-    When,
-)
+from django.db.models import (BooleanField, Case, CharField, Count,
+                              ExpressionWrapper, F, FloatField, IntegerField,
+                              Max, Min, Q, Subquery, Value, When)
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Concat, FirstValue, Replace
+from django.db.models.query import QuerySet
 from observation_editor.models import Observation
 
 # Move to settings
 activity_types = ["wildlifecamera"]
 timelapse_types = ["timelapsecamera"]
 
-# Transform for camtrap DP
+_QS = TypeVar('_QS', bound=QuerySet)
 
 
-def get_ctdp_deployment_qs(qs):
+def get_ctdp_deployment_qs(qs: _QS) -> _QS:
+    """
+    Annotate a deployment queryset with fields formatted for Camtrap Data Package (CTDP) export.
 
+    Args:
+        qs (QuerySet): A Django queryset for Deployment objects.
+
+    Returns:
+        QuerySet: Annotated queryset with additional CTDP fields.
+    """
     qs = qs.annotate(
         locationID=Case(
             When(extra_data__deploymentLocationID__isnull=False, then=Cast(KeyTextTransform('deploymentLocationID', 'extra_data'),
@@ -43,7 +41,7 @@ def get_ctdp_deployment_qs(qs):
     qs = qs.annotate(setupBy=Case(When(owner__isnull=False,
                                   then=Concat(F('owner__first_name'), Value(
                                       ' '), F('owner__last_name'))),
-                     default=Value(''), output_field=CharField()))
+                                  default=Value(''), output_field=CharField()))
 
     qs = qs.annotate(
         coordinateUncertainty=Case(
@@ -147,8 +145,16 @@ def get_ctdp_deployment_qs(qs):
     return qs
 
 
-def get_ctdp_media_qs(qs):
+def get_ctdp_media_qs(qs: _QS) -> _QS:
+    """
+    Annotate a media file queryset with fields formatted for Camtrap Data Package (CTDP) export.
 
+    Args:
+        qs (QuerySet): A Django queryset for DataFile or similar media objects.
+
+    Returns:
+        QuerySet: Annotated queryset with additional CTDP media fields.
+    """
     qs = qs.annotate(
         favorite=ExpressionWrapper(
             Q(favourite_of__isnull=False),
@@ -218,8 +224,16 @@ def get_ctdp_media_qs(qs):
     return qs
 
 
-def get_ctdp_obs_qs(qs):
+def get_ctdp_obs_qs(qs: _QS) -> _QS:
+    """
+    Annotate an observation queryset with fields formatted for Camtrap Data Package (CTDP) export.
 
+    Args:
+        qs (QuerySet): A Django queryset for Observation objects.
+
+    Returns:
+        QuerySet: Annotated queryset with additional CTDP observation fields.
+    """
     qs = qs.annotate(nfiles=Count('data_files'))
 
     qs = qs.annotate(
@@ -364,7 +378,16 @@ def get_ctdp_obs_qs(qs):
     return qs
 
 
-def get_ctdp_seq_qs(qs):
+def get_ctdp_seq_qs(qs: _QS) -> _QS:
+    """
+    Annotate an observation queryset to represent event/sequence records for CTDP export.
+
+    Args:
+        qs (QuerySet): A Django queryset for Observation objects.
+
+    Returns:
+        QuerySet: Annotated queryset filtered for sequence/event records with additional event fields.
+    """
     qs = qs.distinct()
 
     qs = qs.annotate(nfiles=Count('data_files')).filter(nfiles__gt=1)

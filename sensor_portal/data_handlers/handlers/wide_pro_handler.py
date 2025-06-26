@@ -1,11 +1,10 @@
-import io
+
 import os
 from datetime import datetime
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import dateutil.parser
 import pandas as pd
-from celery import shared_task
 from data_handlers.functions import (check_exif_keys, get_image_recording_dt,
                                      open_exif)
 from data_handlers.handlers.default_image_handler import DataTypeHandler
@@ -15,6 +14,10 @@ from sensor_portal.celery import app
 
 
 class Snyper4GHandler(DataTypeHandler):
+    """
+    Data handler for the '4G Wide Pro' wildlife and timelapse cameras.
+    Handles image and daily report text files, extracting metadata and performing post-processing.
+    """
     data_types = ["wildlifecamera", "timelapsecamera"]
     device_models = ["4G Wide Pro"]
     safe_formats = [".jpg", ".jpeg", ".txt"]
@@ -40,7 +43,25 @@ class Snyper4GHandler(DataTypeHandler):
     </ul>
     """.replace("\n", "<br>")
 
-    def handle_file(self, file, recording_dt: datetime = None, extra_data: dict = None, data_type: str = None) -> Tuple[datetime, dict, str]:
+    def handle_file(
+        self,
+        file: Any,
+        recording_dt: Optional[datetime] = None,
+        extra_data: Optional[Dict[str, Any]] = None,
+        data_type: Optional[str] = None
+    ) -> Tuple[Optional[datetime], Dict[str, Any], str, Optional[str]]:
+        """
+        Handles a file (image or text report), extracting metadata and determining data type.
+
+        Args:
+            file: The file object to process.
+            recording_dt: An optional datetime object representing the recording time.
+            extra_data: Optional dict for extra metadata.
+            data_type: Optional string to indicate the data type.
+
+        Returns:
+            Tuple containing the recording datetime, extra metadata, data type, and a post-processing task name.
+        """
         recording_dt, extra_data, data_type, task = super().handle_file(
             file, recording_dt, extra_data, data_type)
 
@@ -48,7 +69,6 @@ class Snyper4GHandler(DataTypeHandler):
         file_extension = split_filename[1]
 
         if file_extension == ".txt":
-
             report_dict = parse_report_file(file)
             if report_dict.get('Date') is None:
                 recording_dt = None
@@ -57,19 +77,14 @@ class Snyper4GHandler(DataTypeHandler):
                          for x in report_dict['Date']]
                 recording_dt = min(dates)
             extra_data["daily_report"] = True
-
             data_type = "report"
-
         else:
             split_image_filename = split_filename[0].split("-")
-
             expected_codes = ["TL", "DR", "ME", "RC"]
-
             type_code = split_image_filename[1]
             # Support some different software versions
             if type_code not in expected_codes:
                 type_code = split_image_filename[0]
-
             if type_code not in expected_codes:
                 type_code = "ME"
 
@@ -88,16 +103,24 @@ class Snyper4GHandler(DataTypeHandler):
 
             image_exif = open_exif(file)
             recording_dt = get_image_recording_dt(image_exif)
-
             # YResolution XResolution Software
             new_extra_data = check_exif_keys(image_exif, [
                 "YResolution", "XResolution", "Software"])
-
             extra_data.update(new_extra_data)
 
         return recording_dt, extra_data, data_type, task
 
-    def get_post_download_task(self, file_extension: str, first_time: bool = True):
+    def get_post_download_task(self, file_extension: str, first_time: bool = True) -> Optional[str]:
+        """
+        Determines the post-download task to run based on file extension.
+
+        Args:
+            file_extension: The file extension string.
+            first_time: Boolean indicating if this is the first time processing.
+
+        Returns:
+            A string with the task name, or None if no task is needed.
+        """
         task = None
         if file_extension == ".txt" and first_time:
             task = "snyper4G_convert_daily_report"
@@ -106,8 +129,17 @@ class Snyper4GHandler(DataTypeHandler):
         return task
 
 
-def parse_report_file(file):
-    report_dict = {}
+def parse_report_file(file: Any) -> Dict[str, List[str]]:
+    """
+    Parses a daily report text file into a dictionary.
+
+    Args:
+        file: The file object to parse.
+
+    Returns:
+        A dictionary with keys as field names and values as lists of strings.
+    """
+    report_dict: Dict[str, List[str]] = {}
     # Should extract date time from file
     for line in file.file:
         line = line.decode("utf-8")
@@ -124,21 +156,34 @@ def parse_report_file(file):
 
 
 @app.task(name="snyper4G_convert_daily_report")
-def convert_daily_report_task(file_pks: List[int]):
+def convert_daily_report_task(file_pks: List[int]) -> None:
+    """
+    Celery task to convert daily report text files to CSV for given file primary keys.
+
+    Args:
+        file_pks: List of file primary keys to process.
+    """
     from data_handlers.post_upload_task_handler import post_upload_task_handler
     post_upload_task_handler(file_pks, convert_daily_report)
 
 
-def convert_daily_report(data_file) -> Tuple[Any | None, List[str] | None]:
+def convert_daily_report(data_file: Any) -> Tuple[Optional[Any], Optional[List[str]]]:
+    """
+    Converts a daily report text file to CSV and updates the file object.
+
+    Args:
+        data_file: The file object to process.
+
+    Returns:
+        Tuple of the updated file object and a list of updated fields, or None if not applicable.
+    """
     # specific handler task
     data_file_path = data_file.full_path()
     # open txt file
     with File(open(data_file_path, mode='rb'), os.path.split(data_file_path)[1]) as txt_file:
         report_dict = parse_report_file(txt_file)
-
         report_dict['Date'] = [dateutil.parser.parse(x, dayfirst=True)
                                for x in report_dict['Date']]
-
         report_dict = {k.lower(): v for k, v in report_dict.items()}
 
         # convert to CSV file
@@ -149,33 +194,28 @@ def convert_daily_report(data_file) -> Tuple[Any | None, List[str] | None]:
             # remove string from number
             report_df['battery'] = report_df['battery'].apply(
                 lambda x: x.replace("%", ""))
-
         if 'temp' in report_df.columns:
             # remove string from number
             report_df['temp'] = report_df['temp'].apply(
                 lambda x: x.replace(" Celsius Degree", ""))
-
         if 'sd' in report_df.columns:
             # split by /, remove the M, convert to number, divide.
-            def divide(num_1, num_2):
-                return num_1/num_2
+            def divide(num_1: int, num_2: int) -> float:
+                return num_1 / num_2
 
             report_df['sd'] = report_df['sd'].apply(lambda x: divide(*[int(y.replace("M", ""))
                                                                        for y in x.split("/")]))
-
         # rename columns more informatively or to skip in plotting
         report_df = report_df.rename(columns={"imei": "imei__",
                                               "csq": "csq__",
                                               "temp": "temp__temperature_degrees_celsius",
                                               "battery": "battery__battery_%",
                                               "sd": "sd__proportion_sd"})
-
         # write CSV, delete txt
         data_file_path_split = os.path.split(data_file_path)
         data_file_name = os.path.splitext(data_file_path_split[1])[0]
-
         data_file_csv_path = os.path.join(
-            data_file_path_split[0], data_file_name+".csv")
+            data_file_path_split[0], data_file_name + ".csv")
 
         report_df.to_csv(data_file_csv_path, index_label=False, index=False)
         # update file object
