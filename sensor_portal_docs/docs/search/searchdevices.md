@@ -11,4 +11,4 @@ A general search function and filters are available to subset **devices**
   
 **Select job** There are currently no job options to select at device level.  
   
-**Add new device** allows uers with _Manager_ permissions to register and manage a (new) device.  
+**Add new device** allows uers with _Manager_ permissions to register new device.  
