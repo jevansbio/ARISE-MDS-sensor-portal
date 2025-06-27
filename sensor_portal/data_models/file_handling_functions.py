@@ -240,11 +240,9 @@ def create_file_objects(
                     extra_data = [x for x, y in zip(
                         extra_data, valid_files_bool) if y]
 
-            # Initialize lists to store updated metadata for valid files
-            new_recording_dt = []
-            new_extra_data = []
-            new_data_types = []
-            new_tasks = []
+            # Initialize list to store updated metadata for valid files
+
+            handler_return_list = []
 
             # Process each valid file using the data handler
             for i in range(len(files)):
@@ -277,17 +275,13 @@ def create_file_objects(
                         device_model_object.type.name
                     )
 
-                # Append the updated metadata to the respective lists
-                new_recording_dt.append(new_file_recording_dt)
-                new_extra_data.append(new_file_extra_data)
-                new_data_types.append(new_file_data_type)
-                new_tasks.append(new_file_task)
-
-            # Update recording_dt, extra_data, data_types, and handler_tasks with the processed values
-            recording_dt = new_recording_dt
-            extra_data = new_extra_data
-            data_types = new_data_types
-            handler_tasks = new_tasks
+                # Append the updated metadata to the lists
+                handler_return_list.append({"file": file,
+                                            "file_name": file.name,
+                                            "recording_dt": new_file_recording_dt,
+                                            "extra_data": new_file_extra_data,
+                                            "data_type": new_file_data_type,
+                                            "task": new_file_task})
 
     else:
         # If no device_object is linked to the files, return an error response
@@ -298,10 +292,10 @@ def create_file_objects(
         return (uploaded_files, invalid_files, existing_files, status.HTTP_400_BAD_REQUEST)
 
     # Check if all recording dates are None, indicating an inability to extract recording date times
-    if all([x is None for x in recording_dt]):
+    if all([x.get("recording_dt") is None for x in handler_return_list]):
         # Add these files to the invalid_files list with an appropriate error message
-        invalid_files += [{x.name: {"message": "Unable to extract recording date time", "status": 400}}
-                          for x in files]
+        invalid_files += [{x.get("file_name"): {"message": "Unable to extract recording date time", "status": 400}}
+                          for x in handler_return_list]
         # Return early with an HTTP 400 Bad Request status
         return (uploaded_files, invalid_files, existing_files, status.HTTP_400_BAD_REQUEST)
 
@@ -317,17 +311,18 @@ def create_file_objects(
                         f"User does not have permission to attach files to {deployment_object.deployment_device_ID}.")
                 # Add these files to the invalid_files list with a permission error message
                 invalid_files += [
-                    {x.name: {
+                    {x.get("file_name"): {
                         "message": f"Not allowed to attach files to {deployment_object.deployment_device_ID}",
                         "status": 403}}
-                    for x in files]
+                    for x in handler_return_list]
                 # Return early with an HTTP 403 Forbidden status
                 return (uploaded_files, invalid_files, existing_files, status.HTTP_403_FORBIDDEN)
 
         if verbose:
             logger.info("Validating recording dates for deployment_object...")
         # Validate the recording dates against the deployment object
-        file_valid = deployment_object.check_dates(recording_dt)
+        valid_date_bool = deployment_object.check_dates(
+            [x.get("recording_dt") for x in handler_return_list])
         # Set deployment_objects to a list containing the deployment_object
         deployment_objects = [deployment_object]
 
@@ -338,9 +333,9 @@ def create_file_objects(
                 "Determining deployments from device_object and recording dates...")
         # Use the device object to find deployments based on recording dates
         deployment_objects = [device_object.deployment_from_date(
-            x) for x in recording_dt]
+            x.get("recording_dt")) for x in handler_return_list]
         # Check which deployments are valid (not None)
-        file_valid = [x is not None for x in deployment_objects]
+        valid_deployment_bool = [x is not None for x in deployment_objects]
         # Filter out None values from deployment_objects
         deployment_objects = [
             x for x in deployment_objects if x is not None]
@@ -350,35 +345,27 @@ def create_file_objects(
             "Filtering invalid files based on deployment and recording dates...")
     # Add invalid files to the invalid_files list with appropriate error messages
     if deployment_object:
-        invalid_files += [{x.name:
+        invalid_files += [{x.get("file_name"):
                            {"message": f"Recording date time {z} does not exist in {deployment_object}",
-                            "status": 400}} for x,
-                          y, z in zip(files, file_valid, recording_dt) if not y]
+                            "status": 400}} for
+                          x, y, z in zip(handler_return_list, valid_date_bool, recording_dt) if not y]
+        # Filter out invalid files from the files list
+        handler_return_list = [x for x, y in zip(
+            handler_return_list, valid_date_bool) if y]
     else:
-        invalid_files += [{x.name:
+        invalid_files += [{x.get("file_name"):
                            {"message": f"no suitable deployment of {device_object} found for recording date time {z}",
                             "status": 400}} for x,
-                          y, z in zip(files, file_valid, recording_dt) if not y]
-
-    # Filter out invalid files from the files list
-    files = [x for x, y in zip(files, file_valid) if y]
+                          y, z in zip(files, valid_deployment_bool, recording_dt) if not y]
+        # Filter out invalid files from the files list
+        handler_return_list = [x for x, y in zip(
+            handler_return_list, valid_deployment_bool) if y]
 
     # If no valid files remain after filtering, return an error response
-    if len(files) == 0:
+    if len(handler_return_list) == 0:
         if verbose:
             logger.info("No valid files remain after filtering.")
         return (uploaded_files, invalid_files, existing_files, status.HTTP_400_BAD_REQUEST)
-
-    # Filter recording datetime values based on valid files
-    if len(recording_dt) > 1:
-        recording_dt = [x for x, y in zip(recording_dt, file_valid) if y]
-    # Filter extra data based on valid files
-    if len(extra_data) > 1:
-        extra_data = [x for x, y in zip(extra_data, file_valid) if y]
-    # Filter data types based on valid files
-    if data_types is not None:
-        if len(data_types) > 1:
-            data_types = [x for x, y in zip(data_types, file_valid) if y]
 
     # Initialize lists to store project task primary keys, new DataFile objects, and handler tasks
     project_task_pks = []
@@ -386,9 +373,11 @@ def create_file_objects(
     all_handler_tasks = []
 
     # Process each valid file
-    for i in range(len(files)):
-        file = files[i]
-        filename = file.name
+    for i in range(len(handler_return_list)):
+        handler_return = handler_return_list[i]
+
+        file = handler_return.get("file")
+        filename = handler_return.get("file_name")
 
         # Determine the deployment object for the current file
         if len(deployment_objects) > 1:
@@ -411,16 +400,11 @@ def create_file_objects(
                 continue
 
         # Determine the recording datetime for the current file
-        if len(recording_dt) > 1:
-            file_recording_dt = recording_dt[i]
-        else:
-            file_recording_dt = recording_dt[0]
+        file_recording_dt = handler_return.get("recording_dt")
 
         # Retrieve the handler task for the current file, if available
-        if handler_tasks is not None:
-            file_handler_task = handler_tasks[i]
-        else:
-            file_handler_task = None
+
+        file_handler_task = handler_return.get("task")
 
         if verbose:
             logger.info(
@@ -429,22 +413,13 @@ def create_file_objects(
         file_recording_dt = check_dt(
             file_recording_dt, file_deployment.time_zone)
 
-        # Retrieve extra data for the current file
-        if len(extra_data) > 1:
-            file_extra_data = extra_data[i]
-        else:
-            file_extra_data = extra_data[0]
+        file_extra_data = handler_return.get("extra_data")
+
+        file_data_type_name = handler_return.get("data_type")
 
         # Determine the data type for the current file
-        if data_types is None:
-            file_data_type = file_deployment.device_type
-        else:
-            if len(data_types) > 1:
-                file_data_type, created = DataType.objects.get_or_create(
-                    name=data_types[i])
-            else:
-                file_data_type, created = DataType.objects.get_or_create(
-                    name=data_types[0])
+        file_data_type, created = DataType.objects.get_or_create(
+            name=file_data_type_name)
 
         if verbose:
             logger.info(f"Setting local path for file: {filename}...")
@@ -607,13 +582,13 @@ def create_file_objects(
                     f"Deployment tasks for file {filename}: {file_deployment_tasks}")
 
             # Append the handler task for the current file to the list of all handler tasks
-            all_handler_tasks.append(file_handler_task)
+            all_handler_tasks.append({"filename": file_handler_task})
             if verbose:
                 logger.info(
                     f"Handler task for file {filename}: {file_handler_task}")
 
             # Append the deployment tasks for the current file to the list of project task primary keys
-            project_task_pks.append(file_deployment_tasks)
+            project_task_pks.append({filename: file_deployment_tasks})
 
     final_status = status.HTTP_200_OK
 
@@ -624,18 +599,21 @@ def create_file_objects(
                 logger.info(
                     f"Bulk creating {len(all_new_objects)} new DataFile objects...")
             uploaded_files = DataFile.objects.bulk_create(all_new_objects)
-            uploaded_files_pks = [x.pk for x in uploaded_files]
+            uploaded_files_name_pks = [
+                {"original_name": x.original_name, "pk": x.pk} for x in uploaded_files]
             if verbose:
                 logger.info(
-                    f"Created DataFile objects with primary keys: {uploaded_files_pks}")
+                    f"Created DataFile objects with primary keys: {uploaded_files_name_pks}")
             final_status = status.HTTP_201_CREATED
         # Otherwise if this part of a multipart upload
         elif multipart:
+            uploaded_files = [multipart_obj]
+            uploaded_files_name_pks = [
+                {"original_name": multipart_obj.original_name, "pk": multipart_obj.pk}]
             if verbose:
                 logger.info(
                     f"Using existing multipart object with primary key: {multipart_obj.pk}")
-            uploaded_files = [multipart_obj]
-            uploaded_files_pks = [multipart_obj.pk]
+
             # Is multipart completing
             if multipart_checksum is not None:
                 # Multipart done
@@ -648,14 +626,24 @@ def create_file_objects(
         all_tasks = []
 
         # For unique data handler tasks, fire off jobs to perform them
+        all_task_names = [list(x.values())[0] for x in all_handler_tasks]
+        all_task_names_filtered = [x for x in all_task_names if x is not None]
         unique_tasks = list(
-            set([x for x in all_handler_tasks if x is not None]))
+            set(all_task_names_filtered))
 
         if len(unique_tasks) > 0:
             for task_name in unique_tasks:
+
+                # get original_name associated with this task
+
+                task_original_names = [
+                    key for key, value in all_handler_tasks if value == task_name]
+
                 # get pks for this task
-                task_file_pks = [x for x,
-                                 y in zip(uploaded_files_pks, handler_tasks) if y == task_name]
+
+                task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
+                    "original_name") in task_original_names]
+
                 if len(task_file_pks) > 0:
                     new_task = app.signature(
                         task_name, [task_file_pks], immutable=True)
@@ -668,13 +656,18 @@ def create_file_objects(
         unique_project_task_pks = list(set(flat_project_task_pks))
         if len(unique_project_task_pks) > 0:
             for project_task_pk in unique_project_task_pks:
-                # get pks for this task
-                task_file_pks = [x for x,
-                                 y in zip(uploaded_files_pks, project_task_pks) if project_task_pk in y]
+
+                project_task_original_names = [
+                    key for key, value in uploaded_files_name_pks if project_task_pk in value]
+
+                project_task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
+                    "original_name") in project_task_original_names]
+
                 if len(task_file_pks) > 0:
                     # get signature from the project job db object
                     task_obj = ProjectJob.objects.get(pk=project_task_pk)
-                    new_task = task_obj.get_job_signature(task_file_pks)
+                    new_task = task_obj.get_job_signature(
+                        project_task_file_pks)
                     all_tasks.append(new_task)
 
         if len(all_tasks) > 0:
