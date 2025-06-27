@@ -556,6 +556,44 @@ class CanManageProjectContainingDataFile(R):
         return final_query(accumulated_q)
 
 
+class CanManageProjectContainingDevice(R):
+    """
+    Rule for determining if a user can manage a project containing a specific device.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager or owner of the project containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.deployments.project.all().values_list("managers__pk", flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for projects containing data files user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployments__project__managers=user)
+        return final_query(accumulated_q)
+
+
 class CanAnnotateProjectContainingDataFile(R):
     """
     Rule for determining if a user can annotate a project containing a specific data file.

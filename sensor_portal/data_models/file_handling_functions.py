@@ -89,13 +89,13 @@ def create_file_objects(
         extra_data = [{}]
 
     if verbose:
-        logger.info("Initial files:", files)
-        logger.info("Device object:", device_object)
-        logger.info("Deployment object:", deployment_object)
-        logger.info("Recording datetime:", recording_dt)
-        logger.info("Extra data:", extra_data)
-        logger.info("Data types:", data_types)
-        logger.info("Request user:", request_user)
+        logger.info(f"Initial files:  {files}")
+        logger.info(f"Device object: {device_object}")
+        logger.info(f"Deployment object:{deployment_object}")
+        logger.info(f"Recording datetime: {recording_dt}")
+        logger.info(f"Extra data: {extra_data}")
+        logger.info(f"Data types: {data_types}")
+        logger.info(f"Request user {request_user}")
 
     # Get the current upload datetime
     upload_dt = djtimezone.now()
@@ -346,7 +346,6 @@ def create_file_objects(
             "Filtering invalid files based on deployment and recording dates...")
     # Add invalid files to the invalid_files list with appropriate error messages
     if deployment_object:
-        print(handler_return_list, valid_date_bool)
         invalid_files += [{x.get("file_name"):
                            {"message": f"Recording date time {x.get('recording_dt')} does not exist in {deployment_object}",
                             "status": 400}} for

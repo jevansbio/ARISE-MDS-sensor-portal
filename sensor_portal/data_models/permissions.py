@@ -10,6 +10,7 @@ from .rules import (CanAnnotateDataFileDeployment,
                     CanManageDeviceContainingDataFile,
                     CanManageProjectContainingDataFile,
                     CanManageProjectContainingDeployment,
+                    CanManageProjectContainingDevice,
                     CanViewDataFileDeployment, CanViewDeployedDevice,
                     CanViewDeviceContainingDataFile,
                     CanViewProjectContainingDataFile,
@@ -40,6 +41,7 @@ perms['data_models.add_device'] = is_authenticated & is_active
 
 # Permissions for changing a device: User must be authenticated, active, and either a superuser, device owner, or manager
 perms['data_models.change_device'] = is_authenticated & (is_superuser
+                                                         | CanManageProjectContainingDevice()
                                                          | IsManager()) & is_active
 
 # Permissions for deleting a device: User must be authenticated, active, and either a superuser or device owner
