@@ -2,6 +2,7 @@ from data_models.job_handling_functions import register_job
 
 from sensor_portal.celery import app
 
+from .api_client import ARISEDSIClient
 from .api_functions import post_data
 
 # Freek Test project 139
@@ -15,3 +16,9 @@ from .api_functions import post_data
 def push_to_dsi_task(datafile_pks, dsi_project_id, dsi_site_id, dsi_sensor_model_id, **kwargs):
     post_data(media_pks=datafile_pks, dsi_project_id=dsi_project_id,
               dsi_site_id=dsi_site_id, dsi_sensor_model_id=dsi_sensor_model_id)
+
+
+@app.task(name="refresh_dsi_token")
+def refresh_dsi_token():
+    DSIclient = ARISEDSIClient()
+    DSIclient.initialise_authentication()
