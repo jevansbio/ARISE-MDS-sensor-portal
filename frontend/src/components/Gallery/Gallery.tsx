@@ -383,6 +383,9 @@ const Gallery = ({ fromID, fromObject, objectType, nameKey }: GalleryType) => {
 				<JobModal
 					jobID={jobID}
 					show={showJobModal}
+					objectType={objectType}
+					fromObject={fromObject}
+					fromObjectID={fromID}
 					jobPKs={
 						selectedIndexes.length > 0
 							? selectedIndexes.map((index) => data.results[index]?.id)

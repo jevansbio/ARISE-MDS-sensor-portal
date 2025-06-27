@@ -16,8 +16,8 @@ from utils.viewsets import (AddOwnerViewSetMixIn, CheckAttachmentViewSetMixIn,
 from .filtersets import ObservationFilter
 from .GBIF_functions import GBIF_species_search
 from .models import Observation, Taxon
-from .serializers import (DummyObservationSerializer,
-                          EvenShorterTaxonSerialier, ObservationSerializer)
+from .serializers import EvenShorterTaxonSerialier, ObservationSerializer
+from .serializers_fake import DummyObservationSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,11 @@ obs_extra_parameters = [OpenApiParameter("target_taxon_level",
                                                   description="Database ID of deployment from which to get observations.")]),
 )
 class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, OptionalPaginationViewSetMixIn):
+    """
 
+    A ViewSet for listing, creating, updating, and deleting observations. 
+
+    """
     search_fields = ["taxon__species_name", "taxon__species_common_name"]
     ordering_fields = ["obs_dt", "created_on"]
     queryset = Observation.objects.all().prefetch_related("taxon")
@@ -184,6 +188,12 @@ class ObservationViewSet(CheckAttachmentViewSetMixIn, AddOwnerViewSetMixIn, Opti
     exclude=True
 )
 class TaxonAutocompleteViewset(viewsets.ReadOnlyModelViewSet):
+    """
+    A ViewSet for providing autocomplete functionality for taxon names.
+    This ViewSet allows users to search for taxon names and common names,
+    returning a limited number of results for efficient searching.
+    It integrates with the GBIF species search API to supplement local taxon data.
+    """
     http_method_names = ['get']
     search_fields = ["species_name", "species_common_name"]
     queryset = Taxon.objects.all().distinct()

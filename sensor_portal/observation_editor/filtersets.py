@@ -5,6 +5,10 @@ from .models import Observation
 
 
 class ObservationFilter(GenericFilterMixIn, ExtraDataFilterMixIn):
+    """
+    FilterSet for filtering observations based on various fields.
+
+    """
     field_help_dict = {"taxon__id": "Numeric database ID of the taxon.",
                        "owner__id": "Numeric database ID of user who created this observation.",
                        "data_files__deployment__id": "Numeric database ID of deployment to which\

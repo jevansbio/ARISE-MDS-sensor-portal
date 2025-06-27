@@ -10,17 +10,26 @@ from .serializers import (DataFileSerializer, DeploymentSerializer,
 
 def metadata_json_from_files(file_objs: QuerySet[DataFile], output_path: str):
     """
-    Generates a JSON file containing metadata from a collection of data files.
+    Create a JSON file containing metadata for a collection of DataFile objects.
+
+    This function gathers metadata from the provided DataFile queryset, serializes it
+    (including related projects, devices, and deployments), and writes the result to
+    a "metadata.json" file in the specified output directory.
+
     Args:
-        file_objs (QuerySet[DataFile]): A queryset of DataFile objects containing metadata.
-        output_path (str): The directory path where the metadata JSON file will be saved.
+        file_objs (QuerySet[DataFile]): Queryset of DataFile objects whose metadata will be included.
+        output_path (str): Directory path where the resulting JSON file should be saved.
+
     Returns:
-        str: The file path of the generated metadata JSON file.
+        str: Full file path to the generated "metadata.json".
+
     Raises:
-        OSError: If there is an issue creating the output directory or writing the file.
+        OSError: If the output directory cannot be created or the file cannot be written.
+
     Notes:
-        - The function creates a directory at the specified `output_path` if it does not exist.
-        - The metadata is serialized into a JSON file named "metadata.json" with an indentation of 2.
+        - The output directory will be created if it does not already exist.
+        - The resulting JSON file is formatted with an indentation of 2 spaces.
+        - Related metadata for projects, devices, and deployments is automatically included.
     """
 
     metadata_dict = create_metadata_dict(file_objs)
@@ -36,17 +45,27 @@ def metadata_json_from_files(file_objs: QuerySet[DataFile], output_path: str):
 
 def create_metadata_dict(file_objs: QuerySet[DataFile]) -> dict:
     """
-    Generates a metadata dictionary containing serialized information about projects, devices, deployments,
-    and data files associated with the given file objects.
+    Construct a dictionary of serialized metadata for the given DataFile objects.
+
+    This function collects all related deployments, projects, and devices associated
+    with the provided DataFile queryset, and serializes each entity type using their
+    respective serializers. The result is a dictionary suitable for JSON export.
+
     Args:
-        file_objs (QuerySet[DataFile]): A queryset of DataFile objects for which
-        metadata needs to be generated.
+        file_objs (QuerySet[DataFile]): Queryset of DataFile objects for which to generate metadata.
+
     Returns:
-        dict: A dictionary containing serialized metadata with the following keys:
-            - "projects": List of serialized Project objects associated with the deployments.
-            - "devices": List of serialized Device objects associated with the deployments.
-            - "deployments": List of serialized Deployment objects associated with the file objects.
-            - "data_files": List of serialized DataFile objects from the input queryset.
+        dict: A dictionary with the following structure:
+            {
+                "projects": [<serialized Project objects>],
+                "devices": [<serialized Device objects>],
+                "deployments": [<serialized Deployment objects>],
+                "data_files": [<serialized DataFile objects>]
+            }
+
+    Notes:
+        - Only projects, devices, and deployments related to the input files are included.
+        - DataFile objects are serialized as provided in the input queryset.
     """
 
     deployment_objs = Deployment.objects.filter(files__in=file_objs).distinct()

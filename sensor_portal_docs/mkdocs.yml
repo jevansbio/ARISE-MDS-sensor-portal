@@ -2,15 +2,49 @@ site_name: ARISE MDS sensor portal help
 nav:
     - Home: "index.md"
     - About: "about.md"
-    - Core features: "functions/index.md"
     - Data structure: 
       - Overview: "structure/index.md"
       - Project: "structure/project.md"
       - Device: "structure/device.md"
       - Deployment: "structure/deployment.md"
       - Datafile: "structure/datafile.md"
+      - Detail:
+        - Index: structure/detail/index.md
+        - Site: structure/detail/site.md
+        - DataType: structure/detail/datatype.md
+        - Project: structure/detail/project.md
+        - DeviceModel: structure/detail/devicemodel.md
+        - Device: structure/detail/device.md
+        - Deployment: structure/detail/deployment.md
+        - DataFile: structure/detail/datafile.md
+        - Taxon: structure/detail/taxon.md
+        - Observation: structure/detail/observation.md
+        - DataPackage: structure/detail/datapackage.md
     - For developers: 
       - Overview: "developers/index.md"
+      - Data handlers: "developers/data_handlers.md"
+      - Generic jobs: "developers/generic_jobs.md"
+      - Code Reference: "reference/"
     - For admin:
       - Overview: "admin/index.md"
+      - Permissions: "admin/permissions.md"
+      - Admin only models: 
+        - Index: "admin/models.md"
+        - ProjectJob: structure/detail/projectjob.md
 theme: readthedocs
+markdown_extensions:
+  - pymdownx.highlight:
+      default_lang: python
+plugins:
+  - search
+  - gen-files:
+      scripts:
+      - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../sensor_portal]
+

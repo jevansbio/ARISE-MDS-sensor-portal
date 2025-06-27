@@ -68,8 +68,8 @@ const DeploymentMarker = (deployment) => {
 						<strong>{deployment.deployment_device_ID}</strong>
 						{deployment.thumb_url !== null && deployment.thumb_url !== "" ? (
 							<img
-								src={"/" + deployment.thumb_URL}
-								alt={deployment.thumb_URL}
+								src={"/" + deployment.thumb_url}
+								alt={deployment.thumb_url}
 							/>
 						) : null}
 						<ul>
@@ -218,11 +218,13 @@ export const DeploymentMapContainer = () => {
 			return acc;
 		}, {});
 
-		if (deploymentData) {
+		if (deploymentData && deploymentData.pages !== undefined) {
 			deploymentData.pages.forEach((group) => {
-				group.results.forEach((deployment) => {
-					sortedDeploymentData[deployment.device_type].push(deployment);
-				});
+				if (group.results !== undefined) {
+					group.results.forEach((deployment) => {
+						sortedDeploymentData[deployment.device_type].push(deployment);
+					});
+				}
 			});
 		}
 	}

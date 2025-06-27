@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>models - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "models";
+        var mkdocs_page_input_path = "reference\\observation_editor\\models.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">Index</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/projectjob/">ProjectJob</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">observation_editor</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">models</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/models/">Admin only models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">observation_editor</a></li>
+      <li class="breadcrumb-item active">models</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="observation_editor.models"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="observation_editor.models.Observation" class="doc doc-heading">
+            <code>Observation</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="utils.models.BaseModel">BaseModel</span></code></p>
+
+
+        <p>Model representing an observation of a taxon, potentially including metadata such as data files,
+bounding box, confidence, sex, lifestage, and validation status.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>observation_editor\models.py</code></summary>
+                <pre class="highlight"><code class="language-python">class Observation(BaseModel):
+    """
+    Model representing an observation of a taxon, potentially including metadata such as data files,
+    bounding box, confidence, sex, lifestage, and validation status.
+    """
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="observations",
+                              on_delete=models.SET_NULL, null=True, db_index=True,
+                              help_text="User who created the observation.\
+                                  Null if created by AI.")
+    label = models.CharField(max_length=300, blank=True, editable=False)
+    taxon = models.ForeignKey(
+        Taxon, on_delete=models.PROTECT, related_name="observations", null=True, db_index=True, help_text="Taxon of the observed species.")
+
+    data_files = models.ManyToManyField(
+        DataFile, related_name="observations", db_index=True, help_text="Data files associated with the observation.")
+    obs_dt = models.DateTimeField(
+        null=True, blank=True, help_text="Date and time of the observation.")
+    source = models.CharField(max_length=100, default="human", db_index=True,
+                              help_text="Source of the observation, e.g. 'human' or an AI model name.")
+    number = models.IntegerField(
+        default=1, help_text="Number of individuals in this observation, for use with whole image annotation.")
+    bounding_box = models.JSONField(default=dict, help_text="Bounding box of this observation in the format\
+        {'x1':Left coordinate, 'y1':Bottom coordinate, 'x2': Right coordinate, 'y2': Left coordinate}.")
+    confidence = models.FloatField(
+        default=None, null=True, blank=True, help_text="Confidence of the observation from AI model.")
+    extra_data = models.JSONField(
+        default=dict, blank=True, help_text="Extra data that the standard fields do not cover")
+
+    sex = models.CharField(max_length=10, blank=True,
+                           help_text="Sex of the observed species, if known.")
+    lifestage = models.CharField(
+        max_length=15, blank=True, help_text="Lifestage of the observed species, if known.")
+    behavior = models.CharField(
+        max_length=50, blank=True, help_text="Behaviour of the observed species.")
+
+    validation_requested = models.BooleanField(
+        default=False, help_text="If True, this observation is requested for validation by a human expert.")
+    validation_of = models.ManyToManyField(
+        "self", symmetrical=False, related_name="validated_by",
+        blank=True,
+        help_text="If this observation is a validation of another observation, this field will contain the original observation(s).")
+
+    objects = ObservationQuerySet.as_manager()
+
+    def get_absolute_url(self):
+        """
+        Get the absolute URL for this observation's associated data file.
+
+        Returns:
+            str: URL path to the data file.
+        """
+        return f"/datafiles/{self.data_files.all().values_list('pk',flat=True)[0]}"
+
+    def get_taxonomic_level(self, level=0):
+        """
+        Retrieve the Taxon instance for this Observation at the specified taxonomic level.
+
+        Args:
+            level (int): Desired taxonomic level.
+
+        Returns:
+            Taxon or None: The taxon at the specified level or None if not found.
+        """
+        return self.taxon.get_taxonomic_level(level)
+
+    def __str__(self):
+        """
+        Returns the label of the observation.
+        """
+        return self.label
+
+    def get_label(self):
+        """
+        Generate a label for the observation based on the taxon and associated data file.
+
+        Returns:
+            str: Generated label.
+        """
+        if self.data_files.all().exists():
+            return f"{self.taxon.species_name}_{self.data_files.all().first().file_name}"
+        else:
+            return self.label
+
+    def save(self, *args, **kwargs):
+        """
+        Custom save logic for Observation instances, including automatic label generation and observation datetime assignment.
+        """
+        if self.id:
+            if self.label is None or self.label == "":
+                self.label = self.get_label()
+
+            if self.obs_dt is None and self.data_files.all().exists():
+                min_recording_dt = self.data_files.all().aggregate(
+                    min_recording_dt=Min("recording_dt"))
+                self.obs_dt = min_recording_dt["min_recording_dt"]
+
+        super().save(*args, **kwargs)
+
+    def check_data_files_human(self):
+        """
+        Check and update associated data files if the observation is of a human.
+        """
+        for data_file in self.data_files.all():
+            data_file.check_human()</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Observation.__str__" class="doc doc-heading">
+            <code class="highlight language-python">__str__()</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the label of the observation.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def __str__(self):
+    """
+    Returns the label of the observation.
+    """
+    return self.label</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Observation.check_data_files_human" class="doc doc-heading">
+            <code class="highlight language-python">check_data_files_human()</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check and update associated data files if the observation is of a human.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check_data_files_human(self):
+    """
+    Check and update associated data files if the observation is of a human.
+    """
+    for data_file in self.data_files.all():
+        data_file.check_human()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Observation.get_absolute_url" class="doc doc-heading">
+            <code class="highlight language-python">get_absolute_url()</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get the absolute URL for this observation's associated data file.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>str</code></b>              –
+              <div class="doc-md-description">
+                <p>URL path to the data file.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_absolute_url(self):
+    """
+    Get the absolute URL for this observation's associated data file.
+
+    Returns:
+        str: URL path to the data file.
+    """
+    return f"/datafiles/{self.data_files.all().values_list('pk',flat=True)[0]}"</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Observation.get_label" class="doc doc-heading">
+            <code class="highlight language-python">get_label()</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generate a label for the observation based on the taxon and associated data file.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>str</code></b>              –
+              <div class="doc-md-description">
+                <p>Generated label.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_label(self):
+    """
+    Generate a label for the observation based on the taxon and associated data file.
+
+    Returns:
+        str: Generated label.
+    """
+    if self.data_files.all().exists():
+        return f"{self.taxon.species_name}_{self.data_files.all().first().file_name}"
+    else:
+        return self.label</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Observation.get_taxonomic_level" class="doc doc-heading">
+            <code class="highlight language-python">get_taxonomic_level(level=0)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve the Taxon instance for this Observation at the specified taxonomic level.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>level</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Desired taxonomic level.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>Taxon or None: The taxon at the specified level or None if not found.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_taxonomic_level(self, level=0):
+    """
+    Retrieve the Taxon instance for this Observation at the specified taxonomic level.
+
+    Args:
+        level (int): Desired taxonomic level.
+
+    Returns:
+        Taxon or None: The taxon at the specified level or None if not found.
+    """
+    return self.taxon.get_taxonomic_level(level)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Observation.save" class="doc doc-heading">
+            <code class="highlight language-python">save(*args, **kwargs)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Custom save logic for Observation instances, including automatic label generation and observation datetime assignment.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def save(self, *args, **kwargs):
+    """
+    Custom save logic for Observation instances, including automatic label generation and observation datetime assignment.
+    """
+    if self.id:
+        if self.label is None or self.label == "":
+            self.label = self.get_label()
+
+        if self.obs_dt is None and self.data_files.all().exists():
+            min_recording_dt = self.data_files.all().aggregate(
+                min_recording_dt=Min("recording_dt"))
+            self.obs_dt = min_recording_dt["min_recording_dt"]
+
+    super().save(*args, **kwargs)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="observation_editor.models.ObservationQuerySet" class="doc doc-heading">
+            <code>ObservationQuerySet</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="ApproximateCountQuerySet (utils.querysets.ApproximateCountQuerySet)" href="../../utils/querysets/#utils.querysets.ApproximateCountQuerySet">ApproximateCountQuerySet</a></code></p>
+
+
+        <p>Custom QuerySet for the Observation model, providing helper methods for taxonomic queries.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>observation_editor\models.py</code></summary>
+                <pre class="highlight"><code class="language-python">class ObservationQuerySet(ApproximateCountQuerySet):
+    """
+    Custom QuerySet for the Observation model, providing helper methods for taxonomic queries.
+    """
+
+    def get_taxonomic_level(self, target_level=1):
+        """
+        Annotate and filter queryset to get observations at a specified taxonomic level.
+
+        Args:
+            target_level (int): The desired taxonomic level.
+
+        Returns:
+            QuerySet: The filtered and annotated queryset.
+        """
+        annotated_qs = self.annotate(
+            parent_taxon_pk=Case(
+                When(taxon__taxonomic_level=target_level, then=F('taxon__pk')),
+                When(taxon__taxonomic_level__lt=target_level,
+                     then=F("taxon__parents__pk")),
+                When(taxon__taxonomic_level__gt=target_level,
+                     then=Value(None))),
+            parent_taxon_level=Case(
+                When(taxon__taxonomic_level=target_level,
+                     then=F('taxon__taxonomic_level')),
+                When(taxon__taxonomic_level__lt=target_level,
+                     then=F("taxon__parents__taxonomic_level")),
+                When(taxon__taxonomic_level__gt=target_level,
+                     then=Value(None))
+            ),
+
+        )
+
+        annotated_qs = annotated_qs.filter(
+            parent_taxon_level=target_level).distinct()
+
+        return annotated_qs</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.ObservationQuerySet.get_taxonomic_level" class="doc doc-heading">
+            <code class="highlight language-python">get_taxonomic_level(target_level=1)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Annotate and filter queryset to get observations at a specified taxonomic level.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>target_level</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The desired taxonomic level.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>QuerySet</code></b>              –
+              <div class="doc-md-description">
+                <p>The filtered and annotated queryset.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_taxonomic_level(self, target_level=1):
+    """
+    Annotate and filter queryset to get observations at a specified taxonomic level.
+
+    Args:
+        target_level (int): The desired taxonomic level.
+
+    Returns:
+        QuerySet: The filtered and annotated queryset.
+    """
+    annotated_qs = self.annotate(
+        parent_taxon_pk=Case(
+            When(taxon__taxonomic_level=target_level, then=F('taxon__pk')),
+            When(taxon__taxonomic_level__lt=target_level,
+                 then=F("taxon__parents__pk")),
+            When(taxon__taxonomic_level__gt=target_level,
+                 then=Value(None))),
+        parent_taxon_level=Case(
+            When(taxon__taxonomic_level=target_level,
+                 then=F('taxon__taxonomic_level')),
+            When(taxon__taxonomic_level__lt=target_level,
+                 then=F("taxon__parents__taxonomic_level")),
+            When(taxon__taxonomic_level__gt=target_level,
+                 then=Value(None))
+        ),
+
+    )
+
+    annotated_qs = annotated_qs.filter(
+        parent_taxon_level=target_level).distinct()
+
+    return annotated_qs</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="observation_editor.models.Taxon" class="doc doc-heading">
+            <code>Taxon</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="utils.models.BaseModel">BaseModel</span></code></p>
+
+
+        <p>Model representing a biological taxon (e.g., species, genus, family) with support for hierarchical relationships.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>observation_editor\models.py</code></summary>
+                <pre class="highlight"><code class="language-python">class Taxon(BaseModel):
+    """
+    Model representing a biological taxon (e.g., species, genus, family) with support for hierarchical relationships.
+    """
+
+    species_name = models.CharField(
+        max_length=100, unique=False, db_index=True,
+        help_text="Scientific name of the species, e.g. 'Aquila chrysaetos'.")
+    species_common_name = models.CharField(
+        max_length=100, unique=False, blank=True, db_index=True, help_text="Common name of the species, e.g. 'Golden Eagle'.")
+    taxon_code = models.CharField(max_length=100, blank=True, db_index=True,
+                                  help_text="Taxon code from a taxonomic database, e.g. GBIF ID,\
+                                      or another common identifier such as 'vehicle'.")
+    taxon_source = models.IntegerField(
+        choices=source_choice, default=0, help_text="Source of the taxon code. 0 = custom, 1 = GBIF.")
+    extra_data = models.JSONField(
+        default=dict,  help_text="Extra data about the taxon, e.g. avibaseID, or other relevant information.", blank=True)
+    parents = models.ManyToManyField(
+        "self", symmetrical=False, related_name="children", blank=True, help_text="Parent taxons of this taxon.")
+    taxonomic_level = models.IntegerField(
+        choices=taxonomic_level_choice, default=0, help_text="Taxonomic level of the species, e.g. 0 = species, 1 = genus, 2 = family, etc.")
+
+    objects = TaxonQuerySet.as_manager()
+
+    def __str__(self):
+        """
+        Returns the scientific name of the taxon.
+        """
+        return self.species_name
+
+    def get_taxonomic_level(self, level=0):
+        """
+        Retrieve the Taxon instance at the specified taxonomic level.
+
+        Args:
+            level (int): Desired taxonomic level.
+
+        Returns:
+            Taxon or None: The taxon at the specified level or None if not found.
+        """
+        logger.info(self.taxonomic_level, level)
+        if self.taxonomic_level == level:
+            return self
+        else:
+            try:
+                taxon_obj = self.parents.all().get(taxonomic_level=level)
+            except Taxon.DoesNotExist:
+                taxon_obj = None
+            return taxon_obj
+
+    def get_taxon_code(self):
+        """
+        Retrieve or generate the taxon code for this taxon, updating extra data and common name as necessary.
+        """
+        if self.taxon_code is None or self.taxon_code == "":
+            taxon_codes = GBIF_taxoncode_from_search(self.species_name)
+            logger.info(taxon_codes)
+            if len(taxon_codes) &gt; 0:
+                self.taxon_code = taxon_codes[0][0]
+                self.taxonomic_level = taxon_codes[0][1]
+                self.taxon_source = 1
+                species_data = GBIF_get_species(self.taxon_code)
+                extra_data = self.extra_data
+                if (gbif_vernacular_name := species_data.get("vernacularName")) is not None:
+                    logger.info(gbif_vernacular_name)
+                    self.species_common_name = gbif_vernacular_name
+
+                if species_data.get('class', '') == 'Aves':
+                    avibaseID = GBIF_to_avibase(self.taxon_code)
+                    if avibaseID is not None:
+                        extra_data.update({"avibaseID": avibaseID})
+                self.extra_data = extra_data
+        else:
+            self.taxon_source = 0
+
+    def save(self, *args, **kwargs):
+        """
+        Custom save logic for Taxon instances, including taxon code generation and duplicate species handling.
+        """
+        try:
+            self.get_taxon_code()
+        except ConnectionError or ConnectTimeout as e:
+            logger.info(e)
+            pass
+
+        try:
+            existing = Taxon.objects.get(
+                species_name__iexact=self.species_name.lower())
+            if existing != self:
+                if self.pk is not None:
+                    # get all existing observations and change them, then delete this instance
+                    Observation.objects.filter(
+                        taxon=self).update(taxon=existing)
+                    self.delete()
+                    return
+        except Taxon.DoesNotExist:
+            pass
+        super().save(*args, **kwargs)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Taxon.__str__" class="doc doc-heading">
+            <code class="highlight language-python">__str__()</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the scientific name of the taxon.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def __str__(self):
+    """
+    Returns the scientific name of the taxon.
+    """
+    return self.species_name</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Taxon.get_taxon_code" class="doc doc-heading">
+            <code class="highlight language-python">get_taxon_code()</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve or generate the taxon code for this taxon, updating extra data and common name as necessary.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_taxon_code(self):
+    """
+    Retrieve or generate the taxon code for this taxon, updating extra data and common name as necessary.
+    """
+    if self.taxon_code is None or self.taxon_code == "":
+        taxon_codes = GBIF_taxoncode_from_search(self.species_name)
+        logger.info(taxon_codes)
+        if len(taxon_codes) &gt; 0:
+            self.taxon_code = taxon_codes[0][0]
+            self.taxonomic_level = taxon_codes[0][1]
+            self.taxon_source = 1
+            species_data = GBIF_get_species(self.taxon_code)
+            extra_data = self.extra_data
+            if (gbif_vernacular_name := species_data.get("vernacularName")) is not None:
+                logger.info(gbif_vernacular_name)
+                self.species_common_name = gbif_vernacular_name
+
+            if species_data.get('class', '') == 'Aves':
+                avibaseID = GBIF_to_avibase(self.taxon_code)
+                if avibaseID is not None:
+                    extra_data.update({"avibaseID": avibaseID})
+            self.extra_data = extra_data
+    else:
+        self.taxon_source = 0</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Taxon.get_taxonomic_level" class="doc doc-heading">
+            <code class="highlight language-python">get_taxonomic_level(level=0)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve the Taxon instance at the specified taxonomic level.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>level</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Desired taxonomic level.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>Taxon or None: The taxon at the specified level or None if not found.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_taxonomic_level(self, level=0):
+    """
+    Retrieve the Taxon instance at the specified taxonomic level.
+
+    Args:
+        level (int): Desired taxonomic level.
+
+    Returns:
+        Taxon or None: The taxon at the specified level or None if not found.
+    """
+    logger.info(self.taxonomic_level, level)
+    if self.taxonomic_level == level:
+        return self
+    else:
+        try:
+            taxon_obj = self.parents.all().get(taxonomic_level=level)
+        except Taxon.DoesNotExist:
+            taxon_obj = None
+        return taxon_obj</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.Taxon.save" class="doc doc-heading">
+            <code class="highlight language-python">save(*args, **kwargs)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Custom save logic for Taxon instances, including taxon code generation and duplicate species handling.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def save(self, *args, **kwargs):
+    """
+    Custom save logic for Taxon instances, including taxon code generation and duplicate species handling.
+    """
+    try:
+        self.get_taxon_code()
+    except ConnectionError or ConnectTimeout as e:
+        logger.info(e)
+        pass
+
+    try:
+        existing = Taxon.objects.get(
+            species_name__iexact=self.species_name.lower())
+        if existing != self:
+            if self.pk is not None:
+                # get all existing observations and change them, then delete this instance
+                Observation.objects.filter(
+                    taxon=self).update(taxon=existing)
+                self.delete()
+                return
+    except Taxon.DoesNotExist:
+        pass
+    super().save(*args, **kwargs)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="observation_editor.models.TaxonQuerySet" class="doc doc-heading">
+            <code>TaxonQuerySet</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="ApproximateCountQuerySet (utils.querysets.ApproximateCountQuerySet)" href="../../utils/querysets/#utils.querysets.ApproximateCountQuerySet">ApproximateCountQuerySet</a></code></p>
+
+
+        <p>Custom QuerySet for the Taxon model, providing helper methods for taxonomic queries.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>observation_editor\models.py</code></summary>
+                <pre class="highlight"><code class="language-python">class TaxonQuerySet(ApproximateCountQuerySet):
+    """
+    Custom QuerySet for the Taxon model, providing helper methods for taxonomic queries.
+    """
+
+    def get_taxonomic_level(self, target_level=1):
+        """
+        Annotate and filter queryset to get taxons at a specified taxonomic level.
+
+        Args:
+            target_level (int): The desired taxonomic level.
+
+        Returns:
+            QuerySet: The filtered and annotated queryset.
+        """
+        annotated_qs = self.annotate(
+            parent_taxon_pk=Case(
+                When(taxonomic_level=target_level, then=F('pk')),
+                When(taxonomic_level__lt=target_level, then=F("parents__pk"))))
+        annotated_qs = annotated_qs.filter(
+            Q(parent_taxon_pk=target_level) | Q(parent_taxon_pk__isnull=True))
+        return annotated_qs</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="observation_editor.models.TaxonQuerySet.get_taxonomic_level" class="doc doc-heading">
+            <code class="highlight language-python">get_taxonomic_level(target_level=1)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Annotate and filter queryset to get taxons at a specified taxonomic level.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>target_level</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The desired taxonomic level.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>QuerySet</code></b>              –
+              <div class="doc-md-description">
+                <p>The filtered and annotated queryset.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_taxonomic_level(self, target_level=1):
+    """
+    Annotate and filter queryset to get taxons at a specified taxonomic level.
+
+    Args:
+        target_level (int): The desired taxonomic level.
+
+    Returns:
+        QuerySet: The filtered and annotated queryset.
+    """
+    annotated_qs = self.annotate(
+        parent_taxon_pk=Case(
+            When(taxonomic_level=target_level, then=F('pk')),
+            When(taxonomic_level__lt=target_level, then=F("parents__pk"))))
+    annotated_qs = annotated_qs.filter(
+        Q(parent_taxon_pk=target_level) | Q(parent_taxon_pk__isnull=True))
+    return annotated_qs</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.models.check_human_delete" class="doc doc-heading">
+            <code class="highlight language-python">check_human_delete(sender, instance, **kwargs)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Signal handler to check and update data files when a human observation is deleted.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">@receiver(post_delete, sender=Observation)
+def check_human_delete(sender, instance, **kwargs):
+    """
+    Signal handler to check and update data files when a human observation is deleted.
+    """
+    if instance.taxon.taxon_code == settings.HUMAN_TAXON_CODE:
+        instance.check_data_files_human()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.models.check_human_save" class="doc doc-heading">
+            <code class="highlight language-python">check_human_save(sender, instance, created, **kwargs)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Signal handler to check and update data files when a human observation is saved.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">@receiver(post_save, sender=Observation)
+def check_human_save(sender, instance, created, **kwargs):
+    """
+    Signal handler to check and update data files when a human observation is saved.
+    """
+    if instance.taxon.taxon_code == settings.HUMAN_TAXON_CODE:
+        instance.check_data_files_human()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.models.post_taxon_save" class="doc doc-heading">
+            <code class="highlight language-python">post_taxon_save(sender, instance, created, **kwargs)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Signal handler to trigger parent taxon creation after saving a Taxon instance with a GBIF code.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">@receiver(post_save, sender=Taxon)
+def post_taxon_save(sender, instance, created, **kwargs):
+    """
+    Signal handler to trigger parent taxon creation after saving a Taxon instance with a GBIF code.
+    """
+    if instance.taxon_code is not None and instance.taxon_code != "" and instance.taxon_source == 1:
+        create_taxon_parents.apply_async([instance.pk])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.models.update_observation_data_files" class="doc doc-heading">
+            <code class="highlight language-python">update_observation_data_files(sender, instance, action, reverse, *args, **kwargs)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Signal handler to update the Observation instance when its data files are changed.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\models.py</code></summary>
+              <pre class="highlight"><code class="language-python">@receiver(m2m_changed, sender=Observation.data_files.through)
+def update_observation_data_files(sender, instance, action, reverse, *args, **kwargs):
+    """
+    Signal handler to update the Observation instance when its data files are changed.
+    """
+    if (action == 'post_add' or action == 'post_remove'):
+        instance.save()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../metadata_functions/" class="btn btn-neutral float-left" title="metadata_functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rules/" class="btn btn-neutral float-right" title="rules">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../metadata_functions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../rules/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -7,16 +7,34 @@ from data_models.models import DataFile
 logger = logging.getLogger(__name__)
 
 
-def post_upload_task_handler(file_pks: List[int],
-                             task_function: Callable[[DataFile], Tuple[DataFile | None, List[str] | None]]) -> None:
+def post_upload_task_handler(
+    file_pks: List[int],
+    task_function: Callable[[DataFile],
+                            Tuple[DataFile | None, List[str] | None]]
+) -> None:
     """
-Wrapper function to handle applying post upload functions on files. Will lock any files being operated on, return them to their initial lock state when done.
+    Executes a post-upload task function on a list of DataFile objects, ensuring each file is locked during processing
+    and restored to its initial lock state afterward.
 
-Args:
-    file_names (List[str]): list of DataFile file names. These will be the files on which task_function is called.
-    task_function (Callable[[DataFile], Tuple[DataFile  |  None, List[str]  |  None]]): Function to carry out on each DataFile.
+    This function retrieves DataFile objects by their primary keys, temporarily locks them (by setting `do_not_remove=True`),
+    applies the provided `task_function` to each file, and then restores each file's original `do_not_remove` state.
+    It ensures that one file's failure does not interrupt processing for others.
 
-    task_function Should take the DataFile as arguments and return a modified DataFile and a list of the names of the modified fields.
+    Args:
+        file_pks (List[int]): 
+            A list of primary keys representing DataFile objects to process.
+        task_function (Callable[[DataFile], Tuple[DataFile | None, List[str] | None]]): 
+            A function to execute on each DataFile. It should accept a DataFile object and return a tuple:
+            (possibly modified DataFile, list of modified field names).
+            If the function fails, the original DataFile object is left unchanged.
+
+    Notes:
+        - Each DataFile is locked before processing by setting `do_not_remove=True`, and unlocked (restored to its original state) after processing.
+        - Any exceptions in processing a file are logged, but will not halt the processing of other files.
+        - All modified DataFile objects are batch updated at the end, including the `do_not_remove` field if it was changed.
+
+    Returns:
+        None
     """
 
     # get datafiles

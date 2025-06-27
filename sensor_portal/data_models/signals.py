@@ -15,7 +15,10 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Project)
 @receiver(post_save, sender=Device)
 def post_save_permission_cascade(sender, instance: Device | Project, created, **kwargs):
-
+    """
+    Post save signal for projects and devices, ensuring that they cascade their permissions
+    and that their attached deployments update their permissions.
+    """
     cascade_permissions(instance)
     for deployment in instance.deployments.all():
         try:

@@ -1,10 +1,20 @@
-from celery import shared_task
+from typing import List
 
 from sensor_portal.celery import app
 
 
 @app.task(name="data_handler_generate_thumbnails")
-def generate_thumbnails(file_pks):
+def generate_thumbnails(file_pks: List[int]) -> None:
+    """
+    Celery task to generate thumbnails for a list of DataFile primary keys.
+
+    This task triggers the thumbnail generation function for each file,
+    updates the deployment's thumbnail URL for affected deployments, and
+    performs a bulk update to save the new thumbnail URLs.
+
+    Args:
+        file_pks (List[int]): List of primary keys for DataFile objects.
+    """
     from data_models.models import DataFile, Deployment
 
     from .functions import generate_thumbnail

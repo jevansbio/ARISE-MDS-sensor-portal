@@ -36,7 +36,7 @@ def create_file_objects(
     data_types: Optional[List[str]] = None,
     request_user: Optional["User"] = None,
     multipart: bool = False,
-    verbose: bool = False
+    verbose: bool = True
 ) -> Tuple[
     List["DataFile"],
     List[Dict[str, Dict[str, Union[str, int]]]],
@@ -44,34 +44,40 @@ def create_file_objects(
     int
 ]:
     """
-    Creates file objects and handles file uploads, validations, and database record creation.
+    Create file objects, handle uploads, validations, and database record creation.
+
     Args:
-        files (list): List of file objects to be processed.
-        check_filename (bool, optional): Flag to check for duplicate filenames in the database. Defaults to False.
-        recording_dt (list, optional): List of recording datetime values for the files. Defaults to None.
-        extra_data (list, optional): List of additional metadata for the files. Defaults to None.
-        deployment_object (Deployment, optional): Deployment object associated with the files. Defaults to None.
-        device_object (Device, optional): Device object associated with the files. Defaults to None.
-        data_types (list, optional): List of data types for the files. Defaults to None.
-        request_user (User, optional): User object for permission checks. Defaults to None.
-        multipart (bool, optional): Flag to handle multipart file uploads. Defaults to False.
-        verbose (bool, optional): Flag to enable verbose logging. Defaults to False.
+        files (List[Union[object, UploadedFile]]): List of file objects to process.
+        check_filename (bool, optional): If True, check for duplicate filenames in the database. Defaults to False.
+        recording_dt (Optional[List[Optional[datetime]]], optional): List of recording datetimes for the files. Defaults to None.
+        extra_data (Optional[List[Dict[str, Union[str, int, float, bool, None]]]], optional): List of additional metadata for the files. Defaults to None.
+        deployment_object (Optional[Deployment], optional): Deployment object associated with the files. Defaults to None.
+        device_object (Optional[Device], optional): Device object associated with the files. Defaults to None.
+        data_types (Optional[List[str]], optional): List of data types for the files. Defaults to None.
+        request_user (Optional[User], optional): User object for permission checks. Defaults to None.
+        multipart (bool, optional): If True, handle multipart file uploads. Defaults to False.
+        verbose (bool, optional): If True, enable verbose logging. Defaults to False.
+
     Returns:
-        tuple: A tuple containing:
-            - uploaded_files (list): List of successfully uploaded file objects.
-            - invalid_files (list): List of invalid files with error messages.
-            - existing_files (list): List of files already present in the database.
-            - final_status (int): HTTP status code indicating the result of the operation.
+        Tuple[
+            List[DataFile],  # Successfully uploaded file objects
+            # Invalid files with errors
+            List[Dict[str, Dict[str, Union[str, int]]]],
+            List[Dict[str, Dict[str, Union[str, int]]]],  # Files already in DB
+            int  # HTTP status code
+        ]
+
     Raises:
         ValidationError: If there is an error validating the database records.
         Exception: For any other errors during file handling or database operations.
+
     Notes:
         - Handles duplicate filename checks and multipart uploads.
-        - Validates file types based on the associated device model.
+        - Validates file types based on the device model.
         - Checks permissions for attaching files to deployments.
         - Filters files based on recording datetime and deployment validity.
-        - Creates database records for valid files and saves them to the specified path.
-        - Supports automated tasks and checksum validation for multipart uploads.
+        - Creates database records and saves valid files.
+        - Supports automated tasks and checksum validation.
     """
 
     from data_models.models import DataFile, DataType, ProjectJob
@@ -235,11 +241,9 @@ def create_file_objects(
                     extra_data = [x for x, y in zip(
                         extra_data, valid_files_bool) if y]
 
-            # Initialize lists to store updated metadata for valid files
-            new_recording_dt = []
-            new_extra_data = []
-            new_data_types = []
-            new_tasks = []
+            # Initialize list to store updated metadata for valid files
+
+            handler_return_list = []
 
             # Process each valid file using the data handler
             for i in range(len(files)):
@@ -272,17 +276,13 @@ def create_file_objects(
                         device_model_object.type.name
                     )
 
-                # Append the updated metadata to the respective lists
-                new_recording_dt.append(new_file_recording_dt)
-                new_extra_data.append(new_file_extra_data)
-                new_data_types.append(new_file_data_type)
-                new_tasks.append(new_file_task)
-
-            # Update recording_dt, extra_data, data_types, and handler_tasks with the processed values
-            recording_dt = new_recording_dt
-            extra_data = new_extra_data
-            data_types = new_data_types
-            handler_tasks = new_tasks
+                # Append the updated metadata to the lists
+                handler_return_list.append({"file": file,
+                                            "file_name": file.name,
+                                            "recording_dt": new_file_recording_dt,
+                                            "extra_data": new_file_extra_data,
+                                            "data_type": new_file_data_type,
+                                            "task": new_file_task})
 
     else:
         # If no device_object is linked to the files, return an error response
@@ -293,10 +293,10 @@ def create_file_objects(
         return (uploaded_files, invalid_files, existing_files, status.HTTP_400_BAD_REQUEST)
 
     # Check if all recording dates are None, indicating an inability to extract recording date times
-    if all([x is None for x in recording_dt]):
+    if all([x.get("recording_dt") is None for x in handler_return_list]):
         # Add these files to the invalid_files list with an appropriate error message
-        invalid_files += [{x.name: {"message": "Unable to extract recording date time", "status": 400}}
-                          for x in files]
+        invalid_files += [{x.get("file_name"): {"message": "Unable to extract recording date time", "status": 400}}
+                          for x in handler_return_list]
         # Return early with an HTTP 400 Bad Request status
         return (uploaded_files, invalid_files, existing_files, status.HTTP_400_BAD_REQUEST)
 
@@ -312,17 +312,18 @@ def create_file_objects(
                         f"User does not have permission to attach files to {deployment_object.deployment_device_ID}.")
                 # Add these files to the invalid_files list with a permission error message
                 invalid_files += [
-                    {x.name: {
+                    {x.get("file_name"): {
                         "message": f"Not allowed to attach files to {deployment_object.deployment_device_ID}",
                         "status": 403}}
-                    for x in files]
+                    for x in handler_return_list]
                 # Return early with an HTTP 403 Forbidden status
                 return (uploaded_files, invalid_files, existing_files, status.HTTP_403_FORBIDDEN)
 
         if verbose:
             logger.info("Validating recording dates for deployment_object...")
         # Validate the recording dates against the deployment object
-        file_valid = deployment_object.check_dates(recording_dt)
+        valid_date_bool = deployment_object.check_dates(
+            [x.get("recording_dt") for x in handler_return_list])
         # Set deployment_objects to a list containing the deployment_object
         deployment_objects = [deployment_object]
 
@@ -333,9 +334,9 @@ def create_file_objects(
                 "Determining deployments from device_object and recording dates...")
         # Use the device object to find deployments based on recording dates
         deployment_objects = [device_object.deployment_from_date(
-            x) for x in recording_dt]
+            x.get("recording_dt")) for x in handler_return_list]
         # Check which deployments are valid (not None)
-        file_valid = [x is not None for x in deployment_objects]
+        valid_deployment_bool = [x is not None for x in deployment_objects]
         # Filter out None values from deployment_objects
         deployment_objects = [
             x for x in deployment_objects if x is not None]
@@ -345,35 +346,28 @@ def create_file_objects(
             "Filtering invalid files based on deployment and recording dates...")
     # Add invalid files to the invalid_files list with appropriate error messages
     if deployment_object:
-        invalid_files += [{x.name:
+        invalid_files += [{x.get("file_name"):
                            {"message": f"Recording date time {z} does not exist in {deployment_object}",
-                            "status": 400}} for x,
-                          y, z in zip(files, file_valid, recording_dt) if not y]
+                            "status": 400}} for
+                          x, y, z in zip(handler_return_list, valid_date_bool, recording_dt) if not y]
+        # Filter out invalid files from the files list
+        handler_return_list = [x for x, y in zip(
+            handler_return_list, valid_date_bool) if y]
     else:
-        invalid_files += [{x.name:
-                           {"message": f"no suitable deployment of {device_object} found for recording date time {z}",
-                            "status": 400}} for x,
-                          y, z in zip(files, file_valid, recording_dt) if not y]
 
-    # Filter out invalid files from the files list
-    files = [x for x, y in zip(files, file_valid) if y]
+        invalid_files += [{x.get("file_name"):
+                           {"message": f"no suitable deployment of {device_object} found for recording date time {x.get('recording_dt')}",
+                            "status": 400}} for x, y in zip(handler_return_list, valid_deployment_bool) if not y]
+        # Filter out invalid files from the files list
+
+        handler_return_list = [x for x, y in zip(
+            handler_return_list, valid_deployment_bool) if y]
 
     # If no valid files remain after filtering, return an error response
-    if len(files) == 0:
+    if len(handler_return_list) == 0:
         if verbose:
             logger.info("No valid files remain after filtering.")
         return (uploaded_files, invalid_files, existing_files, status.HTTP_400_BAD_REQUEST)
-
-    # Filter recording datetime values based on valid files
-    if len(recording_dt) > 1:
-        recording_dt = [x for x, y in zip(recording_dt, file_valid) if y]
-    # Filter extra data based on valid files
-    if len(extra_data) > 1:
-        extra_data = [x for x, y in zip(extra_data, file_valid) if y]
-    # Filter data types based on valid files
-    if data_types is not None:
-        if len(data_types) > 1:
-            data_types = [x for x, y in zip(data_types, file_valid) if y]
 
     # Initialize lists to store project task primary keys, new DataFile objects, and handler tasks
     project_task_pks = []
@@ -381,9 +375,11 @@ def create_file_objects(
     all_handler_tasks = []
 
     # Process each valid file
-    for i in range(len(files)):
-        file = files[i]
-        filename = file.name
+    for i in range(len(handler_return_list)):
+        handler_return = handler_return_list[i]
+
+        file = handler_return.get("file")
+        filename = handler_return.get("file_name")
 
         # Determine the deployment object for the current file
         if len(deployment_objects) > 1:
@@ -406,16 +402,11 @@ def create_file_objects(
                 continue
 
         # Determine the recording datetime for the current file
-        if len(recording_dt) > 1:
-            file_recording_dt = recording_dt[i]
-        else:
-            file_recording_dt = recording_dt[0]
+        file_recording_dt = handler_return.get("recording_dt")
 
         # Retrieve the handler task for the current file, if available
-        if handler_tasks is not None:
-            file_handler_task = handler_tasks[i]
-        else:
-            file_handler_task = None
+
+        file_handler_task = handler_return.get("task")
 
         if verbose:
             logger.info(
@@ -424,22 +415,13 @@ def create_file_objects(
         file_recording_dt = check_dt(
             file_recording_dt, file_deployment.time_zone)
 
-        # Retrieve extra data for the current file
-        if len(extra_data) > 1:
-            file_extra_data = extra_data[i]
-        else:
-            file_extra_data = extra_data[0]
+        file_extra_data = handler_return.get("extra_data")
+
+        file_data_type_name = handler_return.get("data_type")
 
         # Determine the data type for the current file
-        if data_types is None:
-            file_data_type = file_deployment.device_type
-        else:
-            if len(data_types) > 1:
-                file_data_type, created = DataType.objects.get_or_create(
-                    name=data_types[i])
-            else:
-                file_data_type, created = DataType.objects.get_or_create(
-                    name=data_types[0])
+        file_data_type, created = DataType.objects.get_or_create(
+            name=file_data_type_name)
 
         if verbose:
             logger.info(f"Setting local path for file: {filename}...")
@@ -602,13 +584,15 @@ def create_file_objects(
                     f"Deployment tasks for file {filename}: {file_deployment_tasks}")
 
             # Append the handler task for the current file to the list of all handler tasks
-            all_handler_tasks.append(file_handler_task)
+            all_handler_tasks.append(
+                {"original_name": filename, "task": file_handler_task})
             if verbose:
                 logger.info(
                     f"Handler task for file {filename}: {file_handler_task}")
 
             # Append the deployment tasks for the current file to the list of project task primary keys
-            project_task_pks.append(file_deployment_tasks)
+            project_task_pks.append(
+                {"original_name": filename, "tasks": file_deployment_tasks})
 
     final_status = status.HTTP_200_OK
 
@@ -619,18 +603,21 @@ def create_file_objects(
                 logger.info(
                     f"Bulk creating {len(all_new_objects)} new DataFile objects...")
             uploaded_files = DataFile.objects.bulk_create(all_new_objects)
-            uploaded_files_pks = [x.pk for x in uploaded_files]
+            uploaded_files_name_pks = [
+                {"original_name": x.original_name, "pk": x.pk} for x in uploaded_files]
             if verbose:
                 logger.info(
-                    f"Created DataFile objects with primary keys: {uploaded_files_pks}")
+                    f"Created DataFile objects with primary keys: {uploaded_files_name_pks}")
             final_status = status.HTTP_201_CREATED
         # Otherwise if this part of a multipart upload
         elif multipart:
+            uploaded_files = [multipart_obj]
+            uploaded_files_name_pks = [
+                {"original_name": multipart_obj.original_name, "pk": multipart_obj.pk}]
             if verbose:
                 logger.info(
                     f"Using existing multipart object with primary key: {multipart_obj.pk}")
-            uploaded_files = [multipart_obj]
-            uploaded_files_pks = [multipart_obj.pk]
+
             # Is multipart completing
             if multipart_checksum is not None:
                 # Multipart done
@@ -643,33 +630,60 @@ def create_file_objects(
         all_tasks = []
 
         # For unique data handler tasks, fire off jobs to perform them
+        all_task_names = [x.get("task") for x in all_handler_tasks]
+        all_task_names_filtered = [x for x in all_task_names if x is not None]
         unique_tasks = list(
-            set([x for x in all_handler_tasks if x is not None]))
+            set(all_task_names_filtered))
+
+        if verbose:
+            logger.info(
+                f"Found unique tasks: {unique_tasks}")
 
         if len(unique_tasks) > 0:
             for task_name in unique_tasks:
+
+                # get original_name associated with this task
+
+                task_original_names = [
+                    x.get("original_name") for x in all_handler_tasks if x.get("task") == task_name]
+
                 # get pks for this task
-                task_file_pks = [x for x,
-                                 y in zip(uploaded_files_pks, handler_tasks) if y == task_name]
+
+                task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
+                    "original_name") in task_original_names]
+
+                if verbose:
+                    logger.info(
+                        f"Task {task_name}: {task_file_pks}")
+
                 if len(task_file_pks) > 0:
                     new_task = app.signature(
                         task_name, [task_file_pks], immutable=True)
                     all_tasks.append(new_task)
+            if verbose:
+                logger.info(
+                    f"All tasks:{all_tasks}")
 
         # For unique project tasks, fire off jobs to perform them
         flat_project_task_pks = [
-            x for internal_list in project_task_pks for x in internal_list]
+            x for internal_list in project_task_pks for x in internal_list.get("tasks")]
 
         unique_project_task_pks = list(set(flat_project_task_pks))
+
         if len(unique_project_task_pks) > 0:
             for project_task_pk in unique_project_task_pks:
-                # get pks for this task
-                task_file_pks = [x for x,
-                                 y in zip(uploaded_files_pks, project_task_pks) if project_task_pk in y]
+
+                project_task_original_names = [
+                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("task")]
+
+                project_task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
+                    "original_name") in project_task_original_names]
+
                 if len(task_file_pks) > 0:
                     # get signature from the project job db object
                     task_obj = ProjectJob.objects.get(pk=project_task_pk)
-                    new_task = task_obj.get_job_signature(task_file_pks)
+                    new_task = task_obj.get_job_signature(
+                        project_task_file_pks)
                     all_tasks.append(new_task)
 
         if len(all_tasks) > 0:
@@ -693,21 +707,21 @@ def handle_uploaded_file(
     filepath: str,
     multipart: bool = False,
     verbose: bool = False
+
+
 ) -> None:
     """
-    Handles the uploading and saving of a file to the specified filepath.
-    Parameters:
-        file (UploadedFile): The file object to be saved. It is expected to have a `chunks()` method for reading data in chunks.
-        filepath (str): The full path where the file should be saved.
-        multipart (bool, optional): If True, appends the file content to an existing file at the filepath. Defaults to False.
-        verbose (bool, optional): If True, prints debug information about the file handling process. Defaults to False.
-    Behavior:
-        - Creates the directory structure for the filepath if it does not exist.
-        - Writes the file in binary mode ('wb+') if `multipart` is False.
-        - Appends the file in binary mode ('ab+') if `multipart` is True and the file already exists.
-        - Prints debug information if `verbose` is True.
+    Upload and save a file to the specified filepath.
+
+    Args:
+        file (Union[object, UploadedFile]): The file object to save. Must provide a `chunks()` method.
+        filepath (str): The destination path.
+        multipart (bool, optional): If True, append to an existing file. Defaults to False.
+        verbose (bool, optional): If True, log debug info. Defaults to False.
+
     Raises:
-        OSError: If there is an issue creating directories or writing to the file.
+        OSError: If creating directories or writing to the file fails.
+
     Example:
         handle_uploaded_file(
             uploaded_file, '/path/to/save/file.txt', multipart=True, verbose=True)
@@ -735,18 +749,17 @@ def get_new_name(
     file_n: Optional[int] = None
 ) -> str:
     """
-    Generates a new unique name for a file based on deployment, recording datetime, and file count.
+    Generate a unique file name based on deployment, recording datetime, and file count.
 
     Args:
-        deployment (Deployment): The deployment object associated with the file.
-        recording_dt (datetime): The recording datetime of the file.
-        file_local_path (str): The root local path where files are stored.
-        file_path (str): The relative path for the file within the storage root.
-        file_n (Optional[int], optional): The file count for uniqueness. Defaults to None.
+        deployment (Deployment): Associated deployment object.
+        recording_dt (datetime): File recording datetime.
+        file_local_path (str): Root local path for storage.
+        file_path (str): Relative file path within storage root.
+        file_n (Optional[int], optional): File count for uniqueness. Defaults to None.
 
     Returns:
-        str: A unique name for the file in the format:
-             "{deployment_device_ID}_{YYYY-MM-DD_HH-MM-SS}_({file_n})"
+        str: Unique file name in the format "{deployment_device_ID}_{YYYY-MM-DD_HH-MM-SS}_({file_n})"
     """
     if file_n is None:
         file_n = get_n_files(os.path.join(file_local_path, file_path)) + 1
@@ -756,14 +769,13 @@ def get_new_name(
 
 def get_n_files(dir_path: str) -> int:
     """
-    Counts the number of files in a directory that have an extension.
+    Count the number of files in a directory that have an extension.
 
     Args:
-        dir_path (str): The path to the directory to count files in.
+        dir_path (str): Directory path.
 
     Returns:
-        int: The number of files in the directory with an extension.
-             Returns 0 if the directory does not exist.
+        int: Number of files with an extension, or 0 if directory does not exist.
     """
     if os.path.exists(dir_path):
         all_files = os.listdir(dir_path)
@@ -780,21 +792,19 @@ def group_files_by_size(
     max_size: float = settings.MAX_ARCHIVE_SIZE_GB
 ) -> list[dict[str, float | list[int]]]:
     """
-    Groups files into batches based on their size, ensuring that the total size
-    of each batch does not exceed the specified maximum size.
+    Group files into batches by size, ensuring each batch does not exceed max_size (GB).
+
     Args:
-        file_objs (QuerySet): A Django QuerySet containing file objects.
-            Each file object must have 'pk' (primary key) and 'file_size' attributes.
-        max_size (float, optional): The maximum size (in GB) allowed for each group.
-            Defaults to `settings.MAX_ARCHIVE_SIZE_GB`.
+        file_objs (QuerySet): Django QuerySet with 'pk' and 'file_size' attributes.
+        max_size (float, optional): Maximum group size in GB. Defaults to settings.MAX_ARCHIVE_SIZE_GB.
+
     Returns:
-        list[dict[str, float | list[int]]]: A list of dictionaries, where each dictionary
-        represents a group of files. Each dictionary contains:
-            - "file_pks" (list[int]): A list of primary keys of the files in the group.
-            - "total_size_gb" (float): The total size of the files in the group (in GB).
+        list[dict[str, float | list[int]]]: List of groups, where each dict contains:
+            - "file_pks": List[int] - Primary keys of files in the group.
+            - "total_size_gb": float - Total size of the group in GB.
+
     Notes:
-        - Files are grouped in order of their 'recording_dt' attribute.
-        - The `itertools.groupby` function is used to group files by their assigned key.
+        - Groups files in order of their 'recording_dt' attribute.
     """
 
     # Initialize variables to track the current group key, total size, and file information

@@ -1,4 +1,3 @@
-
 import os
 import random
 from datetime import datetime
@@ -17,21 +16,24 @@ def check_dt(
     localise: bool = True
 ) -> Optional[datetime]:
     """
-    Validates and processes a datetime object or string.
-    This function ensures that the provided datetime (`dt`) is properly parsed 
-    and localized to the specified timezone (`device_timezone`). If no timezone 
-    is provided, it defaults to the application's timezone defined in settings. 
-    Additionally, it can parse datetime strings into datetime objects.
+    Parse and localize a datetime object or string.
+
+    Converts a datetime object or string to a timezone-aware datetime object,
+    localized to the specified device_timezone. If no timezone is provided, the
+    application's default timezone is used. Supports parsing ISO-format datetime
+    strings and can localize naive datetime objects if requested.
+
     Args:
-        dt (datetime or str or None): The datetime object or string to validate 
-            and process. If None, the function returns None.
-        device_timezone (pytz.timezone, optional): The timezone to localize the 
-            datetime to. Defaults to the application's timezone.
-        localise (bool, optional): Whether to localize the datetime if it is 
-            naive (i.e., lacks timezone information). Defaults to True.
+        dt (datetime | str | None): The datetime object or ISO-format string to process.
+            Returns None if input is None.
+        device_timezone (pytz.timezone, optional): The timezone to use for localization.
+            Defaults to settings.TIME_ZONE if not specified.
+        localise (bool, optional): If True, localizes naive datetime objects to the
+            specified timezone. Defaults to True.
+
     Returns:
-        datetime or None: The processed datetime object, localized if applicable, 
-        or None if the input `dt` is None.
+        datetime | None: A timezone-aware datetime object if parsing succeeds, or None
+        if input is None.
     """
     # If the input datetime is None, return None immediately.
     if dt is None:
@@ -62,14 +64,19 @@ def create_image(
         (255, 0, 0), (0, 0, 255), (255, 255, 0)]
 ) -> Image:
     """
-    Creates an image with random pixel colors from the specified list of colors.
+    Generate a PIL Image with random pixel colors from a list.
+
+    Creates a new RGB image of the specified size, with each pixel randomly
+    assigned a color from the provided list of RGB tuples.
+
     Args:
-        image_width (int): The width of the image in pixels. Defaults to 500.
-        image_height (int): The height of the image in pixels. Defaults to 500.
-        colors (list[tuple[int, int, int]]): A list of RGB color tuples to randomly assign to pixels. 
-            Defaults to [(255, 0, 0), (0, 0, 255), (255, 255, 0)].
+        image_width (int, optional): Width of the image in pixels. Defaults to 500.
+        image_height (int, optional): Height of the image in pixels. Defaults to 500.
+        colors (list[tuple[int, int, int]], optional): List of RGB tuples to use for
+            pixel colors. Defaults to [(255, 0, 0), (0, 0, 255), (255, 255, 0)].
+
     Returns:
-        Image: A PIL Image object with the specified dimensions and randomly colored pixels.
+        Image: A PIL Image object with randomly colored pixels.
     """
 
     image = Image.new('RGB', (image_width, image_height))

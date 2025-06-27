@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>serializers - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "serializers";
+        var mkdocs_page_input_path = "reference\\camtrap_dp_export\\serializers.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">Index</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/projectjob/">ProjectJob</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">camtrap_dp_export</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">serializers</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/models/">Admin only models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">camtrap_dp_export</a></li>
+      <li class="breadcrumb-item active">serializers</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="camtrap_dp_export.serializers"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="camtrap_dp_export.serializers.DataFileSerializerCTDP" class="doc doc-heading">
+            <code>DataFileSerializerCTDP</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for representing media file metadata in the Camtrap DP export format.
+Maps file fields to the expected Camtrap DP schema, including media identifiers,
+file paths, MIME types, and additional comments.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>camtrap_dp_export\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataFileSerializerCTDP(serializers.Serializer):
+    """
+    Serializer for representing media file metadata in the Camtrap DP export format.
+    Maps file fields to the expected Camtrap DP schema, including media identifiers,
+    file paths, MIME types, and additional comments.
+    """
+    mediaID = serializers.CharField(
+        source='file_name',
+        help_text="Unique identifier for the media file (Camtrap DP: mediaID)."
+    )
+    deploymentID = serializers.CharField(
+        help_text="Identifier for the deployment associated with this media (Camtrap DP: deploymentID)."
+    )
+    captureMethod = serializers.CharField(
+        help_text="Method used to capture the media (e.g., motion detection, time lapse) (Camtrap DP: captureMethod)."
+    )
+    timestamp = serializers.CharField(
+        help_text="Date and time when the media was recorded (Camtrap DP: timestamp, ISO 8601)."
+    )
+    filePath = serializers.CharField(
+        help_text="File path to the media file (Camtrap DP: filePath)."
+    )
+    fileName = serializers.CharField(
+        help_text="Name of the media file (Camtrap DP: fileName)."
+    )
+    filePublic = serializers.CharField(
+        help_text="Indicates if the file is publicly accessible (Camtrap DP: filePublic)."
+    )
+    fileMediatype = serializers.SerializerMethodField(
+        help_text="MIME type of the media file, e.g., image/jpeg, video/mp4 (Camtrap DP: fileMediatype)."
+    )
+    favorite = serializers.BooleanField(
+        help_text="Indicates if the file is marked as a favorite (not a standard Camtrap DP field, custom)."
+    )
+    mediaComments = serializers.CharField(
+        help_text="Comments or notes about the media file (Camtrap DP: mediaComments)."
+    )
+
+    def get_fileMediatype(self, obj):
+        """
+        Guess the MIME type of the file based on its name.
+        Args:
+            obj: The object instance being serialized.
+        Returns:
+            str or None: The guessed MIME type, or None if unknown.
+        """
+        return mimetypes.guess_type(obj.fileName)[0]</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="camtrap_dp_export.serializers.DataFileSerializerCTDP.get_fileMediatype" class="doc doc-heading">
+            <code class="highlight language-python">get_fileMediatype(obj)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Guess the MIME type of the file based on its name.
+Args:
+    obj: The object instance being serialized.
+Returns:
+    str or None: The guessed MIME type, or None if unknown.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>camtrap_dp_export\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_fileMediatype(self, obj):
+    """
+    Guess the MIME type of the file based on its name.
+    Args:
+        obj: The object instance being serialized.
+    Returns:
+        str or None: The guessed MIME type, or None if unknown.
+    """
+    return mimetypes.guess_type(obj.fileName)[0]</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="camtrap_dp_export.serializers.DeploymentSerializerCTDP" class="doc doc-heading">
+            <code>DeploymentSerializerCTDP</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for representing deployment metadata in the Camtrap DP export format.
+Maps deployment fields to the expected Camtrap DP schema, including location,
+coordinates, camera details, and deployment attributes.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>camtrap_dp_export\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeploymentSerializerCTDP(serializers.Serializer):
+    """
+    Serializer for representing deployment metadata in the Camtrap DP export format.
+    Maps deployment fields to the expected Camtrap DP schema, including location,
+    coordinates, camera details, and deployment attributes.
+    """
+    deploymentID = serializers.CharField(
+        source='deployment_device_ID',
+        help_text="Unique identifier for this deployment (required by Camtrap DP: deploymentID)."
+    )
+    locationID = serializers.CharField(
+        help_text="Identifier for the location where the deployment occurs (required by Camtrap DP: locationID)."
+    )
+    latitude = serializers.DecimalField(
+        max_digits=8, decimal_places=6,
+        help_text="Latitude of the deployment in decimal degrees (required by Camtrap DP: latitude)."
+    )
+    longitude = serializers.DecimalField(
+        max_digits=8, decimal_places=6,
+        help_text="Longitude of the deployment in decimal degrees (required by Camtrap DP: longitude)."
+    )
+    deploymentStart = serializers.DateTimeField(
+        source="deployment_start", format="%Y-%m-%dT%H:%M:%S%z",
+        help_text="Date and time when the deployment started (required by Camtrap DP: deploymentStart, ISO 8601)."
+    )
+    deploymentEnd = serializers.DateTimeField(
+        source="deployment_start", format="%Y-%m-%dT%H:%M:%S%z",
+        help_text="Date and time when the deployment ended (required by Camtrap DP: deploymentEnd, ISO 8601)."
+    )
+    setupBy = serializers.CharField(
+        help_text="Person or organization responsible for setting up the deployment (Camtrap DP: setupBy)."
+    )
+    cameraID = serializers.CharField(
+        help_text="Identifier for the camera trap device used in this deployment (Camtrap DP: cameraID)."
+    )
+    cameraModel = serializers.CharField(
+        help_text="Manufacturer's model name or number of the camera trap device (Camtrap DP: cameraModel)."
+    )
+    coordinateUncertainty = serializers.FloatField(
+        help_text="Uncertainty in the spatial coordinates, in meters (Camtrap DP: coordinateUncertainty)."
+    )
+    cameraHeight = serializers.FloatField(
+        help_text="Height of the camera above ground in meters (Camtrap DP: cameraHeight)."
+    )
+    cameraHeading = serializers.IntegerField(
+        help_text="Compass direction the camera is facing in degrees (Camtrap DP: cameraHeading)."
+    )
+    baitUse = serializers.BooleanField(
+        help_text="Whether bait was used at the deployment (Camtrap DP: baitUse)."
+    )
+    habitatType = serializers.CharField(
+        help_text="Type of habitat at the deployment location (Camtrap DP: habitatType)."
+    )
+    deploymentGroups = serializers.CharField(
+        help_text="Group names or categories associated with this deployment (Camtrap DP: deploymentGroups)."
+    )
+    deploymentTags = serializers.CharField(
+        help_text="Tags to annotate this deployment (Camtrap DP: deploymentTags)."
+    )
+    deploymentComments = serializers.CharField(
+        help_text="Free-form comments about the deployment (Camtrap DP: deploymentComments)."
+    )</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="camtrap_dp_export.serializers.ObservationSerializerCTDP" class="doc doc-heading">
+            <code>ObservationSerializerCTDP</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for representing observation metadata in the Camtrap DP export format.
+Maps observation fields to the expected Camtrap DP schema, including event,
+taxonomic, and detection details.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>camtrap_dp_export\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class ObservationSerializerCTDP(serializers.Serializer):
+    """
+    Serializer for representing observation metadata in the Camtrap DP export format.
+    Maps observation fields to the expected Camtrap DP schema, including event,
+    taxonomic, and detection details.
+    """
+    observationID = serializers.CharField(
+        help_text="Unique identifier for this observation (Camtrap DP: observationID)."
+    )
+    deploymentID = serializers.CharField(
+        help_text="Deployment identifier associated with this observation (Camtrap DP: deploymentID)."
+    )
+    mediaID = serializers.CharField(
+        allow_null=True,
+        help_text="Media identifier related to this observation, if any (Camtrap DP: mediaID)."
+    )
+    eventID = serializers.CharField(
+        allow_null=True,
+        help_text="Identifier for the event grouping observations (Camtrap DP: eventID)."
+    )
+    eventStart = serializers.CharField(
+        allow_null=True,
+        help_text="Start time of the event (Camtrap DP: eventStart, ISO 8601)."
+    )
+    eventEnd = serializers.CharField(
+        allow_null=True,
+        help_text="End time of the event (Camtrap DP: eventEnd, ISO 8601)."
+    )
+    observationLevel = serializers.CharField(
+        help_text="Level of observation (e.g. image, sequence, deployment) (Camtrap DP: observationLevel)."
+    )
+    observationType = serializers.CharField(
+        help_text="Type of observation (e.g. species, blank, unclassified) (Camtrap DP: observationType)."
+    )
+    scientificName = serializers.CharField(
+        allow_null=True,
+        help_text="Scientific name of the observed taxon (Camtrap DP: scientificName)."
+    )
+    count = serializers.IntegerField(
+        help_text="Number of individuals observed (Camtrap DP: count)."
+    )
+    lifeStage = serializers.CharField(
+        allow_null=True, allow_blank=True,
+        help_text="Life stage of the observed organism, if known (Camtrap DP: lifeStage)."
+    )
+    sex = serializers.CharField(
+        allow_null=True, allow_blank=True,
+        help_text="Sex of the observed organism, if known (Camtrap DP: sex)."
+    )
+    behavior = serializers.CharField(
+        allow_null=True, allow_blank=True,
+        help_text="Observed behavior(s) (Camtrap DP: behavior)."
+    )
+    individualID = serializers.CharField(
+        allow_null=True,
+        help_text="Identifier for the individual, if known (Camtrap DP: individualID)."
+    )
+    bboxX = serializers.FloatField(
+        allow_null=True,
+        help_text="Bounding box X coordinate for detection (Camtrap DP: bboxX)."
+    )
+    bboxY = serializers.FloatField(
+        allow_null=True,
+        help_text="Bounding box Y coordinate for detection (Camtrap DP: bboxY)."
+    )
+    bboxWidth = serializers.FloatField(
+        allow_null=True,
+        help_text="Bounding box width for detection (Camtrap DP: bboxWidth)."
+    )
+    bboxHeight = serializers.FloatField(
+        allow_null=True,
+        help_text="Bounding box height for detection (Camtrap DP: bboxHeight)."
+    )
+    classificationMethod = serializers.CharField(
+        help_text="Method used for classification (Camtrap DP: classificationMethod)."
+    )
+    classifiedBy = serializers.CharField(
+        allow_null=True,
+        help_text="Person, software, or device that made the classification (Camtrap DP: classifiedBy)."
+    )
+    classificationProbability = serializers.FloatField(
+        allow_null=True,
+        help_text="Probability/score of the classification, if available (Camtrap DP: classificationProbability)."
+    )
+    observationComments = serializers.CharField(
+        allow_null=True,
+        help_text="Comments or notes about the observation (Camtrap DP: observationComments)."
+    )</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="camtrap_dp_export.serializers.SequenceSerializer" class="doc doc-heading">
+            <code>SequenceSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for representing sequence (event) metadata in the Camtrap DP export format.
+Maps sequence fields to the expected Camtrap DP schema, including event identifiers,
+media associations, and timing details.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>camtrap_dp_export\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class SequenceSerializer(serializers.Serializer):
+    """
+    Serializer for representing sequence (event) metadata in the Camtrap DP export format.
+    Maps sequence fields to the expected Camtrap DP schema, including event identifiers,
+    media associations, and timing details.
+    """
+    eventID = serializers.CharField(
+        help_text="Identifier for the sequence event (Camtrap DP: eventID)."
+    )
+    mediaID = serializers.SerializerMethodField(
+        help_text="List of media identifiers associated with this event (Camtrap DP: mediaID)."
+    )
+    mediaCount = serializers.IntegerField(
+        source='nfiles',
+        help_text="Total number of media files in this event (Camtrap DP: mediaCount)."
+    )
+    eventStart = serializers.CharField(
+        help_text="Start time of the event/sequence (Camtrap DP: eventStart, ISO 8601)."
+    )
+    eventEnd = serializers.CharField(
+        help_text="End time of the event/sequence (Camtrap DP: eventEnd, ISO 8601)."
+    )
+    mediaID = serializers.SlugRelatedField(
+        queryset=DataFile.objects.all(), many=True, source="data_files", slug_field='file_name',
+        help_text="Media files associated with this sequence (Camtrap DP: mediaID)."
+    )</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../querysets/" class="btn btn-neutral float-left" title="querysets"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../viewsets/" class="btn btn-neutral float-right" title="viewsets">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../querysets/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../viewsets/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

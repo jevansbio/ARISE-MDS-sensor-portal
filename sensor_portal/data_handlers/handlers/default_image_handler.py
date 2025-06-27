@@ -7,6 +7,12 @@ from data_handlers.functions import (check_exif_keys, get_image_recording_dt,
 
 
 class DefaultImageHandler(DataTypeHandler):
+    """
+    Data handler for processing image files from various camera types.
+
+    This handler extracts metadata from image files, especially EXIF data,
+    to supplement or determine recording information and other image properties.
+    """
     data_types = ["wildlifecamera", "insectcamera", "timelapsecamera"]
     device_models = ["default"]
     safe_formats = [".jpg", ".jpeg", ".png"]
@@ -33,6 +39,22 @@ class DefaultImageHandler(DataTypeHandler):
     """
 
     def handle_file(self, file, recording_dt: datetime = None, extra_data: dict = None, data_type: str = None) -> Tuple[datetime, dict, str]:
+        """
+        Process an image file by extracting EXIF metadata and determining recording datetime.
+
+        Args:
+            file: The image file to process.
+            recording_dt (datetime, optional): The initial recording datetime, if available.
+            extra_data (dict, optional): Dictionary to store additional metadata.
+            data_type (str, optional): Type of data being handled.
+
+        Returns:
+            Tuple containing:
+                - recording_dt (datetime): The recording datetime from EXIF or input.
+                - extra_data (dict): Updated metadata including image properties.
+                - data_type (str): The data type.
+                - task (str): The next processing task.
+        """
         recording_dt, extra_data, data_type, task = super().handle_file(
             file, recording_dt, extra_data, data_type)
 
@@ -48,5 +70,15 @@ class DefaultImageHandler(DataTypeHandler):
         return recording_dt, extra_data, data_type, task
 
     def get_post_download_task(self, file_extension: str, first_time: bool = True):
+        """
+        Returns the post-download processing task to perform for image files.
+
+        Args:
+            file_extension (str): The extension of the downloaded file.
+            first_time (bool, optional): Whether this is the first time handling the file.
+
+        Returns:
+            str: The task name to perform after download (always generates a thumbnail).
+        """
         # Always generate a thumbnail
         return "data_handler_generate_thumbnails"

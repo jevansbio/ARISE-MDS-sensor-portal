@@ -106,6 +106,8 @@ const DataBundleJobData = ({
 interface Props {
 	jobID?: string | null;
 	objectType?: string;
+	fromObject?: string;
+	fromObjectID?: string;
 	show?: boolean;
 	jobPKs?: number[];
 	onClose?: () => void;
@@ -114,6 +116,8 @@ interface Props {
 const JobModal = ({
 	jobID = null,
 	objectType = "datafile",
+	fromObject = undefined,
+	fromObjectID = undefined,
 	show = false,
 	jobPKs = [],
 	onClose = () => {},
@@ -142,8 +146,14 @@ const JobModal = ({
 	};
 
 	const getDataFunc = async () => {
+		let apiURL = `queryset_count/?${searchParams.toString()}`;
 		if (jobPKs.length === 0) {
-			let apiURL = `${objectType}/queryset_count/?${searchParams.toString()}`;
+			if (fromObject === undefined) {
+				apiURL = `${objectType}/${apiURL}`;
+			} else {
+				apiURL = `${objectType}/${fromObject}/${fromObjectID}/${apiURL}`;
+			}
+
 			let response_json = await getData(apiURL, authTokens.access);
 			return response_json;
 		} else {
@@ -157,7 +167,13 @@ const JobModal = ({
 
 	const { isLoading, isError, isPending, data, error, isPlaceholderData } =
 		useQuery({
-			queryKey: ["data", objectType, user, "count", searchParams.toString()],
+			queryKey: [
+				"data",
+				objectType,
+				jobPKs.length,
+				"count",
+				searchParams.toString(),
+			],
 			queryFn: () => getDataFunc(),
 			enabled: show,
 			refetchOnWindowFocus: false,
@@ -218,10 +234,17 @@ const JobModal = ({
 				data: submitJobData,
 			});
 		} else {
+			let apiURL = `start_job/${
+				jobInfo["task_name"]
+			}/?${searchParams.toString()}`;
+			if (fromObject === undefined) {
+				apiURL = `${objectType}/${apiURL}`;
+			} else {
+				apiURL = `${objectType}/${fromObject}/${fromObjectID}/${apiURL}`;
+			}
+
 			response = await doPost.mutateAsync({
-				apiURL: `${objectType}/start_job/${
-					jobInfo["task_name"]
-				}/?${searchParams.toString()}`,
+				apiURL: apiURL,
 				data: submitJobData,
 			});
 		}

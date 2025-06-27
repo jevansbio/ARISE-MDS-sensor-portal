@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 
 @app.task()
 def create_taxon_parents(taxon_pk):
+    """
+    Generate and set parent taxon objects for a given taxon.
+
+    Args:
+        taxon_pk (_type_): Primary key of the taxon object to process.
+    """
     from .models import Taxon
 
     taxon_object = Taxon.objects.get(pk=taxon_pk)

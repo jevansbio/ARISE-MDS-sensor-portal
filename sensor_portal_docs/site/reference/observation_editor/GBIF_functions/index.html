@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>GBIF_functions - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "GBIF_functions";
+        var mkdocs_page_input_path = "reference\\observation_editor\\GBIF_functions.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">Index</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/projectjob/">ProjectJob</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">observation_editor</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">GBIF_functions</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/models/">Admin only models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">observation_editor</a></li>
+      <li class="breadcrumb-item active">GBIF_functions</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="observation_editor.GBIF_functions"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_get_or_create_taxon_object_from_taxon_code" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_get_or_create_taxon_object_from_taxon_code(taxon_code)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve or create a Taxon model object from a GBIF taxon code.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>taxon_code</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Integer GBIF taxon code.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Tuple">Tuple</span>[<span title="typing.Any">Any</span>, <span title="bool">bool</span>]</code>
+              –
+              <div class="doc-md-description">
+                <p>Tuple of (Taxon object, boolean indicating if it was created).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_get_or_create_taxon_object_from_taxon_code(
+    taxon_code: int
+) -&gt; Tuple[Any, bool]:
+    """
+    Retrieve or create a Taxon model object from a GBIF taxon code.
+
+    Args:
+        taxon_code: Integer GBIF taxon code.
+
+    Returns:
+        Tuple of (Taxon object, boolean indicating if it was created).
+    """
+    from .models import Taxon
+    species_data = GBIF_get_species(taxon_code)
+    all_taxon_codes = GBIF_get_taxoncodes(species_data)
+    try:
+        # Try to get or create the Taxon object
+        taxon_obj, created = Taxon.objects.get_or_create(
+            species_name=species_data.get("canonicalName"),
+            species_common_name=species_data.get("vernacularName", ""),
+            taxon_source=1,
+            taxon_code=all_taxon_codes[0][0],
+            taxonomic_level=all_taxon_codes[0][1]
+        )
+    except MultipleObjectsReturned:
+        # If multiple objects exist, just return the first one
+        taxon_obj = Taxon.objects.filter(
+            species_name=species_data.get("canonicalName"),
+            species_common_name=species_data.get("vernacularName", ""),
+            taxon_source=1,
+            taxon_code=all_taxon_codes[0][0],
+            taxonomic_level=all_taxon_codes[0][1]
+        ).first()
+        created = False
+
+    return taxon_obj, created</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_get_species" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_get_species(species_key)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve a species' detailed metadata from GBIF by its key.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>species_key</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Integer GBIF species key.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+              –
+              <div class="doc-md-description">
+                <p>Dictionary of species metadata returned by GBIF.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_get_species(
+    species_key: int
+) -&gt; Dict[str, Any]:
+    """
+    Retrieve a species' detailed metadata from GBIF by its key.
+
+    Args:
+        species_key: Integer GBIF species key.
+
+    Returns:
+        Dictionary of species metadata returned by GBIF.
+    """
+    gbif_response = requests.get(
+        f"https://api.gbif.org/v1/species/{species_key}")
+    gbif_data = gbif_response.json()
+    return gbif_data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_get_taxoncodes" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_get_taxoncodes(gbif_data)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Extract all available taxonomic codes and their levels from a GBIF result.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>gbif_data</code></b>
+                  (<code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dictionary containing GBIF taxon data.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.List">List</span>[<span title="typing.Tuple">Tuple</span>[<span title="int">int</span>, <span title="int">int</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>List of (taxon code, taxonomic level) tuples, ordered from species up to kingdom.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_get_taxoncodes(
+    gbif_data: Dict[str, Any]
+) -&gt; List[Tuple[int, int]]:
+    """
+    Extract all available taxonomic codes and their levels from a GBIF result.
+
+    Args:
+        gbif_data: Dictionary containing GBIF taxon data.
+
+    Returns:
+        List of (taxon code, taxonomic level) tuples, ordered from species up to kingdom.
+    """
+    # List of GBIF taxonomic ranks, ordered from most specific to most general
+    rank_keys = [
+        'speciesKey', 'genusKey', 'familyKey', 'orderKey',
+        'classKey', 'phylumKey', 'kingdomKey'
+    ]
+    all_keys: List[Tuple[int, int]] = []
+    for taxonomic_level, rank_key in enumerate(rank_keys):
+        curr_key = gbif_data.get(rank_key, None)
+        if curr_key is not None:
+            # Validate the key by checking for major issues in GBIF data
+            species_data = GBIF_get_species(curr_key)
+            issues = species_data.get('issues', [])
+            if any([x in issues for x in ['NO_SPECIES']]):
+                continue
+            all_keys.append((curr_key, taxonomic_level))
+
+    # Handle special case where the result is a subspecies: use its own key
+    if gbif_data.get('rank') == 'SUBSPECIES' and all_keys:
+        all_keys[0] = (gbif_data.get('key'), 0)
+
+    return all_keys</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_result_match" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_result_match(search_string, gbif_result)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Perform fuzzy matching between a search string and a single GBIF API result.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>search_string</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>User input string to search for (e.g., species name).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gbif_result</code></b>
+                  (<code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>A dictionary representing a single species result from GBIF.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="int">int</span>, <span title="float">float</span>]]]</code>
+              –
+              <div class="doc-md-description">
+                <p>A dictionary containing max scientific and vernacular name scores,</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="int">int</span>, <span title="float">float</span>]]]</code>
+              –
+              <div class="doc-md-description">
+                <p>median score over all name types, and count of scores &gt; 50.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_result_match(
+    search_string: str, gbif_result: Dict[str, Any]
+) -&gt; Dict[str, Optional[Union[int, float]]]:
+    """
+    Perform fuzzy matching between a search string and a single GBIF API result.
+
+    Args:
+        search_string: User input string to search for (e.g., species name).
+        gbif_result: A dictionary representing a single species result from GBIF.
+
+    Returns:
+        A dictionary containing max scientific and vernacular name scores,
+        median score over all name types, and count of scores &gt; 50.
+    """
+    # Normalize the search string for more robust comparison
+    search_string = search_string.lower()
+    keys_to_search = ['scientificName', 'canonicalName']
+
+    # Fuzzy match against both scientific and canonical names
+    scores = [
+        fuzz.ratio(search_string, gbif_result.get(x, "").lower())
+        for x in keys_to_search
+    ]
+
+    # Fuzzy match against all vernacular (common) names
+    vernacular_scores = [
+        fuzz.ratio(search_string, x['vernacularName'].lower())
+        for x in gbif_result.get('vernacularNames', [])
+    ]
+
+    # Find the highest vernacular score, or None if there are no vernaculars
+    try:
+        max_vernacular_score = max(vernacular_scores)
+    except ValueError:
+        max_vernacular_score = None
+
+    # Compute the max scientific score
+    maximum_score = max(scores)
+    # The median across all scores (scientific, canonical, vernacular)
+    if vernacular_scores + scores:
+        median_score = statistics.median(vernacular_scores + scores)
+    else:
+        median_score = 0
+    # Count how many scores are above the threshold of 50
+    n_scores_gt_50 = len([x for x in scores + vernacular_scores if x &gt; 50])
+
+    return {
+        "max_scientific_score": maximum_score,
+        "max_vernacular_score": max_vernacular_score,
+        "median_score": median_score,
+        "n_scores_gt_50": n_scores_gt_50
+    }</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_species_search" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_species_search(search_string)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Query the GBIF API for species matching the search string, scoring and ranking results.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>search_string</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The string (species name) to search for.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Tuple">Tuple</span>[<span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]], <span title="typing.List">List</span>[<span title="float">float</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>Tuple containing:
+- List of sorted GBIF result dictionaries (best match first)
+- List of overall scores for each result (matching order)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_species_search(
+    search_string: str
+) -&gt; Tuple[List[Dict[str, Any]], List[float]]:
+    """
+    Query the GBIF API for species matching the search string, scoring and ranking results.
+
+    Args:
+        search_string: The string (species name) to search for.
+
+    Returns:
+        Tuple containing:
+            - List of sorted GBIF result dictionaries (best match first)
+            - List of overall scores for each result (matching order)
+    """
+    gbif_response = requests.get(
+        "https://api.gbif.org/v1/species/search",
+        params={
+            "q": search_string,
+            "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
+            "limit": 5,
+            "verbose": True
+        }
+    )
+    # Parse results or empty list if none
+    gbif_data = gbif_response.json().get('results', [])
+
+    # Score each result using the custom fuzzy matcher
+    all_scores = [GBIF_result_match(search_string, x) for x in gbif_data]
+
+    # The best score for each result (across all name types)
+    scores = [max([y for y in x.values() if y is not None])
+              for x in all_scores]
+
+    # Give a huge boost to exact matches
+    for i in range(len(all_scores)):
+        if all_scores[i]["max_scientific_score"] == 100:
+            all_scores[i]["max_scientific_score"] = 1000
+        if all_scores[i]["max_vernacular_score"] == 100:
+            all_scores[i]["max_vernacular_score"] = 1000
+
+    # Compute a combined score for each result (product of all available scores)
+    multi_score = [
+        math.prod([y for y in x.values() if y is not None])
+        for x in all_scores
+    ]
+
+    # Sort results by combined score, descending
+    sorted_items = sorted(enumerate(multi_score),
+                          key=lambda x: x[1], reverse=True)
+    gbif_data = [gbif_data[i[0]] for i in sorted_items]
+    scores = [scores[i[0]] for i in sorted_items]
+
+    return gbif_data, scores</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_taxoncode_from_search" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_taxoncode_from_search(search_string, threshold=80)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return taxon codes from a search string if match score is above threshold.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>search_string</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The string to search for (usually a species name).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>threshold</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>80</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Minimum score for a match to be accepted (default 80).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.List">List</span>[<span title="typing.Tuple">Tuple</span>[<span title="int">int</span>, <span title="int">int</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>List of (taxon code, taxonomic level) tuples for the best match, or empty list.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_taxoncode_from_search(
+    search_string: str, threshold: int = 80
+) -&gt; List[Tuple[int, int]]:
+    """
+    Return taxon codes from a search string if match score is above threshold.
+
+    Args:
+        search_string: The string to search for (usually a species name).
+        threshold: Minimum score for a match to be accepted (default 80).
+
+    Returns:
+        List of (taxon code, taxonomic level) tuples for the best match, or empty list.
+    """
+    gbif_data, gbif_scores = GBIF_species_search(search_string)
+    if len(gbif_data) == 0:
+        return []
+    if gbif_scores[0] &gt;= threshold:
+        gbif_data_0 = gbif_data[0]
+        all_keys = GBIF_get_taxoncodes(gbif_data_0)
+        if len(all_keys) &gt; 0:
+            return all_keys
+    return []</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="observation_editor.GBIF_functions.GBIF_to_avibase" class="doc doc-heading">
+            <code class="highlight language-python">GBIF_to_avibase(species_key)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Map a GBIF species key to an Avibase taxonConceptID using GBIF occurrence API.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>species_key</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Integer GBIF species key.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+              –
+              <div class="doc-md-description">
+                <p>Avibase taxonConceptID string if found, otherwise None.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>observation_editor\GBIF_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def GBIF_to_avibase(
+    species_key: int
+) -&gt; Optional[str]:
+    """
+    Map a GBIF species key to an Avibase taxonConceptID using GBIF occurrence API.
+
+    Args:
+        species_key: Integer GBIF species key.
+
+    Returns:
+        Avibase taxonConceptID string if found, otherwise None.
+    """
+    gbif_response = requests.get(
+        "https://api.gbif.org/v1/occurrence/search",
+        params={
+            'taxonKey': species_key,
+            'limit': 1,
+            'datasetKey': '4fa7b334-ce0d-4e88-aaae-2e0c138d049e'
+        }
+    )
+    if gbif_response.status_code != 200:
+        logger.error("GBIF to avibase failed: %s %s",
+                     gbif_response.status_code, gbif_response.text)
+        return None
+    gbif_data = gbif_response.json().get('results', [])
+    if gbif_data:
+        avibase = gbif_data[0].get('taxonConceptID')
+        return avibase
+    else:
+        return None</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../filtersets/" class="btn btn-neutral float-left" title="filtersets"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../metadata_functions/" class="btn btn-neutral float-right" title="metadata_functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../filtersets/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../metadata_functions/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
