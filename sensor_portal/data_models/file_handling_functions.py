@@ -36,7 +36,7 @@ def create_file_objects(
     data_types: Optional[List[str]] = None,
     request_user: Optional["User"] = None,
     multipart: bool = False,
-    verbose: bool = False
+    verbose: bool = True
 ) -> Tuple[
     List["DataFile"],
     List[Dict[str, Dict[str, Union[str, int]]]],
@@ -61,7 +61,8 @@ def create_file_objects(
     Returns:
         Tuple[
             List[DataFile],  # Successfully uploaded file objects
-            List[Dict[str, Dict[str, Union[str, int]]]],  # Invalid files with errors
+            # Invalid files with errors
+            List[Dict[str, Dict[str, Union[str, int]]]],
             List[Dict[str, Dict[str, Union[str, int]]]],  # Files already in DB
             int  # HTTP status code
         ]
@@ -353,11 +354,12 @@ def create_file_objects(
         handler_return_list = [x for x, y in zip(
             handler_return_list, valid_date_bool) if y]
     else:
+
         invalid_files += [{x.get("file_name"):
-                           {"message": f"no suitable deployment of {device_object} found for recording date time {z}",
-                            "status": 400}} for x,
-                          y, z in zip(files, valid_deployment_bool, recording_dt) if not y]
+                           {"message": f"no suitable deployment of {device_object} found for recording date time {x.get('recording_dt')}",
+                            "status": 400}} for x, y in zip(handler_return_list, valid_deployment_bool) if not y]
         # Filter out invalid files from the files list
+
         handler_return_list = [x for x, y in zip(
             handler_return_list, valid_deployment_bool) if y]
 
@@ -582,13 +584,15 @@ def create_file_objects(
                     f"Deployment tasks for file {filename}: {file_deployment_tasks}")
 
             # Append the handler task for the current file to the list of all handler tasks
-            all_handler_tasks.append({"filename": file_handler_task})
+            all_handler_tasks.append(
+                {"original_name": filename, "task": file_handler_task})
             if verbose:
                 logger.info(
                     f"Handler task for file {filename}: {file_handler_task}")
 
             # Append the deployment tasks for the current file to the list of project task primary keys
-            project_task_pks.append({filename: file_deployment_tasks})
+            project_task_pks.append(
+                {"original_name": filename, "tasks": file_deployment_tasks})
 
     final_status = status.HTTP_200_OK
 
@@ -626,10 +630,14 @@ def create_file_objects(
         all_tasks = []
 
         # For unique data handler tasks, fire off jobs to perform them
-        all_task_names = [list(x.values())[0] for x in all_handler_tasks]
+        all_task_names = [x.get("task") for x in all_handler_tasks]
         all_task_names_filtered = [x for x in all_task_names if x is not None]
         unique_tasks = list(
             set(all_task_names_filtered))
+
+        if verbose:
+            logger.info(
+                f"Found unique tasks: {unique_tasks}")
 
         if len(unique_tasks) > 0:
             for task_name in unique_tasks:
@@ -637,28 +645,36 @@ def create_file_objects(
                 # get original_name associated with this task
 
                 task_original_names = [
-                    key for key, value in all_handler_tasks if value == task_name]
+                    x.get("original_name") for x in all_handler_tasks if x.get("task") == task_name]
 
                 # get pks for this task
 
                 task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
                     "original_name") in task_original_names]
 
+                if verbose:
+                    logger.info(
+                        f"Task {task_name}: {task_file_pks}")
+
                 if len(task_file_pks) > 0:
                     new_task = app.signature(
                         task_name, [task_file_pks], immutable=True)
                     all_tasks.append(new_task)
+            if verbose:
+                logger.info(
+                    f"All tasks:{all_tasks}")
 
         # For unique project tasks, fire off jobs to perform them
         flat_project_task_pks = [
-            x for internal_list in project_task_pks for x in internal_list]
+            x for internal_list in project_task_pks for x in internal_list.get("tasks")]
 
         unique_project_task_pks = list(set(flat_project_task_pks))
+
         if len(unique_project_task_pks) > 0:
             for project_task_pk in unique_project_task_pks:
 
                 project_task_original_names = [
-                    key for key, value in uploaded_files_name_pks if project_task_pk in value]
+                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("task")]
 
                 project_task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
                     "original_name") in project_task_original_names]
@@ -691,6 +707,8 @@ def handle_uploaded_file(
     filepath: str,
     multipart: bool = False,
     verbose: bool = False
+
+
 ) -> None:
     """
     Upload and save a file to the specified filepath.
@@ -705,7 +723,8 @@ def handle_uploaded_file(
         OSError: If creating directories or writing to the file fails.
 
     Example:
-        handle_uploaded_file(uploaded_file, '/path/to/save/file.txt', multipart=True, verbose=True)
+        handle_uploaded_file(
+            uploaded_file, '/path/to/save/file.txt', multipart=True, verbose=True)
     """
     os.makedirs(os.path.split(filepath)[0], exist_ok=True)
     if multipart and os.path.exists(filepath):
