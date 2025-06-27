@@ -67,6 +67,34 @@ def check_exif_keys(
     return new_data
 
 
+def check_tag_keys(
+    tag_info: Dict[str, Any],
+    tag_keys: List[str],
+    round_val: int = 2
+) -> Dict[str, Any]:
+    """
+    Check and extract specified TAG keys from the audio's TAG data, rounding float values.
+
+    Args:
+        image_exif: TAG data as a dictionary.
+        exif_keys: List of keys to extract from the TAG data.
+        round_val: Number of decimal places to round float values to.
+
+    Returns:
+        A dictionary of the requested TAG key-value pairs, with floats rounded.
+    """
+    new_data = {}
+
+    for tag_key in tag_keys:
+        val = tag_info.get(tag_key)
+        if val is not None:
+            if type(val) is float:
+                val = round(val, round_val)
+            new_data[tag_key] = val
+
+    return new_data
+
+
 def get_image_recording_dt(image_exif: Dict[str, Any]) -> Optional[dt]:
     """
     Get the recording datetime from image EXIF data.
