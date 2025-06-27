@@ -674,7 +674,7 @@ def create_file_objects(
             for project_task_pk in unique_project_task_pks:
 
                 project_task_original_names = [
-                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("task")]
+                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("tasks")]
 
                 project_task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
                     "original_name") in project_task_original_names]
