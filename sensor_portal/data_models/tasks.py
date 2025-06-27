@@ -224,7 +224,7 @@ def check_device_status():
         # get PKs
         user_bad_device_pks = users_bad_devices.values_list('pk', flat=True)
         device_list = [
-            f'{x.get("device_ID")} - {x.get("name")} - {x.get("file_hours")}' for x in bad_devices_values if x.get('pk') in user_bad_device_pks]
+            f'{x.get("device_ID")} - {x.get("name")} - {round(x.get("file_hours"),2)}' for x in bad_devices_values if x.get('pk') in user_bad_device_pks]
         device_list_string = " \n".join(device_list)
         logger.info(f"Got bad device info for {user.username}")
 
@@ -233,6 +233,7 @@ def check_device_status():
         Dear {user.first_name} {user.last_name},\n
         \n
         The following devices which you manage have not transmitted in their allotted time: \n
+        \n
         {device_list_string}
         """
 
