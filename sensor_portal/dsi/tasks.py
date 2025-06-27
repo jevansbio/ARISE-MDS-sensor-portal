@@ -11,7 +11,7 @@ from .api_functions import post_data
 
 @app.task(name="push_to_dsi")
 @register_job("Push to ARISE DSI", "push_to_dsi", "datafile", True, max_items=100,
-              default_args={"dsi_project_id": 139, "dsi_site_id": 1, "dsi_sensor_model_id": 1})
+              default_args={"dsi_project_id": 202, "dsi_site_id": 2, "dsi_sensor_model_id": 2})
 def push_to_dsi_task(datafile_pks, dsi_project_id, dsi_site_id, dsi_sensor_model_id, **kwargs):
     post_data(media_pks=datafile_pks, dsi_project_id=dsi_project_id,
               dsi_site_id=dsi_site_id, dsi_sensor_model_id=dsi_sensor_model_id)
