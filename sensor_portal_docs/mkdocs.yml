@@ -8,8 +8,7 @@ nav:
       - Device: "structure/device.md"
       - Deployment: "structure/deployment.md"
       - Datafile: "structure/datafile.md"
-      - Detail:
-        - Index: structure/detail/index.md
+      - Model detail:
         - Site: structure/detail/site.md
         - DataType: structure/detail/datatype.md
         - Project: structure/detail/project.md
@@ -28,10 +27,16 @@ nav:
     - For admin:
       - Overview: "admin/index.md"
       - Permissions: "admin/permissions.md"
-      - Admin only models: 
-        - Index: "admin/models.md"
-        - ProjectJob: structure/detail/projectjob.md
-theme: readthedocs
+      - Admin only models details: 
+        - Project Job: admin/detail/projectjob.md
+        - Data Storage input: admin/detail/data_storage_input.md
+        - Archive: admin/detail/archive.md
+        - TAR file: admin/detail/tarfile.md
+theme: 
+  name: readthedocs
+  features:
+    - navigation.indexes
+use_directory_urls: True
 markdown_extensions:
   - pymdownx.highlight:
       default_lang: python
