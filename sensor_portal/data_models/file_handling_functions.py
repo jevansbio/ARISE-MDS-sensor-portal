@@ -346,10 +346,11 @@ def create_file_objects(
             "Filtering invalid files based on deployment and recording dates...")
     # Add invalid files to the invalid_files list with appropriate error messages
     if deployment_object:
+        print(handler_return_list, valid_date_bool)
         invalid_files += [{x.get("file_name"):
-                           {"message": f"Recording date time {z} does not exist in {deployment_object}",
+                           {"message": f"Recording date time {x.get('recording_dt')} does not exist in {deployment_object}",
                             "status": 400}} for
-                          x, y, z in zip(handler_return_list, valid_date_bool, recording_dt) if not y]
+                          x, y in zip(handler_return_list, valid_date_bool) if not y]
         # Filter out invalid files from the files list
         handler_return_list = [x for x, y in zip(
             handler_return_list, valid_date_bool) if y]
@@ -674,7 +675,7 @@ def create_file_objects(
             for project_task_pk in unique_project_task_pks:
 
                 project_task_original_names = [
-                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("task")]
+                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("tasks")]
 
                 project_task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
                     "original_name") in project_task_original_names]

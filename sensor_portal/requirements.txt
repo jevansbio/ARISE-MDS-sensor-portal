@@ -46,6 +46,7 @@ arise-dsi-sdk @ git+https://gitlab.com/arise-biodiversity/DSI/arise-dsi-sdk.git@
 #Audio
 
 soundfile @ git+https://github.com/jevansbio/python-soundfile
+tinytag==2.1.1
 
 # Other packages
 pytz==2022.1
