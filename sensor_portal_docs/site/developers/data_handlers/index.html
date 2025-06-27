@@ -60,6 +60,34 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../structure/datafile/">Datafile</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/">Index</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/projectjob/">ProjectJob</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
               <ul class="current">
@@ -79,15 +107,25 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-custom-data-handler">Creating a custom data handler</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example-reference-defaultimagehandler">Example Reference: DefaultImageHandler</a>
+    </li>
+        </ul>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#using-post_upload_task_handler-as-a-wrapper">Using post_upload_task_handler as a Wrapper</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#purpose">Purpose</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#signature">Signature</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-use">How to Use</a>
+    </li>
         </ul>
     </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../generic_jobs/">Generic jobs</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Code Reference</a>
     <ul>
@@ -278,6 +316,10 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../admin/">Overview</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/models/">Admin only models</a>
+                  </li>
               </ul>
       </div>
     </div>
@@ -316,20 +358,83 @@
 <li>handling_description:  HTML description of how the files are handled.</li>
 <li>post_handling_description: HTML description of post-upload tasks run on the file.</li>
 </ul>
-<h3 id="methods-to-override">Methods to override.</h3>
+<h2 id="methods-to-override">Methods to override.</h2>
 <h4 id="handle_filefile-recording_dtnone-extra_datanone-data_typenone">handle_file(file, recording_dt=None, extra_data=None, data_type=None)</h4>
-<p>Handle a file after download, performing any post-processing or validation. The method is expected to return
-    - DateTime of when the file was recorded <code>recording_dt</code>.
-    - Dict of <code>extra_data</code> including any extra information that might be important that does not fit into the pre-defined database columns.
-    - String of <code>data_type__name</code>, in case the handler overrides the default datatype of the deployment, e.g. a camera that takes both motion detected and timelapse images.
-    - String of a post-download celery task that will be carried out when the import is complete. This is typically returned by the <code>get_post_download_task</code> method.
-Returns: Tuple[datetime, dict, str, str]</p>
+<p>Handle a file after download, performing any post-processing or validation. The method is expected to return:</p>
+<ul>
+<li>
+<p>DateTime of when the file was recorded <code>recording_dt</code>.</p>
+</li>
+<li>
+<p>Dict of <code>extra_data</code> including any extra information that might be important that does not fit into the pre-defined database columns.</p>
+</li>
+<li>
+<p>String of <code>data_type__name</code>, in case the handler overrides the default datatype of the deployment, e.g. a camera that takes both motion detected and timelapse images.</p>
+</li>
+<li>
+<p>String of a post-download celery task that will be carried out when the import is complete. This is typically returned by the <code>get_post_download_task</code> method.</p>
+</li>
+</ul>
 <h4 id="get_post_download_taskfile_extension-first_timetrue">get_post_download_task(file_extension, first_time=True)</h4>
-<p>Returns the name of a post download celery task.
-Returns: Any</p>
+<p>Returns the name of a post download celery task.</p>
 <h4 id="get_valid_filesfiles-device_labelnone">get_valid_files(files, device_label=None)</h4>
-<p>Can filter a list of files by custom validity checks.
-Returns: list</p>
+<p>Return a list of files filtered by custom validity checks.</p>
+<h2 id="creating-a-custom-data-handler">Creating a custom data handler</h2>
+<ol>
+<li><strong>Create a new handler class</strong> in your handlers directory.</li>
+</ol>
+<pre><code class="language-python">from datetime import datetime
+from typing import Tuple
+
+from data_handlers.base_data_handler_class import DataTypeHandler
+
+class CustomFileHandler(DataTypeHandler):
+    data_types = [&quot;mydatatype&quot;]
+    device_models = [&quot;mydevice&quot;]
+    safe_formats = [&quot;.txt&quot;, &quot;.csv&quot;]
+    full_name = &quot;My Custom File Handler&quot;
+    description = &quot;Handles custom text or CSV files.&quot;
+    validity_description = &quot;Files must be .txt or .csv.&quot;
+    handling_description = &quot;Parses text files to extract structured data.&quot;
+    post_handling_description = &quot;Triggers downstream processing tasks if needed.&quot;
+
+    def handle_file(self, file, recording_dt: datetime = None, extra_data: dict = None, data_type: str = None) -&gt; Tuple[datetime, dict, str, str]:
+        # Call base handler
+        recording_dt, extra_data, data_type, task = super().handle_file(file, recording_dt, extra_data, data_type)
+
+        # Add custom file parsing logic here
+        with open(file.path, 'r') as f:
+            content = f.read()
+            extra_data['line_count'] = content.count('\n')
+
+        return recording_dt, extra_data, data_type, task
+
+    def get_post_download_task(self, file_extension: str, first_time: bool = True):
+        # Return a task name for post-download processing
+        return &quot;data_handler_run_analysis&quot;
+</code></pre>
+<ol>
+<li><strong>Register the handler</strong></li>
+</ol>
+<p>Ensure your handler module is located in the <code>data_handlers/handlers/</code> directory.<br />
+The <code>DataTypeHandlerCollection</code> class automatically discovers and instantiates all subclasses of <code>DataTypeHandler</code>.</p>
+<ol>
+<li><strong>Use in processing</strong></li>
+</ol>
+<p>The <code>DataTypeHandlerCollection</code> will route files to your custom handler based on <code>data_type</code> and <code>device_model</code>.</p>
+<p>Example:</p>
+<pre><code class="language-python">handler_collection = DataTypeHandlerCollection()
+handler = handler_collection.get_handler(&quot;mydatatype&quot;, &quot;mydevice&quot;)
+valid_files = handler.get_valid_files(uploaded_files)
+</code></pre>
+<h3 id="example-reference-defaultimagehandler">Example Reference: <code>DefaultImageHandler</code></h3>
+<p>The <code>DefaultImageHandler</code> class demonstrates subclassing to handle <code>.jpg</code>, <code>.jpeg</code>, and <code>.png</code> image files.<br />
+It overrides:</p>
+<ul>
+<li><code>handle_file</code> to extract EXIF metadata</li>
+<li><code>get_post_download_task</code> to specify the task <code>"data_handler_generate_thumbnails"</code></li>
+</ul>
+<p>You can follow a similar structure to implement your own custom logic.</p>
 <h2 id="using-post_upload_task_handler-as-a-wrapper">Using <code>post_upload_task_handler</code> as a Wrapper</h2>
 <p>The <code>post_upload_task_handler</code> is a utility function designed to apply a custom task function to a list of <code>DataFile</code> instances after upload. It ensures each file is safely locked during processing and restored to its original state afterward.</p>
 <h3 id="purpose">Purpose</h3>
@@ -344,12 +449,28 @@ Returns: list</p>
     task_function: Callable[[DataFile], Tuple[DataFile | None, List[str] | None]]
 ) -&gt; None
 </code></pre>
+<h3 id="how-to-use">How to Use</h3>
+<ol>
+<li><strong>Define your task function:</strong></li>
+</ol>
+<pre><code class="language-python">def my_custom_task(data_file: DataFile) -&gt; Tuple[DataFile, List[str]]:
+    # perform some logic on the data_file
+    data_file.custom_field = &quot;Updated&quot;
+    return data_file, [&quot;custom_field&quot;]
+</code></pre>
+<ol>
+<li><strong>Call post_upload_task_handler with file PKs and your function::</strong></li>
+</ol>
+<pre><code class="language-python">file_pks = [1, 2, 3]
+post_upload_task_handler(file_pks, my_custom_task)
+
+</code></pre>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../../reference/ai_integration/" class="btn btn-neutral float-right" title="ai_integration">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../generic_jobs/" class="btn btn-neutral float-right" title="Generic jobs">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -375,7 +496,7 @@ Returns: list</p>
       <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../../reference/ai_integration/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../generic_jobs/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

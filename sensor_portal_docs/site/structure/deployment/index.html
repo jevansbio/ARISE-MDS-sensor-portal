@@ -58,9 +58,39 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Deployment</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#search-function-filters-for-deployments">Search function &amp; filters for deployments</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/">Index</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/projectjob/">ProjectJob</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
@@ -68,6 +98,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../developers/">Overview</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developers/generic_jobs/">Generic jobs</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Code Reference</a>
     <ul>
@@ -258,6 +290,10 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../admin/">Overview</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/models/">Admin only models</a>
+                  </li>
               </ul>
       </div>
     </div>
@@ -285,6 +321,19 @@
               
                 <h1 id="deployment">Deployment</h1>
 <p>A deployment refers to the placement of a monitoring device (such as a camera trap or audio recorder) at a specific location and time. It includes metadata such as device ID, geographic coordinates, installation settings, and duration. Deployments are linked to one or more projects and form the basis for data collection in the field.</p>
+<h2 id="search-function-filters-for-deployments">Search function &amp; filters for deployments</h2>
+<p>A general search function and filters are available to subset <strong>deployments</strong></p>
+<p><strong>Search</strong> Accepted search functions include and are limited to the full, or parts of, a <em>deployment</em>, <em>device ID</em>,
+                     <em>device name</em>, <em>device</em>, and <em>extra data</em> that is appended to the deployment.</p>
+<p><strong>Deployment active now?</strong> Allows a user to filter by deployments that are active <em>True</em> or innactive <em>False</em>.  </p>
+<p><strong>Site</strong> Allows a user to filter for deployments in a specific site.  </p>
+<p><strong>Device type</strong> Allows a user to filter deployments by device type. For example, a user can subset all deployments of wildlife cameras.  </p>
+<p><strong>Deployment started after</strong> Allows a user to filter for deployments that <em>begun after</em> a specified date and time.  </p>
+<p><strong>Deployment started before</strong> Allows a user to filter for deployments that <em>begun before</em> a specified date and time.  </p>
+<p><strong>Deployment ended before</strong> Allows a user to filter for deployments that <em>ended before</em> a specified date and time.  </p>
+<p><strong>Deployment ended after</strong> Allows a user to filter for deployments that <em>ended after</em> a specified date and time.  </p>
+<p><strong>Select job</strong> There are currently no job options to select at device level.  </p>
+<p><strong>Add new deployment</strong> allows uers with <em>Manager</em> permissions to register a new deployment.  </p>
               
             </div>
           </div><footer>
