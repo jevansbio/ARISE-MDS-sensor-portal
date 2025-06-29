@@ -190,7 +190,9 @@ def get_files_from_archived_tar_task(self: Any, tar_file_pk: int, target_file_pk
 
     # Try to locate the compressed TAR file first
 
-    if not tar_file_obj.name.endswith('.tar.gz'):
+    tar_name = tar_file_obj.name
+
+    if not tar_name.endswith('.tar.gz'):
         tar_name = tar_file_obj.name + '.tar.gz'
     tar_path = posixjoin(tar_file_obj.path, tar_name)
 
