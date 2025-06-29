@@ -60,10 +60,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">index</a>
-                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
@@ -85,6 +83,15 @@
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
                 </li>
     </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
@@ -288,7 +295,17 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../../detail">Admin only models</a>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -449,6 +466,116 @@
             if type(val) is float:
                 val = round(val, round_val)
             new_data[exif_key] = val
+
+    return new_data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_handlers.functions.check_tag_keys" class="doc doc-heading">
+            <code class="highlight language-python">check_tag_keys(tag_info, tag_keys, round_val=2)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check and extract specified TAG keys from the audio's TAG data, rounding float values.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>image_exif</code></b>
+              –
+              <div class="doc-md-description">
+                <p>TAG data as a dictionary.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exif_keys</code></b>
+              –
+              <div class="doc-md-description">
+                <p>List of keys to extract from the TAG data.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>round_val</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>2</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Number of decimal places to round float values to.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+              –
+              <div class="doc-md-description">
+                <p>A dictionary of the requested TAG key-value pairs, with floats rounded.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check_tag_keys(
+    tag_info: Dict[str, Any],
+    tag_keys: List[str],
+    round_val: int = 2
+) -&gt; Dict[str, Any]:
+    """
+    Check and extract specified TAG keys from the audio's TAG data, rounding float values.
+
+    Args:
+        image_exif: TAG data as a dictionary.
+        exif_keys: List of keys to extract from the TAG data.
+        round_val: Number of decimal places to round float values to.
+
+    Returns:
+        A dictionary of the requested TAG key-value pairs, with floats rounded.
+    """
+    new_data = {}
+
+    for tag_key in tag_keys:
+        val = tag_info.get(tag_key)
+        if val is not None:
+            if type(val) is float:
+                val = round(val, round_val)
+            new_data[tag_key] = val
 
     return new_data</code></pre>
             </details>

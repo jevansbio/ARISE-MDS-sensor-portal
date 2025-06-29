@@ -60,10 +60,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">index</a>
-                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
@@ -85,6 +83,15 @@
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
                 </li>
     </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
@@ -288,7 +295,17 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../../detail">Admin only models</a>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -613,13 +630,13 @@ int  # HTTP status code</p>
         extra_data = [{}]
 
     if verbose:
-        logger.info("Initial files:", files)
-        logger.info("Device object:", device_object)
-        logger.info("Deployment object:", deployment_object)
-        logger.info("Recording datetime:", recording_dt)
-        logger.info("Extra data:", extra_data)
-        logger.info("Data types:", data_types)
-        logger.info("Request user:", request_user)
+        logger.info(f"Initial files:  {files}")
+        logger.info(f"Device object: {device_object}")
+        logger.info(f"Deployment object:{deployment_object}")
+        logger.info(f"Recording datetime: {recording_dt}")
+        logger.info(f"Extra data: {extra_data}")
+        logger.info(f"Data types: {data_types}")
+        logger.info(f"Request user {request_user}")
 
     # Get the current upload datetime
     upload_dt = djtimezone.now()
@@ -871,9 +888,9 @@ int  # HTTP status code</p>
     # Add invalid files to the invalid_files list with appropriate error messages
     if deployment_object:
         invalid_files += [{x.get("file_name"):
-                           {"message": f"Recording date time {z} does not exist in {deployment_object}",
+                           {"message": f"Recording date time {x.get('recording_dt')} does not exist in {deployment_object}",
                             "status": 400}} for
-                          x, y, z in zip(handler_return_list, valid_date_bool, recording_dt) if not y]
+                          x, y in zip(handler_return_list, valid_date_bool) if not y]
         # Filter out invalid files from the files list
         handler_return_list = [x for x, y in zip(
             handler_return_list, valid_date_bool) if y]
@@ -1198,7 +1215,7 @@ int  # HTTP status code</p>
             for project_task_pk in unique_project_task_pks:
 
                 project_task_original_names = [
-                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("task")]
+                    x.get("original_name") for x in project_task_pks if project_task_pk in x.get("tasks")]
 
                 project_task_file_pks = [x.get("pk") for x in uploaded_files_name_pks if x.get(
                     "original_name") in project_task_original_names]

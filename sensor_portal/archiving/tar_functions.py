@@ -153,18 +153,20 @@ def create_tar_file(
     os.makedirs(tar_path, exist_ok=True)
     full_tar_path = os.path.join(tar_path, tar_name_format)
     # get list of file paths
-    relative_paths = file_objs.relative_paths().values_list("relative_path", flat=True)
+    relative_paths = list(file_objs.relative_paths(
+    ).values_list("relative_path", flat=True))
 
     metadata_dir_path = os.path.join(tar_path, tar_name)
     relative_metadata_dir_path = os.path.relpath(
         metadata_dir_path, settings.FILE_STORAGE_ROOT)
 
-    logger.info(f"{tar_name}: generating bagit data")
     # Generate bagit metadata
     all_metadata_paths = []
     try:
+        logger.info(f"{tar_name}: generating bagit data")
         all_metadata_paths = bag_info_from_files(file_objs, metadata_dir_path)
 
+        logger.info(f"{tar_name}: generating metadata file")
         # Generate metadata file
         metadata_json_path = metadata_json_from_files(
             file_objs, metadata_dir_path)
@@ -174,6 +176,7 @@ def create_tar_file(
         relative_metadata_paths = [os.path.relpath(
             x, settings.FILE_STORAGE_ROOT) for x in all_metadata_paths]
 
+        logger.info(f"{tar_name}: generating TAR file")
         # Use transform command to generate data dir inside the TAR, move metadata files to root
         tar_command = ["tar", "zcvf", full_tar_path,
                        "--transform", f"s,^,data/,;s,data/{relative_metadata_dir_path}/,,",] + relative_paths + relative_metadata_paths
@@ -187,6 +190,7 @@ def create_tar_file(
 
     # regardless of status, we remove the metadata files
     [try_remove_file_clean_dirs(x) for x in all_metadata_paths]
+    try_remove_file_clean_dirs(metadata_dir_path)
 
     if not success:
         logger.error(f"{tar_name}: Error creating TAR")
