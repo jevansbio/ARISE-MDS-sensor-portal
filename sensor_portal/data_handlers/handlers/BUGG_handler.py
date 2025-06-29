@@ -15,7 +15,7 @@ class BUGGHandler(DataTypeHandler):
     """
 
     data_types = ["audio"]
-    device_models = ["BUGG", "BUGGv3"]
+    device_models = ["BUGG", "BUGGv3", "BUGG-NINA"]
     safe_formats = [".mp3"]
     full_name = "BUGG"
     description = """Data handler for BUGG"""

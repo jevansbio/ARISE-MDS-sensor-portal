@@ -15,12 +15,13 @@ from sensor_portal.celery import app
 
 class Snyper4GHandler(DataTypeHandler):
     """
-    Data handler for the '4G Wide Pro' wildlife and timelapse cameras.
+    Data handler for the 'Snyper Commander 4G Wireless' and 'Wilsus Tradenda 4G Wireless' wildlife  cameras.
     Handles image and daily report text files, extracting metadata and performing post-processing.
     """
     data_types = ["wildlifecamera", "timelapsecamera"]
-    device_models = ["4G Wide Pro"]
-    safe_formats = [".jpg", ".jpeg", ".txt"]
+    device_models = ["Snyper Commander 4G Wireless",
+                     "Wilsus Tradenda 4G Wireless"]
+    safe_formats = [".jpg", ".jpeg", ".txt", ".csv"]
     full_name = "Wide 4G handler"
     description = """Data handler for wide 4G wildlifecamera"""
     validity_description = \
