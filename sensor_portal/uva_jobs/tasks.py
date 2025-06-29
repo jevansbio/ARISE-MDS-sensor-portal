@@ -4,7 +4,7 @@ from glob import glob
 
 from archiving.models import Archive, TarFile
 from celery import shared_task
-from data_models.models import DataFile
+from data_models.models import DataFile, DataType
 from django.conf import settings
 from django.db.models import F, Q, Value
 from django.db.models.functions import Concat
@@ -15,6 +15,19 @@ from utils.general import try_remove_file_clean_dirs
 from sensor_portal.celery import app
 
 logger = logging.getLogger(__name__)
+
+
+@app.task()
+def check_all_paths():
+    """
+    Task to check all paths in the file system against DataFile records.
+    This will log any discrepancies and attempt to fix them.
+    """
+    root_folder = settings.FILE_STORAGE_ROOT
+    all_data_types = DataType.objects.all().values_list('name', flat=True)
+    logger.info(f"Checking paths in {root_folder}")
+    for data_type in all_data_types:
+        check_paths(os.path.join(root_folder, data_type))
 
 
 @app.task()
