@@ -60,10 +60,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">index</a>
-                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
@@ -85,6 +83,15 @@
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
                 </li>
     </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
@@ -288,7 +295,17 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../../detail">Admin only models</a>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -413,12 +430,12 @@ Manages connection credentials and provides utilities for user and file manageme
         """
         return SSH_client(self.username, self.password, self.address, 22)
 
-    def check_users_input(self) -&gt; None:
+    def check_users_input(self, remove_bad: bool = False) -&gt; None:
         """
         Set up users and check input storage for the linked devices.
         """
         self.setup_users()
-        self.check_input()
+        self.check_input(remove_bad)
 
     def setup_users(self) -&gt; None:
         """
@@ -800,7 +817,7 @@ Optionally remove invalid files.</p>
 
 
 <h3 id="external_storage_import.models.DataStorageInput.check_users_input" class="doc doc-heading">
-            <code class="highlight language-python">check_users_input()</code>
+            <code class="highlight language-python">check_users_input(remove_bad=False)</code>
 
 </h3>
 
@@ -812,12 +829,12 @@ Optionally remove invalid files.</p>
 
             <details class="quote">
               <summary>Source code in <code>external_storage_import\models.py</code></summary>
-              <pre class="highlight"><code class="language-python">def check_users_input(self) -&gt; None:
+              <pre class="highlight"><code class="language-python">def check_users_input(self, remove_bad: bool = False) -&gt; None:
     """
     Set up users and check input storage for the linked devices.
     """
     self.setup_users()
-    self.check_input()</code></pre>
+    self.check_input(remove_bad)</code></pre>
             </details>
     </div>
 

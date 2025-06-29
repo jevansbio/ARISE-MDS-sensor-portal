@@ -60,10 +60,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../structure/datafile/">Datafile</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../structure/detail/">index</a>
-                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../structure/detail/site/">Site</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../structure/detail/datatype/">DataType</a>
@@ -85,6 +83,15 @@
                 <li class="toctree-l2"><a class="reference internal" href="../structure/detail/datapackage/">DataPackage</a>
                 </li>
     </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/upload_data_workflow/">Upload example</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
@@ -283,10 +290,34 @@
               <p class="caption"><span class="caption-text">For admin</span></p>
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#external-storage-input">External storage input</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#archives">Archives</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#tar-files">TAR Files</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#device-models">Device models</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#periodic-tasks">Periodic tasks</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="permissions/">Permissions</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../detail">Admin only models</a>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -313,7 +344,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <h1 id="admin">Admin</h1>
+<p>Some functionality is not exposed to regular users through the front end and can only be carried about by administrators.</p>
+<p>This includes registering external storage inputs, device models, archives and periodic tasks.</p>
+<h2 id="external-storage-input">External storage input</h2>
+<p>Through the admin panel a connection to an outside storage input from which to import files can be registered. This includes storing details of the service account that the system will use to access files. A periodic task can be used to check for files from any devices linked to the storage.</p>
+<p>Devices connected to an external storage must have a username and password which they use to log into the storage and upload files. </p>
+<p>This external storage can also be connected to a project, so as to make it visible to users on the front end when they register a device.</p>
+<h2 id="archives">Archives</h2>
+<p>Tape archives can be registered through the admin panel. The archive can then be connected to projects to regularly upload files connected to that project via a deployment to cold storage. </p>
+<h3 id="tar-files">TAR Files</h3>
+<p>Prior to upload, data files will be bundled into TAR files.The details and statuses of these TAR files can be viewed through the admin panel created and archived by the system.</p>
+<h2 id="device-models">Device models</h2>
+<p>Device models can only be created through the admin panel. See the (device mode)[/structure/detail/devicemodel.md] for details.</p>
+<h2 id="periodic-tasks">Periodic tasks</h2>
+<p>While some periodic tasks are built into settins, others need to be registered in the database using the admin panel. Any registered celery task can be used as a periodic task.</p>
               
             </div>
           </div><footer>

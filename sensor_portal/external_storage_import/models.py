@@ -59,12 +59,12 @@ class DataStorageInput(BaseModel):
         """
         return SSH_client(self.username, self.password, self.address, 22)
 
-    def check_users_input(self) -> None:
+    def check_users_input(self, remove_bad: bool = False) -> None:
         """
         Set up users and check input storage for the linked devices.
         """
         self.setup_users()
-        self.check_input()
+        self.check_input(remove_bad)
 
     def setup_users(self) -> None:
         """

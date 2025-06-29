@@ -60,10 +60,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" >Detail</a>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/">index</a>
-                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
@@ -85,6 +83,15 @@
                 <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
                 </li>
     </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For developers</span></p>
@@ -288,7 +295,17 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../../detail">Admin only models</a>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -1637,6 +1654,171 @@ instance : Model, optional</p>
     Q
     """
     accumulated_q = Q(project__managers=user) | Q(project__owner=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageProjectContainingDevice" class="doc doc-heading">
+            <code>CanManageProjectContainingDevice</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage a project containing a specific device.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageProjectContainingDevice(R):
+    """
+    Rule for determining if a user can manage a project containing a specific device.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager or owner of the project containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.deployments.project.all().values_list("managers__pk", flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for projects containing data files user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployments__project__managers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDevice.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a manager or owner of the project containing the data file.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a manager or owner of the project containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.deployments.project.all().values_list("managers__pk", flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDevice.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for projects containing data files user can manage.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for projects containing data files user can manage.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployments__project__managers=user)
     return final_query(accumulated_q)</code></pre>
             </details>
     </div>
