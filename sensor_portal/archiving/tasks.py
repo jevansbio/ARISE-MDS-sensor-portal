@@ -89,6 +89,8 @@ def get_files_from_archive_task(file_pks: List[int], callback: Optional[Callable
     # Filter for only archived files matching the provided PKs
     file_objs = DataFile.objects.filter(pk__in=file_pks, archived=True)
 
+    logger.info("Get TAR files")
+
     # Get unique TAR files containing these files
     tar_file_objs = TarFile.objects.filter(
         pk__in=file_objs.values_list('tar_file__pk', flat=True).distinct())
@@ -99,6 +101,7 @@ def get_files_from_archive_task(file_pks: List[int], callback: Optional[Callable
     for tar_file_pk in tar_file_pks:
         target_file_pks = list(file_objs.filter(
             tar_file__pk=tar_file_pk).values_list('pk', flat=True))
+        logger.info(f"TAR {tar_file_pk} has {len(target_file_pks)} files")
         all_tasks.append(get_files_from_archived_tar_task.si(
             tar_file_pk, target_file_pks))
 
@@ -111,6 +114,7 @@ def get_files_from_archive_task(file_pks: List[int], callback: Optional[Callable
     post_task_group = group(post_tasks)
     # Chord schedules post-tasks after all group tasks
     task_chord = chord(task_group, post_task_group)
+    logger.info("Start unarchiving tasks")
     task_chord.apply_async()
 
 
@@ -157,8 +161,8 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -> None:
 
 @app.task(autoretry_for=(TooManyTasks, TAROffline),
           max_retries=None,
-          retry_backoff=2*60,
-          retry_backoff_max=5 * 60,
+          retry_backoff=10*60,
+          retry_backoff_max=60 * 60,
           retry_jitter=True,
           bind=True)
 def get_files_from_archived_tar_task(self: Any, tar_file_pk: int, target_file_pks: List[int]) -> List[int]:
@@ -185,10 +189,10 @@ def get_files_from_archived_tar_task(self: Any, tar_file_pk: int, target_file_pk
     ssh_client = archive_obj.init_ssh_client()
 
     # Try to locate the compressed TAR file first
-    tar_name = tar_file_obj.name + '.tar.gz'
+
+    if not tar_file_obj.name.endswith('.tar.gz'):
+        tar_name = tar_file_obj.name + '.tar.gz'
     tar_path = posixjoin(tar_file_obj.path, tar_name)
-    status_code, stdout, stderr = ssh_client.send_ssh_command(
-        f"dals -l {tar_path}")
 
     # Check if the TAR file is online or needs to be staged from tape
     status_code, target_tar_status = check_tar_status(ssh_client, tar_path)
@@ -207,7 +211,7 @@ def get_files_from_archived_tar_task(self: Any, tar_file_pk: int, target_file_pk
         f"{tar_path}: Get TAR status {status_code} {target_tar_status}")
 
     # If not online, try to retrieve from tape storage (or handle unmigrating state)
-    online_statuses = ['(REG)', '(DUL)', '(MIG)']
+    online_statuses = ['(REG)', '(DUL)', '(MIG)', '(NA)', '(QUE)']
     if target_tar_status not in online_statuses:
         initial_offline = True
         logger.info(f"{tar_path}: Offline")
