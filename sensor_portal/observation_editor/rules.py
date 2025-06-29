@@ -6,6 +6,10 @@ from utils.rules import check_super, final_query, query_super
 
 
 class CanViewObservationDataFile(R):
+    """
+    Rule to check if a user can view the data files associated with an observation.
+    """
+
     def check(self, user, instance=None):
 
         return perms['data_models.view_datafile'].filter(

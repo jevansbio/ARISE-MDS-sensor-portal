@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Upload example - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Upload example";
+        var mkdocs_page_input_path = "api\\upload_data_workflow.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Upload example</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#upload-example-1-jpeg-files">Upload Example 1: JPEG Files</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#r-example-upload-jpeg-files">R Example – Upload JPEG Files</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#python-example-upload-jpeg-files">Python Example – Upload JPEG Files</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#upload-example-2-dat-files-with-recording_dt">Upload Example 2: .dat Files with recording_dt</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#r-example-upload-multiple-dat-files-with-recording_dt">R Example – Upload Multiple .dat Files with recording_dt</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#python-example-upload-multiple-dat-files-with-recording_dt">Python Example – Upload Multiple .dat Files with recording_dt</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#upload-example-3-multipart-chunked-upload">Upload Example 3: Multipart Chunked Upload</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#python-example-basic-multipart-upload">Python Example – Basic Multipart Upload</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#python-example-with-retry-logic">Python Example with Retry Logic</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#r-example-basic-multipart-upload">R Example – Basic Multipart Upload</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#r-example-with-retry-logic">R Example with Retry Logic</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Code Reference</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API</li>
+      <li class="breadcrumb-item active">Upload example</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="uploading-a-data-file-to-the-arise-mds-api">Uploading a Data File to the ARISE MDS API</h1>
+<p>This document demonstrates how to authenticate with the ARISE MDS API and upload a data file using both <strong>R</strong> and <strong>Python</strong>. The ARISE MDS API expects authentication tokens to be prefixed with <code>token</code>, and supports a browsable schema at <a href="https://arisemdsvm.science.uva.nl/api/schema/swagger-ui/">https://arisemdsvm.science.uva.nl/api/schema/swagger-ui/</a> as well as a raw OpenAPI schema at <a href="https://arisemdsvm.science.uva.nl/api/schema/">https://arisemdsvm.science.uva.nl/api/schema/</a>.</p>
+<hr />
+<h2 id="upload-example-1-jpeg-files">Upload Example 1: JPEG Files</h2>
+<h3 id="r-example-upload-jpeg-files">R Example – Upload JPEG Files</h3>
+<pre><code class="language-r">jpeg_files &lt;- list(
+  deployment = &quot;deployment_id_here&quot;,
+  files = upload_file(&quot;path/to/image1.jpeg&quot;),
+  files = upload_file(&quot;path/to/image2.jpeg&quot;)
+)
+
+upload_response &lt;- POST(
+  url = &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;,
+  add_headers(Authorization = paste(&quot;token&quot;, token)),
+  body = jpeg_files,
+  encode = &quot;multipart&quot;
+)
+content(upload_response)
+</code></pre>
+<h3 id="python-example-upload-jpeg-files">Python Example – Upload JPEG Files</h3>
+<pre><code class="language-python">upload_url = &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;
+headers = {&quot;Authorization&quot;: f&quot;token {token}&quot;}
+
+data = {&quot;deployment&quot;: &quot;deployment_id_here&quot;}
+files = [
+    (&quot;files&quot;, (&quot;image1.jpeg&quot;, open(&quot;path/to/image1.jpeg&quot;, &quot;rb&quot;), &quot;image/jpeg&quot;)),
+    (&quot;files&quot;, (&quot;image2.jpeg&quot;, open(&quot;path/to/image2.jpeg&quot;, &quot;rb&quot;), &quot;image/jpeg&quot;))
+]
+
+response = requests.post(upload_url, headers=headers, files=files, data=data)
+print(response.json())
+</code></pre>
+<h2 id="upload-example-2-dat-files-with-recording_dt">Upload Example 2: .dat Files with <code>recording_dt</code></h2>
+<h3 id="r-example-upload-multiple-dat-files-with-recording_dt">R Example – Upload Multiple .dat Files with <code>recording_dt</code></h3>
+<pre><code class="language-r">dat_upload &lt;- list(
+  deployment = &quot;deployment_id_here&quot;,
+  recording_dt = c(&quot;2024-10-21T14:30:00Z&quot;, &quot;2024-10-21T14:35:00Z&quot;),
+  files = upload_file(&quot;path/to/datafile1.dat&quot;),
+  files = upload_file(&quot;path/to/datafile2.dat&quot;)
+)
+
+response &lt;- POST(
+  url = &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;,
+  add_headers(Authorization = paste(&quot;token&quot;, token)),
+  body = dat_upload,
+  encode = &quot;multipart&quot;
+)
+content(response)
+</code></pre>
+<h3 id="python-example-upload-multiple-dat-files-with-recording_dt">Python Example – Upload Multiple .dat Files with <code>recording_dt</code></h3>
+<pre><code class="language-python">data = {
+    &quot;deployment&quot;: &quot;deployment_id_here&quot;,
+    &quot;recording_dt&quot;: [
+        &quot;2024-10-21T14:30:00Z&quot;,
+        &quot;2024-10-21T14:35:00Z&quot;
+    ]
+}
+files = [
+    (&quot;files&quot;, (&quot;datafile1.dat&quot;, open(&quot;path/to/datafile1.dat&quot;, &quot;rb&quot;), &quot;application/octet-stream&quot;)),
+    (&quot;files&quot;, (&quot;datafile2.dat&quot;, open(&quot;path/to/datafile2.dat&quot;, &quot;rb&quot;), &quot;application/octet-stream&quot;))
+]
+
+response = requests.post(upload_url, headers=headers, files=files, data=data)
+print(response.json())
+</code></pre>
+<hr />
+<h2 id="upload-example-3-multipart-chunked-upload">Upload Example 3: Multipart Chunked Upload</h2>
+<h3 id="python-example-basic-multipart-upload">Python Example – Basic Multipart Upload</h3>
+<pre><code class="language-python">import requests, os, hashlib, json
+from io import BytesIO
+
+upload_url = &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;
+headers = {&quot;Authorization&quot;: f&quot;token {token}&quot;}
+
+filename = &quot;path/to/bigfile.dat&quot;
+chunk_size = 100 * 1024 * 1024  # 100MB
+file_size = os.path.getsize(filename)
+md5 = hashlib.md5()
+
+with open(filename, &quot;rb&quot;) as f:
+    offset = 0
+    while chunk := f.read(chunk_size):
+        md5.update(chunk)
+        content_range = f&quot;bytes {offset}-{offset + len(chunk) - 1}/{file_size}&quot;
+        headers[&quot;Content-Range&quot;] = content_range
+
+        data = {
+            &quot;deployment&quot;: &quot;deployment_id_here&quot;,
+            &quot;recording_dt&quot;: [&quot;2024-10-21T14:30:00Z&quot;]
+        }
+        if offset + len(chunk) == file_size:
+            data[&quot;extra_data&quot;] = json.dumps({&quot;md5_checksum&quot;: md5.hexdigest()})
+
+        files = [(&quot;files&quot;, (&quot;bigfile.dat&quot;, BytesIO(chunk), &quot;application/octet-stream&quot;))]
+        response = requests.post(upload_url, headers=headers, files=files, data=data)
+        print(f&quot;Chunk {offset // chunk_size + 1} response:&quot;, response.status_code)
+
+        offset += len(chunk)
+</code></pre>
+<p>If a chunk upload fails or returns an error status code, the client can retry the same chunk using the same <code>Content-Range</code> header. Below is a recommended pattern for checking and retrying.</p>
+<h3 id="python-example-with-retry-logic">Python Example with Retry Logic</h3>
+<pre><code class="language-python">import requests, os, hashlib, json
+from io import BytesIO
+
+upload_url = &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;
+headers = {&quot;Authorization&quot;: f&quot;token {token}&quot;}
+
+filename = &quot;path/to/bigfile.dat&quot;
+chunk_size = 100 * 1024 * 1024  # 100MB
+file_size = os.path.getsize(filename)
+md5 = hashlib.md5()
+
+with open(filename, &quot;rb&quot;) as f:
+    offset = 0
+    part = 1
+    while chunk := f.read(chunk_size):
+        md5.update(chunk)
+        content_range = f&quot;bytes {offset}-{offset + len(chunk) - 1}/{file_size}&quot;
+        headers[&quot;Content-Range&quot;] = content_range
+
+        data = {
+            &quot;deployment&quot;: &quot;deployment_id_here&quot;,
+            &quot;recording_dt&quot;: [&quot;2024-10-21T14:30:00Z&quot;]
+        }
+        if offset + len(chunk) == file_size:
+            data[&quot;extra_data&quot;] = json.dumps({&quot;md5_checksum&quot;: md5.hexdigest()})
+
+        files = [
+            (&quot;files&quot;, (&quot;bigfile.dat&quot;, BytesIO(chunk), &quot;application/octet-stream&quot;))
+        ]
+
+        retries = 3
+        while retries &gt; 0:
+            response = requests.post(upload_url, headers=headers, files=files, data=data)
+            if response.status_code == 200:
+                print(f&quot;Chunk {part} uploaded successfully.&quot;)
+                break
+            else:
+                print(f&quot;Chunk {part} failed with status {response.status_code}, retrying...&quot;)
+                retries -= 1
+
+        if retries == 0:
+            print(f&quot;Chunk {part} failed after multiple retries.&quot;)
+            break
+
+        offset += len(chunk)
+        part += 1
+</code></pre>
+<hr />
+<h3 id="r-example-basic-multipart-upload">R Example – Basic Multipart Upload</h3>
+<pre><code class="language-r">library(httr)
+library(digest)
+
+upload_url &lt;- &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;
+file_path &lt;- &quot;path/to/bigfile.dat&quot;
+file_size &lt;- file.info(file_path)$size
+chunk_size &lt;- 100 * 1024 * 1024  # 100MB
+con &lt;- file(file_path, &quot;rb&quot;)
+offset &lt;- 0
+md5_hash &lt;- md5(file_path, algo = &quot;md5&quot;, file = TRUE)
+
+repeat {
+  chunk &lt;- readBin(con, &quot;raw&quot;, n = chunk_size)
+  if (length(chunk) == 0) break
+
+  end_byte &lt;- offset + length(chunk) - 1
+  content_range &lt;- paste0(&quot;bytes &quot;, offset, &quot;-&quot;, end_byte, &quot;/&quot;, file_size)
+
+  headers &lt;- add_headers(
+    Authorization = paste(&quot;token&quot;, token),
+    `Content-Range` = content_range
+  )
+
+  data &lt;- list(
+    deployment = &quot;deployment_id_here&quot;,
+    recording_dt = &quot;2024-10-21T14:30:00Z&quot;
+  )
+
+  if (end_byte + 1 == file_size) {
+    data$extra_data &lt;- paste0('{&quot;md5_checksum&quot;: &quot;', md5_hash, '&quot;}')
+  }
+
+  files &lt;- list(files = upload_file(file_path, type = &quot;application/octet-stream&quot;))
+
+  response &lt;- POST(upload_url, headers, body = c(data, files), encode = &quot;multipart&quot;)
+  print(paste(&quot;Chunk&quot;, offset %/% chunk_size + 1, &quot;response:&quot;, status_code(response)))
+
+  offset &lt;- offset + length(chunk)
+}
+
+close(con)
+</code></pre>
+<h3 id="r-example-with-retry-logic">R Example with Retry Logic</h3>
+<pre><code class="language-r">library(httr)
+library(digest)
+
+upload_url &lt;- &quot;https://arisemdsvm.science.uva.nl/api/datafile/&quot;
+file_path &lt;- &quot;path/to/bigfile.dat&quot;
+file_size &lt;- file.info(file_path)$size
+chunk_size &lt;- 100 * 1024 * 1024  # 100MB
+con &lt;- file(file_path, &quot;rb&quot;)
+offset &lt;- 0
+part &lt;- 1
+md5_hash &lt;- md5(file_path, algo = &quot;md5&quot;, file = TRUE)
+
+repeat {
+  chunk &lt;- readBin(con, &quot;raw&quot;, n = chunk_size)
+  if (length(chunk) == 0) break
+
+  end_byte &lt;- offset + length(chunk) - 1
+  content_range &lt;- paste0(&quot;bytes &quot;, offset, &quot;-&quot;, end_byte, &quot;/&quot;, file_size)
+
+  headers &lt;- add_headers(
+    Authorization = paste(&quot;token&quot;, token),
+    `Content-Range` = content_range
+  )
+
+  data &lt;- list(
+    deployment = &quot;deployment_id_here&quot;,
+    recording_dt = &quot;2024-10-21T14:30:00Z&quot;
+  )
+
+  if (end_byte + 1 == file_size) {
+    data$extra_data &lt;- paste0('{&quot;md5_checksum&quot;: &quot;', md5_hash, '&quot;}')
+  }
+
+  files &lt;- list(files = upload_file(file_path, type = &quot;application/octet-stream&quot;))
+
+  retries &lt;- 3
+  repeat {
+    response &lt;- POST(upload_url, headers, body = c(data, files), encode = &quot;multipart&quot;)
+    if (status_code(response) == 200 || retries == 0) break
+    message(paste(&quot;Chunk&quot;, part, &quot;failed. Retrying...&quot;))
+    retries &lt;- retries - 1
+  }
+
+  if (retries == 0) {
+    message(paste(&quot;Chunk&quot;, part, &quot;failed after multiple attempts.&quot;))
+    break
+  }
+
+  print(paste(&quot;Chunk&quot;, part, &quot;uploaded successfully.&quot;))
+  offset &lt;- offset + length(chunk)
+  part &lt;- part + 1
+}
+
+close(con)
+</code></pre>
+<hr />
+<h2 id="notes">Notes</h2>
+<ul>
+<li>Use <code>Content-Range</code> to indicate chunk position.</li>
+<li>The final chunk must include a valid <code>md5_checksum</code>.</li>
+<li>If a chunk fails to upload (non-200 response), retry the same chunk.</li>
+<li>You can use the response payload (if any) to confirm status or progress.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../arise_mds_api_examples/" class="btn btn-neutral float-left" title="Examples"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../developers/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../arise_mds_api_examples/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../developers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

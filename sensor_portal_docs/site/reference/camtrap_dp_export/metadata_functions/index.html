@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>metadata_functions - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "metadata_functions";
+        var mkdocs_page_input_path = "reference\\camtrap_dp_export\\metadata_functions.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">camtrap_dp_export</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">metadata_functions</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">camtrap_dp_export</a></li>
+      <li class="breadcrumb-item active">metadata_functions</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="camtrap_dp_export.metadata_functions"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="camtrap_dp_export.metadata_functions.create_camtrap_dp_metadata" class="doc doc-heading">
+            <code class="highlight language-python">create_camtrap_dp_metadata(file_qs, uuid='', title='')</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create Camtrap-DP metadata and table dataframes for export.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_qs</code></b>
+                  (<code><span title="django.db.models.query.QuerySet">QuerySet</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Queryset of data files to export.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>uuid</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code>&#39;&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Unique identifier for the dataset. Defaults to "".</p>
+              </div>
+            </li>
+            <li>
+              <b><code>title</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code>&#39;&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Title for the dataset. Defaults to "".</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+              –
+              <div class="doc-md-description">
+                <p>Tuple[
+DataFrame,  # file_df: DataFrame of media files
+DataFrame,  # observation_df: DataFrame of observations
+DataFrame,  # deploy_df: DataFrame of deployments
+DataFrame,  # event_df: DataFrame of events/sequences
+Dict[str, Any]  # metadata: Metadata dictionary for Camtrap-DP</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+              –
+              <div class="doc-md-description">
+                <p>]</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>camtrap_dp_export\metadata_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def create_camtrap_dp_metadata(
+    file_qs: QuerySet,
+    uuid: str = "",
+    title: str = "",
+) -&gt; Tuple[DataFrame, DataFrame, DataFrame, DataFrame, Dict[str, Any]]:
+    """
+    Create Camtrap-DP metadata and table dataframes for export.
+
+    Args:
+        file_qs (QuerySet): Queryset of data files to export.
+        uuid (str, optional): Unique identifier for the dataset. Defaults to "".
+        title (str, optional): Title for the dataset. Defaults to "".
+
+    Returns:
+        Tuple[
+            DataFrame,  # file_df: DataFrame of media files
+            DataFrame,  # observation_df: DataFrame of observations
+            DataFrame,  # deploy_df: DataFrame of deployments
+            DataFrame,  # event_df: DataFrame of events/sequences
+            Dict[str, Any]  # metadata: Metadata dictionary for Camtrap-DP
+        ]
+    """
+    # get files
+    file_qs = file_qs.distinct()
+    file_qs = get_ctdp_media_qs(file_qs)
+
+    # get deployments
+    deployment_qs = Deployment.objects.filter(files__in=file_qs).distinct()
+    deployment_qs = get_ctdp_deployment_qs(deployment_qs)
+
+    # get observations
+    observation_qs = Observation.objects.filter(
+        data_files__in=file_qs).distinct()
+    event_qs = get_ctdp_seq_qs(observation_qs)
+    observation_qs = get_ctdp_obs_qs(observation_qs)
+
+    project_qs = Project.objects.filter(deployments__in=deployment_qs).exclude(
+        project_ID=settings.GLOBAL_PROJECT_ID
+    ).distinct()
+    principals = list(
+        project_qs.values(
+            "principal_investigator", "principal_investigator_email", "organisation"
+        )
+    )
+    for x in principals:
+        x["title"] = x.pop("principal_investigator")
+        x["email"] = x.pop("principal_investigator_email")
+        x.update({"role": "principal_investigator"})
+        x["organization"] = x.pop("organisation")
+
+    contributors = list(project_qs.values(
+        "contact", "contact_email", "organisation"))
+    for x in contributors:
+        x["title"] = x.pop("contact")
+        x["email"] = x.pop("contact_email")
+        x.update({"role": "contributor"})
+        x["organization"] = x.pop("organisation")
+
+    all_contributors = principals + contributors
+
+    all_contributors_distinct_title: List[Dict[str, Any]] = []
+    for x in all_contributors:
+        if x["title"] not in [y["title"] for y in all_contributors_distinct_title]:
+            all_contributors_distinct_title.append(x)
+
+    # Get 4 dicts
+    file_dict = DataFileSerializerCTDP(file_qs, many=True).data
+    observation_dict = ObservationSerializerCTDP(
+        observation_qs, many=True).data
+    deploy_dict = DeploymentSerializerCTDP(deployment_qs, many=True).data
+    event_dict = SequenceSerializer(event_qs, many=True).data
+
+    file_df = pd.DataFrame.from_dict(file_dict)
+    deploy_df = pd.DataFrame.from_dict(deploy_dict)
+    if len(observation_dict) == 0:
+        observation_dict = {x: []
+                            for x in ObservationSerializerCTDP().get_fields().keys()}
+    if len(event_dict) == 0:
+        event_dict = {x: [] for x in SequenceSerializer().get_fields().keys()}
+
+    observation_df = pd.DataFrame.from_dict(observation_dict)
+    event_df = (
+        pd.DataFrame.from_dict(event_dict)
+        .explode("mediaID")
+        .drop_duplicates(["eventID", "mediaID"])
+    )
+
+    project_dict = {
+        "title": project_qs.first().name,
+        "description": project_qs.first().objectives,
+        "samplingDesign": "systematic random",
+        "captureMethod": list(file_df.captureMethod.unique()),
+        "individualAnimals": any([x is not None for x in observation_df.individualID]),
+        "observationLevel": list(file_df.captureMethod.unique()),
+    }
+
+    points = deployment_qs.filter(
+        point__isnull=False).values_list("point", flat=True)
+    all_points = MultiPoint(*points)
+    hull = all_points.convex_hull
+
+    spatial_dict = json.loads(hull.geojson)
+    spatial_dict.update({"bbox": list(hull.extent)})
+
+    taxon_ids = observation_qs.values(
+        "taxon__species_name", "taxon__taxon_code")
+    taxon_dict: List[Dict[str, Union[str, None]]] = []
+
+    for x in taxon_ids:
+        if x["taxon__taxon_code"] != "":
+            taxon_ID = f"https://www.gbif.org/{x['taxon__taxon_code']}"
+        else:
+            taxon_ID = None
+        taxon_dict.append(
+            {"scientificName": x["taxon__species_name"], "taxonID": taxon_ID})
+
+    metadata: Dict[str, Any] = {
+        "resources": [
+            {
+                "name": "deployments",
+                "path": "deployments.csv",
+                "profile": "tabular-data-resource",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/deployments-table-schema.json",
+            },
+            {
+                "name": "media",
+                "path": "media.csv",
+                "profile": "tabular-data-resource",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/media-table-schema.json",
+            },
+            {
+                "name": "observations",
+                "path": "observations.csv",
+                "profile": "tabular-data-resource",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/observations-table-schema.json",
+            },
+            {
+                "name": "events",
+                "path": "events.csv",
+                "profile": "tabular-data-resource",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "description": "Table of observation events, listing the media items that make up those events",
+            },
+        ],
+        "profile": "https://raw.githubusercontent.com/tdwg/camtrap-dp/1.0/camtrap-dp-profile.json",
+        "name": title,
+        "id": uuid,
+        "created": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "title": "Camtrap DP dataset",
+        "contributors": all_contributors_distinct_title,
+        "description": "",
+        "version": "1.0",
+        "keywords": [""],
+        "image": "",
+        "homepage": "",
+        "sources": [{"title": "ARISE-MDS"}],
+        "licenses": [
+            {"name": "CC0-1.0", "scope": "data"},
+            {"path": "http://creativecommons.org/licenses/by/4.0/", "scope": "media"},
+        ],
+        "bibliographicCitation": "",
+        "project": project_dict,
+        "coordinatePrecision": 0.00001,
+        "spatial": spatial_dict,
+        "temporal": {
+            "start": pd.to_datetime(deploy_df["deploymentStart"], format="%Y-%m-%dT%H:%M:%S%z")
+            .min()
+            .date()
+            .strftime("%Y-%m-%d"),
+            "end": pd.to_datetime(deploy_df["deploymentEnd"], format="%Y-%m-%dT%H:%M:%S%z")
+            .max()
+            .date()
+            .strftime("%Y-%m-%d"),
+        },
+        "taxonomic": taxon_dict,
+        "relatedIdentifiers": [],
+    }
+
+    return file_df, observation_df, deploy_df, event_df, metadata</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="camtrap_dp_export"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../querysets/" class="btn btn-neutral float-right" title="querysets">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../querysets/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

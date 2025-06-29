@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>filtersets - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "filtersets";
+        var mkdocs_page_input_path = "reference\\data_models\\filtersets.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">data_models</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">filtersets</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">data_models</a></li>
+      <li class="breadcrumb-item active">filtersets</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="data_models.filtersets"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.filtersets.DataFileFilter" class="doc doc-heading">
+            <code>DataFileFilter</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="GenericFilterMixIn (utils.filtersets.GenericFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.GenericFilterMixIn">GenericFilterMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ExtraDataFilterMixIn (utils.filtersets.ExtraDataFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.ExtraDataFilterMixIn">ExtraDataFilterMixIn</a></code></p>
+
+
+        <p>FilterSet for DataFile, supporting filters for favorite status, deployment activity, device type,
+observation presence and type, and observation uncertainty.</p>
+
+
+<details class="custom-methods" open>
+  <summary>Custom Methods</summary>
+  <p>filter_obs_type: Filter files by associated observation types.
+filter_uncertain: Filter files by uncertainty status in observations.</p>
+</details>        <p>field_help_dict provides help text for common fields.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\filtersets.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataFileFilter(GenericFilterMixIn, ExtraDataFilterMixIn):
+    """
+    FilterSet for DataFile, supporting filters for favorite status, deployment activity, device type,
+    observation presence and type, and observation uncertainty.
+
+    Custom Methods:
+        filter_obs_type: Filter files by associated observation types.
+        filter_uncertain: Filter files by uncertainty status in observations.
+
+    field_help_dict provides help text for common fields.
+    """
+
+    is_favourite = django_filters.BooleanFilter(
+        field_name='favourite_of', exclude=True, lookup_expr='isnull',
+        label='is favourite',
+        help_text="Filter datafiles by whether a user has favourited them."
+    )
+    is_active = django_filters.BooleanFilter(
+        field_name="deployment__is_active",
+        help_text="Filter datafiles by whether their deployment is active"
+    )
+    device_type = django_filters.ModelChoiceFilter(
+        field_name='deployment__device__type',
+        queryset=DataType.objects.filter(devices__isnull=False).distinct(),
+        label="device type",
+        help_text="Data type of device"
+    )
+    has_observations = django_filters.BooleanFilter(
+        field_name="observations", lookup_expr="isnull", exclude=True, label="Has observations",
+        help_text="Filter datafiles by whether they have observations"
+    )
+    obs_type = django_filters.ChoiceFilter(
+        choices=[
+            ("no_obs", "No observations"),
+            ("no_human_obs", "No human observations"),
+            ("all_obs", "All observations"),
+            ("has_human", "Human observations"),
+            ("has_ai", "AI observations"),
+            ("human_only", "Human observations only"),
+            ("ai_only", "AI observations only"),
+        ],
+        method="filter_obs_type",
+        label="Observation type",
+        help_text="Filter datafiles by type of observation present."
+    )
+
+    def filter_obs_type(self, queryset, name, value):
+        """
+        Filter DataFiles based on observation type.
+
+        Args:
+            queryset (QuerySet): Initial queryset.
+            name (str): Filter name (unused).
+            value (str): Observation type to filter by.
+
+        Returns:
+            QuerySet: Filtered queryset.
+        """
+        if value == "no_obs":
+            return queryset.filter(observations__isnull=True)
+        elif value == "no_human_obs":
+            return queryset.exclude(observations__source="human")
+        elif value == "all_obs":
+            return queryset.filter(observations__isnull=False)
+        elif value == "has_human":
+            return queryset.filter(observations__source="human")
+        elif value == "has_ai":
+            return queryset.filter(observations__in=Observation.objects.all().exclude(source="human"))
+        elif value == "ai_only":
+            return queryset.filter(observations__isnull=False).exclude(observations__source="human")
+        elif value == "human_only":
+            return queryset.filter(observations__source="human").exclude(observations__in=Observation.objects.all().exclude(source="human"))
+
+    uncertain = django_filters.ChoiceFilter(
+        choices=[
+            ("no_uncertain", "No uncertain observations"),
+            ("uncertain", "Uncertain observations"),
+            ("other_uncertain", "Other's uncertain observations"),
+            ("my_uncertain", "My uncertain observations"),
+        ],
+        method="filter_uncertain",
+        label="Uncertain observations",
+        help_text="Filter datafiles by whether they have uncertain observations."
+    )
+
+    def filter_uncertain(self, queryset, name, value):
+        """
+        Filter DataFiles based on uncertainty status of observations.
+
+        Args:
+            queryset (QuerySet): Initial queryset.
+            name (str): Filter name (unused).
+            value (str): Uncertainty type to filter by.
+
+        Returns:
+            QuerySet: Filtered queryset.
+        """
+        if value == "no_uncertain":
+            return queryset.filter(Q(observations__isnull=True) | Q(observations__validation_requested=False))
+        elif value == "uncertain":
+            return queryset.filter(observations__validation_requested=True)
+        elif value == "my_uncertain":
+            return queryset.filter(observations__validation_requested=True, observations__owner=self.request.user)
+        elif value == "other_uncertain":
+            return queryset.filter(observations__validation_requested=True).exclude(observations__owner=self.request.user)
+
+    field_help_dict = {
+        "deployment__id": "Numeric database ID of deployment.",
+        "id": "Numeric database ID of datafile.",
+        "favourite_of__id": "Database ID of user that has favourited this file."
+    }
+
+    class Meta:
+        model = DataFile
+        fields = GenericFilterMixIn.get_fields().copy()
+        fields.update({
+            'deployment__id': ['exact', 'in'],
+            'deployment__deployment_device_ID': ['exact', 'in', 'icontains'],
+            'deployment__device': ['exact', 'in'],
+            'file_type': ['exact', 'in'],
+            'file_type__name': ['exact', 'icontains', 'in'],
+            'file_name': ['exact', 'icontains', 'in'],
+            'file_size': ['lte', 'gte'],
+            'file_format': ['exact', 'icontains', 'in'],
+            'upload_dt': ['exact', 'gte', 'lte'],
+            'recording_dt': ['exact', 'date__exact', 'gte', 'lte', 'date__gte', 'date__lte', 'time__gte', 'time__lte'],
+            'local_storage': ['exact'],
+            'archived': ['exact'],
+            'original_name': ['exact', 'icontains', 'in'],
+            'favourite_of__id': ['exact', 'contains'],
+        })</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.filtersets.DataFileFilter.filter_obs_type" class="doc doc-heading">
+            <code class="highlight language-python">filter_obs_type(queryset, name, value)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Filter DataFiles based on observation type.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>queryset</code></b>
+                  (<code><span title="QuerySet">QuerySet</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Initial queryset.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>name</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Filter name (unused).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>value</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Observation type to filter by.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>QuerySet</code></b>              –
+              <div class="doc-md-description">
+                <p>Filtered queryset.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\filtersets.py</code></summary>
+              <pre class="highlight"><code class="language-python">def filter_obs_type(self, queryset, name, value):
+    """
+    Filter DataFiles based on observation type.
+
+    Args:
+        queryset (QuerySet): Initial queryset.
+        name (str): Filter name (unused).
+        value (str): Observation type to filter by.
+
+    Returns:
+        QuerySet: Filtered queryset.
+    """
+    if value == "no_obs":
+        return queryset.filter(observations__isnull=True)
+    elif value == "no_human_obs":
+        return queryset.exclude(observations__source="human")
+    elif value == "all_obs":
+        return queryset.filter(observations__isnull=False)
+    elif value == "has_human":
+        return queryset.filter(observations__source="human")
+    elif value == "has_ai":
+        return queryset.filter(observations__in=Observation.objects.all().exclude(source="human"))
+    elif value == "ai_only":
+        return queryset.filter(observations__isnull=False).exclude(observations__source="human")
+    elif value == "human_only":
+        return queryset.filter(observations__source="human").exclude(observations__in=Observation.objects.all().exclude(source="human"))</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.filtersets.DataFileFilter.filter_uncertain" class="doc doc-heading">
+            <code class="highlight language-python">filter_uncertain(queryset, name, value)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Filter DataFiles based on uncertainty status of observations.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>queryset</code></b>
+                  (<code><span title="QuerySet">QuerySet</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Initial queryset.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>name</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Filter name (unused).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>value</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Uncertainty type to filter by.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>QuerySet</code></b>              –
+              <div class="doc-md-description">
+                <p>Filtered queryset.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\filtersets.py</code></summary>
+              <pre class="highlight"><code class="language-python">def filter_uncertain(self, queryset, name, value):
+    """
+    Filter DataFiles based on uncertainty status of observations.
+
+    Args:
+        queryset (QuerySet): Initial queryset.
+        name (str): Filter name (unused).
+        value (str): Uncertainty type to filter by.
+
+    Returns:
+        QuerySet: Filtered queryset.
+    """
+    if value == "no_uncertain":
+        return queryset.filter(Q(observations__isnull=True) | Q(observations__validation_requested=False))
+    elif value == "uncertain":
+        return queryset.filter(observations__validation_requested=True)
+    elif value == "my_uncertain":
+        return queryset.filter(observations__validation_requested=True, observations__owner=self.request.user)
+    elif value == "other_uncertain":
+        return queryset.filter(observations__validation_requested=True).exclude(observations__owner=self.request.user)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.filtersets.DataTypeFilter" class="doc doc-heading">
+            <code>DataTypeFilter</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="GenericFilterMixIn (utils.filtersets.GenericFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.GenericFilterMixIn">GenericFilterMixIn</a></code></p>
+
+
+        <p>FilterSet for DataType, providing filters to distinguish between file and device types.</p>
+
+
+<details class="filters" open>
+  <summary>Filters</summary>
+  <p>file_type (BooleanFilter): Returns only data types attached to devices.
+device_type (BooleanFilter): Returns only data types attached to files.</p>
+</details>
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\filtersets.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataTypeFilter(GenericFilterMixIn):
+    """
+    FilterSet for DataType, providing filters to distinguish between file and device types.
+
+    Filters:
+        file_type (BooleanFilter): Returns only data types attached to devices.
+        device_type (BooleanFilter): Returns only data types attached to files.
+    """
+
+    file_type = django_filters.BooleanFilter(
+        method='is_file_type', label="file_type", help_text="Return only data types attached to devices.")
+    device_type = django_filters.BooleanFilter(
+        method='is_file_type', label="device_type", help_text="Return only data types attached to files.")
+
+    def is_file_type(self, queryset, name, value):
+        """
+        Filter queryset based on whether DataTypes are linked to devices or files.
+
+        Args:
+            queryset (QuerySet): Queryset to filter.
+            name (str): 'file_type' or 'device_type'.
+            value (bool): Whether to include only device/file types.
+
+        Returns:
+            QuerySet: Filtered queryset.
+        """
+        if name == "file_type":
+            return queryset
+        return queryset.filter(device_models__isnull=not value)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.filtersets.DataTypeFilter.is_file_type" class="doc doc-heading">
+            <code class="highlight language-python">is_file_type(queryset, name, value)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Filter queryset based on whether DataTypes are linked to devices or files.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>queryset</code></b>
+                  (<code><span title="QuerySet">QuerySet</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Queryset to filter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>name</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>'file_type' or 'device_type'.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>value</code></b>
+                  (<code><span title="bool">bool</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Whether to include only device/file types.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>QuerySet</code></b>              –
+              <div class="doc-md-description">
+                <p>Filtered queryset.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\filtersets.py</code></summary>
+              <pre class="highlight"><code class="language-python">def is_file_type(self, queryset, name, value):
+    """
+    Filter queryset based on whether DataTypes are linked to devices or files.
+
+    Args:
+        queryset (QuerySet): Queryset to filter.
+        name (str): 'file_type' or 'device_type'.
+        value (bool): Whether to include only device/file types.
+
+    Returns:
+        QuerySet: Filtered queryset.
+    """
+    if name == "file_type":
+        return queryset
+    return queryset.filter(device_models__isnull=not value)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.filtersets.DeploymentFilter" class="doc doc-heading">
+            <code>DeploymentFilter</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="GenericFilterMixIn (utils.filtersets.GenericFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.GenericFilterMixIn">GenericFilterMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ExtraDataFilterMixIn (utils.filtersets.ExtraDataFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.ExtraDataFilterMixIn">ExtraDataFilterMixIn</a></code></p>
+
+
+        <p>FilterSet for Deployment, allowing advanced filtering by deployment, device, site, and project fields,
+as well as activity status and time ranges.</p>
+<p>field_help_dict provides help text for common fields.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\filtersets.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeploymentFilter(GenericFilterMixIn, ExtraDataFilterMixIn):
+    """
+    FilterSet for Deployment, allowing advanced filtering by deployment, device, site, and project fields,
+    as well as activity status and time ranges.
+
+    field_help_dict provides help text for common fields.
+    """
+
+    field_help_dict = {
+        "device__id": "Numeric database ID of a deployed device.",
+        "owner__id": "Numeric database ID of user who created a deployment.",
+        "id": "Numeric database ID of deployment.",
+        "site__id": "Numeric database ID of site where the deployment is located.",
+        "data_type__id": "Numeric database ID of primary data type of deployment."
+    }
+
+    class Meta:
+        model = Deployment
+        fields = GenericFilterMixIn.get_fields().copy()
+        fields.update({
+            'deployment_device_ID': ['exact', 'icontains', 'in'],
+            'is_active': ['exact'],
+            'deployment_start': ['exact', 'lte', 'gte'],
+            'deployment_end': ['exact', 'lte', 'gte'],
+            'site': ['exact', 'in'],
+            'site__name': ['exact', 'icontains', 'in'],
+            'site__short_name': ['exact', 'icontains', 'in'],
+            'device__id': ['exact', 'in'],
+            'device__device_ID': ['exact', 'icontains', 'in'],
+            'device__name': ['exact', 'icontains', 'in'],
+            'project__id': ['exact'],
+            'project__project_ID': ['exact'],
+            'device_type': ['exact', 'in'],
+            'device_type__name': ['exact', 'icontains', 'in'],
+        })</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.filtersets.DeviceFilter" class="doc doc-heading">
+            <code>DeviceFilter</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="GenericFilterMixIn (utils.filtersets.GenericFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.GenericFilterMixIn">GenericFilterMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ExtraDataFilterMixIn (utils.filtersets.ExtraDataFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.ExtraDataFilterMixIn">ExtraDataFilterMixIn</a></code></p>
+
+
+        <p>FilterSet for Device, enabling filtering by device type, deployment activity, and related fields.</p>
+
+
+<details class="filters" open>
+  <summary>Filters</summary>
+  <p>is_active (BooleanFilter): Filters devices by the active status of their deployments.
+device_type (ModelChoiceFilter): Filters by device type.</p>
+</details>        <p>field_help_dict provides help text for key fields.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\filtersets.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeviceFilter(GenericFilterMixIn, ExtraDataFilterMixIn):
+    """
+    FilterSet for Device, enabling filtering by device type, deployment activity, and related fields.
+
+    Filters:
+        is_active (BooleanFilter): Filters devices by the active status of their deployments.
+        device_type (ModelChoiceFilter): Filters by device type.
+
+    field_help_dict provides help text for key fields.
+    """
+
+    is_active = django_filters.BooleanFilter(
+        field_name="deployments__is_active", help_text="Filters devices by whether they have active deployments.")
+
+    device_type = django_filters.ModelChoiceFilter(
+        field_name='type',
+        queryset=DataType.objects.filter(devices__isnull=False).distinct(),
+        label="device type",
+        help_text="Filters devices by their type. The queryset is restricted to DataType objects associated with devices."
+    )
+
+    field_help_dict = {
+        "type": "Numeric database ID of device datatype.",
+        "id": "Numeric database ID of device.",
+    }
+
+    class Meta:
+        model = Device
+        fields = GenericFilterMixIn.get_fields().copy()
+        fields.update({
+            'type': ['exact', 'in'],
+            'type__name': ['exact', 'icontains', 'in'],
+            'device_ID': ['exact', 'icontains', 'in'],
+            'model__name': ['exact', 'icontains', 'in'],
+        })</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.filtersets.DeviceModelFilter" class="doc doc-heading">
+            <code>DeviceModelFilter</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="GenericFilterMixIn (utils.filtersets.GenericFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.GenericFilterMixIn">GenericFilterMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ExtraDataFilterMixIn (utils.filtersets.ExtraDataFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.ExtraDataFilterMixIn">ExtraDataFilterMixIn</a></code></p>
+
+
+        <p>FilterSet for DeviceModel, allowing queries on type and name fields.</p>
+
+
+<details class="meta" open>
+  <summary>Meta</summary>
+  <p>model: DeviceModel
+fields: type, type__name, name (with various lookup options)</p>
+</details>
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\filtersets.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeviceModelFilter(GenericFilterMixIn, ExtraDataFilterMixIn):
+    """
+    FilterSet for DeviceModel, allowing queries on type and name fields.
+
+    Meta:
+        model: DeviceModel
+        fields: type, type__name, name (with various lookup options)
+    """
+
+    class Meta:
+        model = DeviceModel
+        fields = GenericFilterMixIn.get_fields().copy()
+        fields.update({
+            'type': ['exact', 'in'],
+            'type__name': ['exact', 'icontains', 'in'],
+            'name': ['exact', 'icontains', 'in'],
+        })</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.filtersets.ProjectFilter" class="doc doc-heading">
+            <code>ProjectFilter</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="GenericFilterMixIn (utils.filtersets.GenericFilterMixIn)" href="../../utils/filtersets/#utils.filtersets.GenericFilterMixIn">GenericFilterMixIn</a></code></p>
+
+
+        <p>FilterSet for Project, allowing filtering by project details and deployment activity.</p>
+
+
+<details class="filters" open>
+  <summary>Filters</summary>
+  <p>is_active (BooleanFilter): Filter projects by whether they have active deployments.</p>
+</details>
+
+<details class="meta" open>
+  <summary>Meta</summary>
+  <p>model: Project
+fields: project_ID, name, organisation (all support exact, icontains, in)</p>
+</details>
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\filtersets.py</code></summary>
+                <pre class="highlight"><code class="language-python">class ProjectFilter(GenericFilterMixIn):
+    """
+    FilterSet for Project, allowing filtering by project details and deployment activity.
+
+    Filters:
+        is_active (BooleanFilter): Filter projects by whether they have active deployments.
+
+    Meta:
+        model: Project
+        fields: project_ID, name, organisation (all support exact, icontains, in)
+    """
+
+    is_active = django_filters.BooleanFilter(
+        field_name="deployments__is_active", help_text="Filters projects by whether they have active deployments.")
+
+    class Meta:
+        model = Project
+        fields = GenericFilterMixIn.get_fields().copy()
+        fields.update({
+            'project_ID': ['exact', 'icontains', 'in'],
+            'name': ['exact', 'icontains', 'in'],
+            'organisation': ['exact', 'icontains', 'in'],
+        })</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../file_handling_functions/" class="btn btn-neutral float-left" title="file_handling_functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../general_functions/" class="btn btn-neutral float-right" title="general_functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../file_handling_functions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../general_functions/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -12,7 +12,15 @@ from .models import Archive
 logger = logging.getLogger(__name__)
 
 
-def check_archive_projects(archive: Archive):
+def check_archive_projects(archive: Archive) -> None:
+    """
+    Checks all projects linked to the given archive for data files that need to be archived.
+    For each unique project and device type combination, determines if there is enough data
+    to create a tar archive, and schedules archiving tasks if appropriate.
+
+    Args:
+        archive (Archive): The Archive instance for which to check projects.
+    """
     from .tasks import check_archive_upload_task, create_tar_files_task
 
     # Get all projects linked to this archive
@@ -61,7 +69,14 @@ def check_archive_projects(archive: Archive):
         task_chord.apply_async()
 
 
-def check_archive_upload(archive: Archive):
+def check_archive_upload(archive: Archive) -> None:
+    """
+    Attempts to upload any tar files associated with the archive that have not yet been uploaded.
+    Handles connection to remote storage and updates file/archive status accordingly.
+
+    Args:
+        archive (Archive): The Archive instance to process uploads for.
+    """
     tars_to_upload = archive.tar_files.filter(archived=False, uploading=False)
 
     archive_ssh = archive.init_ssh_client()
@@ -78,7 +93,7 @@ def check_archive_upload(archive: Archive):
         tar_obj.uploading = True
         tar_obj.save()
 
-        tar_full_name = tar_obj.name+".tar.gz"
+        tar_full_name = tar_obj.name + ".tar.gz"
 
         upload_path = os.path.join(archive.root_folder,
                                    os.path.relpath(tar_obj.path,

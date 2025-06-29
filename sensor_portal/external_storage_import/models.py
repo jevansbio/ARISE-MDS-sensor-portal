@@ -15,26 +15,62 @@ logger = logging.getLogger(__name__)
 
 
 class DataStorageInput(BaseModel):
-    name = models.CharField(max_length=20, unique=True)
+    """
+    Model representing an external data storage input for sensor data import.
+    Manages connection credentials and provides utilities for user and file management.
+    """
+    name = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text="A unique name for this data storage input."
+    )
     username = models.CharField(
-        max_length=50, unique=True)
-    password = EncryptedCharField(max_length=128)
+        max_length=50,
+        unique=True,
+        help_text="Username for accessing the external storage."
+    )
+    password = EncryptedCharField(
+        max_length=128,
+        help_text="Encrypted password for the storage username."
+    )
     address = models.CharField(
-        max_length=100, unique=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, related_name="owned_inputstorages",
-                              on_delete=models.SET_NULL, null=True)
+        max_length=100,
+        unique=True,
+        help_text="Network address (IP or hostname) of the external storage."
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name="owned_inputstorages",
+        on_delete=models.SET_NULL,
+        null=True,
+        help_text="User who owns this data storage input."
+    )
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Return the string representation of the storage input.
+        """
         return self.name
 
-    def init_ssh_client(self):
+    def init_ssh_client(self) -> 'SSH_client':
+        """
+        Initialize and return an SSH client for the storage input.
+        """
         return SSH_client(self.username, self.password, self.address, 22)
 
-    def check_users_input(self):
+    def check_users_input(self, remove_bad: bool = False) -> None:
+        """
+        Set up users and check input storage for the linked devices.
+        """
         self.setup_users()
-        self.check_input()
+        self.check_input(remove_bad)
 
-    def setup_users(self):
+    def setup_users(self) -> None:
+        """
+        Ensure all required users for devices exist on the external storage.
+        Set up necessary user accounts and permissions.
+        """
         connection_success, ssh_client = self.check_connection()
         if not connection_success:
             logger.info(f"{self.name} - unable to connect")
@@ -48,7 +84,6 @@ class DataStorageInput(BaseModel):
         existing_users = stdout
 
         all_devices = self.linked_devices.all()
-
         required_users = all_devices.exclude(
             username="", username__isnull=True).values('username', 'password')
         missing_users = [x for x in required_users if x['username']
@@ -144,7 +179,11 @@ class DataStorageInput(BaseModel):
 
         ssh_client.close_connection_to_ftp()
 
-    def check_connection(self):
+    def check_connection(self) -> tuple[bool, 'SSH_client | None']:
+        """
+        Attempt to initialize an SSH client for this storage input.
+        Returns a tuple: (success, SSH_client or None)
+        """
         try:
             ssh_client = self.init_ssh_client()
             return True, ssh_client
@@ -153,7 +192,11 @@ class DataStorageInput(BaseModel):
             logger.info(repr(e))
             return False, None
 
-    def check_input(self, remove_bad=False):
+    def check_input(self, remove_bad: bool = False) -> None:
+        """
+        Check input files and folders for all linked devices.
+        Optionally remove invalid files.
+        """
         connection_success, ssh_client = self.check_connection()
         if not connection_success:
             logger.info(f"{self.name} - unable to connect")
@@ -179,7 +222,7 @@ class DataStorageInput(BaseModel):
             device_dir_attribute = ssh_client.ftp_sftp.listdir_attr(
                 device.username)
             device_file_names = [
-                x.filename for x in device_dir_attribute if all([y != ''for y in splitext(x.filename)])]
+                x.filename for x in device_dir_attribute if all([y != '' for y in splitext(x.filename)])]
             if len(device_file_names) == 0:
                 logger.info(
                     f"{self.name} - {device.device_ID} - no files on external storage")
@@ -219,7 +262,7 @@ class DataStorageInput(BaseModel):
                     mtime = ssh_client.ftp_sftp.stat(
                         join(device.username, filename)).st_mtime
                     last_modified = datetime.fromtimestamp(mtime)
-                    if (datetime.now()-last_modified) <= timedelta(days=7):
+                    if (datetime.now() - last_modified) <= timedelta(days=7):
                         ssh_client.ftp_sftp.remove(
                             join(device.username, file_obj.original_name))
                         logger.info(

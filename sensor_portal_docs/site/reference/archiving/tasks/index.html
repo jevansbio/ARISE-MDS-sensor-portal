@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>tasks - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "tasks";
+        var mkdocs_page_input_path = "reference\\archiving\\tasks.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">archiving</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">tasks</a>
+    <ul class="current">
+    </ul>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">archiving</a></li>
+      <li class="breadcrumb-item active">tasks</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="archiving.tasks"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.check_all_archive_projects_task" class="doc doc-heading">
+            <code class="highlight language-python">check_all_archive_projects_task()</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check all archive projects by iterating through all Archive objects and calling their check_projects method.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task()
+def check_all_archive_projects_task() -&gt; None:
+    """
+    Check all archive projects by iterating through all Archive objects and calling their check_projects method.
+    """
+    all_archives = Archive.objects.all()
+    # Iterate through every archive and check its projects
+    for archive in all_archives:
+        archive.check_projects()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.check_all_uploads_task" class="doc doc-heading">
+            <code class="highlight language-python">check_all_uploads_task()</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check uploads for all Archive objects by calling their check_upload method.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task()
+def check_all_uploads_task() -&gt; None:
+    """
+    Check uploads for all Archive objects by calling their check_upload method.
+    """
+    all_archives = Archive.objects.all()
+    # Iterate through every archive and check its uploads
+    for archive in all_archives:
+        archive.check_upload()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.check_archive_upload_task" class="doc doc-heading">
+            <code class="highlight language-python">check_archive_upload_task(archive_pk)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check upload for a specific archive.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>archive_pk</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Primary key of the archive.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task()
+def check_archive_upload_task(archive_pk: int) -&gt; None:
+    """
+    Check upload for a specific archive.
+
+    Args:
+        archive_pk (int): Primary key of the archive.
+    """
+    # Find the archive by PK and trigger upload check
+    archive = Archive.objects.get(pk=archive_pk)
+    archive.check_upload()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.create_tar_files_task" class="doc doc-heading">
+            <code class="highlight language-python">create_tar_files_task(file_pks, archive_pk)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Task wrapper for create_tar_files function.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_pks</code></b>
+                  (<code><span title="typing.List">List</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Primary keys of files to be TARred.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>archive_pk</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Primary key of archive to which these TARs will be attached.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task()
+def create_tar_files_task(file_pks: List[int], archive_pk: int) -&gt; None:
+    """
+    Task wrapper for create_tar_files function.
+
+    Args:
+        file_pks (List[int]): Primary keys of files to be TARred.
+        archive_pk (int): Primary key of archive to which these TARs will be attached.
+    """
+    # Calls the actual function to handle TAR file creation
+    create_tar_files(file_pks, archive_pk)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.get_files_from_archive_task" class="doc doc-heading">
+            <code class="highlight language-python">get_files_from_archive_task(file_pks, callback=None)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>For a list of DataFile PKs, orchestrate their retrieval from archives using Celery groups and chords.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_pks</code></b>
+                  (<code><span title="typing.List">List</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Primary keys of files to retrieve.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>callback</code></b>
+                  (<code><span title="typing.Optional">Optional</span>[<span title="typing.Callable">Callable</span>]</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Optional callback task to run after retrieval.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task()
+def get_files_from_archive_task(file_pks: List[int], callback: Optional[Callable] = None) -&gt; None:
+    """
+    For a list of DataFile PKs, orchestrate their retrieval from archives using Celery groups and chords.
+
+    Args:
+        file_pks (List[int]): Primary keys of files to retrieve.
+        callback (Optional[Callable]): Optional callback task to run after retrieval.
+    """
+    # Filter for only archived files matching the provided PKs
+    file_objs = DataFile.objects.filter(pk__in=file_pks, archived=True)
+
+    # Get unique TAR files containing these files
+    tar_file_objs = TarFile.objects.filter(
+        pk__in=file_objs.values_list('tar_file__pk', flat=True).distinct())
+    tar_file_pks = list(tar_file_objs.values_list('pk', flat=True))
+
+    all_tasks = []
+    # For each TAR, create an async job for its files
+    for tar_file_pk in tar_file_pks:
+        target_file_pks = list(file_objs.filter(
+            tar_file__pk=tar_file_pk).values_list('pk', flat=True))
+        all_tasks.append(get_files_from_archived_tar_task.si(
+            tar_file_pk, target_file_pks))
+
+    task_group = group(all_tasks)  # Celery group for parallel execution
+
+    # Callback tasks to run after all file retrieval jobs
+    post_tasks = [post_get_file_from_archive_task.s()]
+    if callback is not None:
+        post_tasks.append(callback)
+    post_task_group = group(post_tasks)
+    # Chord schedules post-tasks after all group tasks
+    task_chord = chord(task_group, post_task_group)
+    task_chord.apply_async()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.get_files_from_archived_tar_task" class="doc doc-heading">
+            <code class="highlight language-python">get_files_from_archived_tar_task(self, tar_file_pk, target_file_pks)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve specified files from a TAR archive, handling staging, extraction, and local placement.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>self</code></b>
+                  (<code><span title="typing.Any">Any</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Task instance (provided by Celery when bind=True).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>tar_file_pk</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Primary key of the TarFile object.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>target_file_pks</code></b>
+                  (<code><span title="typing.List">List</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>List of file PKs to retrieve.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.List">List</span>[<span title="int">int</span>]</code>
+              –
+              <div class="doc-md-description">
+                <p>List[int]: Primary keys of successfully retrieved DataFile objects.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task(autoretry_for=(TooManyTasks, TAROffline),
+          max_retries=None,
+          retry_backoff=2*60,
+          retry_backoff_max=5 * 60,
+          retry_jitter=True,
+          bind=True)
+def get_files_from_archived_tar_task(self: Any, tar_file_pk: int, target_file_pks: List[int]) -&gt; List[int]:
+    """
+    Retrieve specified files from a TAR archive, handling staging, extraction, and local placement.
+
+    Args:
+        self (Any): Task instance (provided by Celery when bind=True).
+        tar_file_pk (int): Primary key of the TarFile object.
+        target_file_pks (List[int]): List of file PKs to retrieve.
+
+    Returns:
+        List[int]: Primary keys of successfully retrieved DataFile objects.
+    """
+    # Limit the number of simultaneous tasks of this type to avoid overloading resources
+    check_simultaneous_tasks(self, 4)
+
+    tar_file_obj = TarFile.objects.get(pk=tar_file_pk)
+    file_objs = DataFile.objects.filter(pk__in=target_file_pks)
+    file_names = file_objs.full_names().values_list("full_name", flat=True)
+
+    # Connect to the archive server via SSH
+    archive_obj = tar_file_obj.archive
+    ssh_client = archive_obj.init_ssh_client()
+
+    # Try to locate the compressed TAR file first
+    tar_name = tar_file_obj.name + '.tar.gz'
+    tar_path = posixjoin(tar_file_obj.path, tar_name)
+    status_code, stdout, stderr = ssh_client.send_ssh_command(
+        f"dals -l {tar_path}")
+
+    # Check if the TAR file is online or needs to be staged from tape
+    status_code, target_tar_status = check_tar_status(ssh_client, tar_path)
+    logger.info(f"{tar_path}: Get TAR status {status_code}")
+
+    # If not found, try without .tar.gz extension
+    if status_code == 1:
+        tar_name = tar_file_obj.name
+        tar_path = posixjoin(tar_file_obj.path, tar_name)
+        status_code, target_tar_status = check_tar_status(ssh_client, tar_path)
+        logger.info(f"{tar_path}: Get TAR status  {status_code}")
+        if status_code == 1:
+            raise Exception(f"{tar_path}: TAR file not present at this path")
+
+    logger.info(
+        f"{tar_path}: Get TAR status {status_code} {target_tar_status}")
+
+    # If not online, try to retrieve from tape storage (or handle unmigrating state)
+    online_statuses = ['(REG)', '(DUL)', '(MIG)']
+    if target_tar_status not in online_statuses:
+        initial_offline = True
+        logger.info(f"{tar_path}: Offline")
+        if target_tar_status != '(UNM)':
+            # Request data to be staged from tape
+            status_code, stdout, stderr = ssh_client.send_ssh_command(
+                f"daget {tar_path}")
+            logger.info(
+                f"{tar_path}: Get TAR from tape {status_code} {stdout}")
+            status_code, target_tar_status = check_tar_status(
+                ssh_client, tar_path)
+        else:
+            raise (TAROffline(f"{tar_path}: already unmigrating"))
+
+        if target_tar_status not in online_statuses:
+            # If still not online after staging attempt, raise error
+            raise Exception(f"{tar_path}: TAR file could not be staged")
+    else:
+        initial_offline = False
+
+    # Create a temporary extraction directory for this job
+    temp_path = posixjoin(tar_file_obj.path, "temp", self.request.id)
+    ftp_connection_success = ssh_client.connect_to_ftp()
+    if not ftp_connection_success:
+        raise Exception("Unable to connect to FTP")
+
+    ssh_client.mkdir_p(temp_path)
+
+    # List files inside the TAR to locate the desired files
+    status_code, stdout, stderr = ssh_client.send_ssh_command(
+        f"tar tvf {tar_path}", return_strings=False)
+    logger.info(f"{tar_path}: List files in TAR")
+
+    in_tar_file_paths: List[str] = []
+    in_tar_found_files: List[Any] = []
+    for file_line in stdout:
+        # Parse each line of tar output to extract the file path
+        split_file_line = file_line.split(" ")
+        line_file_path = split_file_line[-1].replace("\n", "")
+        # Check if this is one of our requested files
+        found_file_paths = [x for x in file_names if x in line_file_path]
+        if len(found_file_paths) &gt; 0:
+            in_tar_file_paths.append(line_file_path)
+            in_tar_found_files.append(found_file_paths[0])
+            logger.info(
+                f"{tar_path}: {len(in_tar_file_paths)}/{len(file_names)}")
+        if len(in_tar_file_paths) == len(file_names):
+            # Stop early if all target files found
+            logger.info(f"{tar_path}: All files_found")
+            break
+
+    if len(in_tar_file_paths) == 0:
+        # None of the requested files were found in the TAR archive
+        raise Exception(f"{tar_path}: No files found in TAR")
+    else:
+        # Log any requested files not found in the archive
+        missing_files = [x for x in file_names if x not in in_tar_found_files]
+        if len(missing_files) &gt; 0:
+            logger.info(f"{tar_path}: Files not found: {missing_files}")
+
+    # Extract files in manageable chunks to avoid command length limits
+    chunked_in_tar_file_paths = [
+        x for x in divide_chunks(in_tar_file_paths, 500)]
+    for idx, in_tar_file_paths_set in enumerate(chunked_in_tar_file_paths):
+        logger.info(
+            f"{tar_path}: Extract file chunk {idx}/{len(chunked_in_tar_file_paths)}")
+        combined_in_tar_file_paths = (
+            " ".join([f"'{x}'" for x in in_tar_file_paths_set]))
+        status_code, stdout, stderr = ssh_client.send_ssh_command(
+            f"tar -zxvf {tar_path} -C {temp_path} {combined_in_tar_file_paths}")
+        logger.info(
+            f"{tar_path}: Extract file chunk {idx}/{len(chunked_in_tar_file_paths)} {status_code}")
+
+    # Connect to SCP for file transfer from archive to local storage
+    ssh_client.connect_to_scp()
+    file_objs_to_update: List[DataFile] = []
+    all_pks: List[int] = []
+    for idx, in_tar_file_path in enumerate(in_tar_file_paths):
+        try:
+            full_file_name = os.path.split(in_tar_file_path)[1]
+            file_name = os.path.splitext(full_file_name)[0]
+            # Get the corresponding DataFile object
+            file_obj = file_objs.get(file_name=file_name)
+            # Prepare the local storage directory
+            local_dir = os.path.join(settings.FILE_STORAGE_ROOT, file_obj.path)
+            os.makedirs(local_dir, exist_ok=True)
+            local_file_path = os.path.join(local_dir, full_file_name)
+
+            temp_file_path = posixjoin(temp_path, in_tar_file_path)
+            if not os.path.exists(local_file_path):
+                # Transfer file from archive temp path to local storage
+                ssh_client.scp_c.get(
+                    temp_file_path, local_file_path, preserve_times=True)
+
+            # Mark file as locally available and update metadata
+            file_obj.modified_on = djtimezone.now()
+            file_obj.local_path = settings.FILE_STORAGE_ROOT
+            file_obj.local_storage = True
+            file_objs_to_update.append(file_obj)
+            all_pks.append(file_obj.pk)
+        except Exception as e:
+            # Log and continue on any per-file errors
+            logger.info(f"{tar_path}: Error retrieving file: {repr(e)}")
+    logger.info(f"{tar_path}: Update database")
+    DataFile.objects.bulk_update(file_objs_to_update, fields=[
+                                 "local_path", "local_storage", "modified_on"])
+    logger.info(f"{tar_path}: Clear temporary files")
+    # Remove temporary extraction files from the archive server
+    status_code, stdout, stderr = ssh_client.send_ssh_command(
+        f"rm -rf {temp_path}")
+
+    ssh_client.close_connection()
+
+    return all_pks</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.post_get_file_from_archive_task" class="doc doc-heading">
+            <code class="highlight language-python">post_get_file_from_archive_task(all_file_pks)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>After files are retrieved from archive, process them by sensor model and file format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>all_file_pks</code></b>
+                  (<code><span title="typing.List">List</span>[<span title="typing.List">List</span>[<span title="int">int</span>]]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Nested lists of file PKs.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task()
+def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -&gt; None:
+    """
+    After files are retrieved from archive, process them by sensor model and file format.
+
+    Args:
+        all_file_pks (List[List[int]]): Nested lists of file PKs.
+    """
+    # Flatten the list of lists of PKs into a single list
+    all_file_pks_flat = [item for items in all_file_pks for item in items]
+    # Query all DataFile objects just downloaded
+    file_objs = DataFile.objects.filter(pk__in=all_file_pks_flat)
+    # Find all unique device models (sensor models) present in these files
+    device_models = file_objs.values_list(
+        "deployment__device__model", flat=True).distinct()
+
+    # For each unique device model, process files by format
+    for device_model in device_models:
+        sensor_model_file_objs = file_objs.filter(
+            deployment__device__model=device_model)
+        # Look up the handler for this model
+        data_handler = settings.DATA_HANDLERS.get_handler(
+            device_model.type.name, device_model.name)
+        # Find all unique file formats for files from this model
+        device_file_formats = sensor_model_file_objs.values_list(
+            "file_format", flat=True).distinct()
+
+        # For each file format, create and dispatch a post-download task if available
+        for device_file_format in device_file_formats:
+            device_model_format_file_objs = sensor_model_file_objs.filter(
+                file_format=device_file_format)
+            device_model_format_file_file_names = list(
+                device_model_format_file_objs.values_list("file_name", flat=True))
+            task_name = data_handler.get_post_download_task(
+                device_file_format, False)
+            if task_name is not None:
+                new_task = app.signature(
+                    task_name, [device_model_format_file_file_names], immutable=True)
+                new_task.apply_async()  # Schedule the post-download processing</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../tar_functions/" class="btn btn-neutral float-left" title="tar_functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../camtrap_dp_export/" class="btn btn-neutral float-right" title="camtrap_dp_export">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../tar_functions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../camtrap_dp_export/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
