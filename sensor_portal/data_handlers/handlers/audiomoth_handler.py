@@ -7,7 +7,7 @@ from dateutil import parser
 from tinytag import TinyTag
 
 
-class BasicAudio(DataTypeHandler):
+class AudioMothHandler(DataTypeHandler):
     """
     Data handler for processing image files from various camera types.
 

@@ -1,0 +1,3 @@
+# API
+
+The ARISE MDS API provides a comprehensive interface for managing ecological monitoring data. It allows users to authenticate via token-based login, register and manage devices (such as cameras, audio loggers, and sensors), create and track deployments of those devices, and upload or retrieve observational data. Users can list and filter observations by deployment and navigate through paginated results. Additionally, the API supports uploading data bundles and checking their status. A full interactive schema is available for exploration at https://arisemdsvm.science.uva.nl/api/schema/swagger-ui/, and the raw OpenAPI schema can be accessed at https://arisemdsvm.science.uva.nl/api/schema/.

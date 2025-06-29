@@ -215,8 +215,8 @@ def check_tar_status(
         Tuple[int, Optional[str]]: (Status code, tar file status string if successful, else None)
     """
     status_code, stdout, stderr = ssh_client.send_ssh_command(
-        f"dmls -l {posixjoin(tar_path)}")
+        f"dals -l {posixjoin(tar_path)}")
     if status_code != 0:
         return status_code, None
-    target_tar_status = stdout[0].split(" ")[-2]
+    target_tar_status = stdout[1].split(" ")[-2]
     return status_code, target_tar_status
