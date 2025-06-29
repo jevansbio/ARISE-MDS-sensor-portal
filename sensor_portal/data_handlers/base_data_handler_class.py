@@ -138,7 +138,8 @@ class DataTypeHandlerCollection():
                 if not self.data_type_handlers.get(data_type):
                     self.data_type_handlers[data_type] = {}
                 for model in handler.device_models:
-                    self.data_type_handlers[data_type][model] = handler_instance
+                    self.data_type_handlers[data_type][model.lower(
+                    )] = handler_instance
 
     def set_default_model(self, data_type, device_model):
         """
@@ -151,8 +152,11 @@ class DataTypeHandlerCollection():
         Returns:
             str or None: The resolved device model, or None if not available.
         """
+
         if data_type not in self.data_type_handlers.keys():
             return None
+
+        device_model = device_model.lower()
 
         if device_model not in self.data_type_handlers[data_type].keys()\
                 or self.data_type_handlers.get(data_type) is None:

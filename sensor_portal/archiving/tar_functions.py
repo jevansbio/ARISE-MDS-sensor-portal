@@ -161,28 +161,36 @@ def create_tar_file(
 
     logger.info(f"{tar_name}: generating bagit data")
     # Generate bagit metadata
-    all_metadata_paths = bag_info_from_files(file_objs, metadata_dir_path)
+    all_metadata_paths = []
+    try:
+        all_metadata_paths = bag_info_from_files(file_objs, metadata_dir_path)
 
-    # Generate metadata file
-    metadata_json_path = metadata_json_from_files(file_objs, metadata_dir_path)
+        # Generate metadata file
+        metadata_json_path = metadata_json_from_files(
+            file_objs, metadata_dir_path)
 
-    all_metadata_paths.append(metadata_json_path)
+        all_metadata_paths.append(metadata_json_path)
 
-    relative_metadata_paths = [os.path.relpath(
-        x, settings.FILE_STORAGE_ROOT) for x in all_metadata_paths]
+        relative_metadata_paths = [os.path.relpath(
+            x, settings.FILE_STORAGE_ROOT) for x in all_metadata_paths]
 
-    # TAR files
-    # Use transform command to generate data dir inside the TAR, move metadata files to root
-    tar_command = ["tar", "zcvf", full_tar_path,
-                   "--transform", f"s,^,data/,;s,data/{relative_metadata_dir_path}/,,",] + relative_paths + relative_metadata_paths
-    success, output = call_with_output(tar_command, settings.FILE_STORAGE_ROOT)
+        # Use transform command to generate data dir inside the TAR, move metadata files to root
+        tar_command = ["tar", "zcvf", full_tar_path,
+                       "--transform", f"s,^,data/,;s,data/{relative_metadata_dir_path}/,,",] + relative_paths + relative_metadata_paths
+        success, output = call_with_output(
+            tar_command, settings.FILE_STORAGE_ROOT)
+
+    except Exception as e:
+        logger.error(e)
+        output = ""
+        success = False
 
     # regardless of status, we remove the metadata files
     [try_remove_file_clean_dirs(x) for x in all_metadata_paths]
 
     if not success:
-        logger.info(f"{tar_name}: Error creating TAR")
-        logger.info(output)
+        logger.error(f"{tar_name}: Error creating TAR")
+        logger.error(output)
         return False, tar_name, None
     logger.info(f"{tar_name}: succesfully created")
     return True, tar_name, full_tar_path
