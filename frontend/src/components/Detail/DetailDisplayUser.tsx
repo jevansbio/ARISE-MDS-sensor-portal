@@ -104,7 +104,7 @@ const DetailDisplayUser = ({ id, authTokens, user }: UserProfileProps) => {
 					</dl>
 					<div className="mb-3 mt-3">
 						<Link
-							to={`datafiles`}
+							to={`/users/favourites`}
 							className="p-2 flex-fill"
 						>
 							<button className="btn btn-primary w-100">Show favourites</button>

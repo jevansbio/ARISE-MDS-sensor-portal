@@ -52,7 +52,7 @@ class SSH_client:
             self.ftp_t.connect(username=self.username, password=self.password)
             self.ftp_sftp = paramiko.SFTPClient.from_transport(self.ftp_t)
             sftp_channel = self.ftp_sftp.get_channel()
-            sftp_channel.settimeout(60 * 10)
+            sftp_channel.settimeout(60 * 30)
             return True
         except Exception as e:
             logger.info(repr(e))
@@ -93,7 +93,9 @@ class SSH_client:
             self.ssh_c.set_missing_host_key_policy(
                 paramiko.client.AutoAddPolicy)
             self.ssh_c.connect(self.address, port,
-                               username=self.username, password=self.password)
+                               username=self.username,
+                               password=self.password,
+                               timeout=60*30)
             return True
         except Exception as e:
             logger.info(repr(e))
