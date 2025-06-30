@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     'colorfield',
     'django_icon_picker',
     'drf_spectacular',
+    'dbbackup',
     # my apps
     'data_models',
     'user_management',
@@ -358,6 +359,9 @@ if not DEVMODE:
         "schedule": crontab(hour="12", minute="0",
                             day_of_week="mon-fri"),
     },
+
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': FILE_STORAGE_ROOT}
 
 # SENSOR-PORTAL SETTINGS
 # name of the global project all deployments will be added to.
