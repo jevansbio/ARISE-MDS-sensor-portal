@@ -126,6 +126,7 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -> None:
     Args:
         all_file_pks (List[List[int]]): Nested lists of file PKs.
     """
+    logger.info("Post-processing files after retrieval from archive")
     # Flatten the list of lists of PKs into a single list
     all_file_pks_flat = [item for items in all_file_pks for item in items]
     # Query all DataFile objects just downloaded
@@ -136,6 +137,7 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -> None:
 
     # For each unique device model, process files by format
     for device_model in device_models:
+        logger.info(f"Processing files for device model {device_model}")
         sensor_model_file_objs = file_objs.filter(
             deployment__device__model=device_model)
         # Look up the handler for this model
@@ -147,6 +149,8 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -> None:
 
         # For each file format, create and dispatch a post-download task if available
         for device_file_format in device_file_formats:
+            logger.info(
+                f"Processing files for device model {device_model} with format {device_file_format}")
             device_model_format_file_objs = sensor_model_file_objs.filter(
                 file_format=device_file_format)
             device_model_format_file_file_names = list(
@@ -328,3 +332,37 @@ def get_files_from_archived_tar_task(self: Any, tar_file_pk: int, target_file_pk
     ssh_client.close_connection()
 
     return all_pks
+
+
+@app.task(name="backup_database")
+def backup_database_task(archive_pk: int) -> None:
+    """
+    Task to backup the database, uploading it to an archive.
+    Args:
+        archive_pk (int): Primary key of the Archive object to which the backup will be uploaded.
+    """
+
+    from django.core import management
+    logger.info(f"Starting database backup for archive {archive_pk}")
+    archive_obj = Archive.objects.get(pk=archive_pk)
+    backup_name = 'new_db_backup.psql.gz'
+    backup_local_path = os.path.join(
+        settings.FILE_STORAGE_ROOT, backup_name)
+
+    try:
+        os.remove(backup_local_path)
+    except FileNotFoundError:
+        pass
+    management.call_command('dbbackup', '-c', '-z',
+                            '--noinput', output_filename=backup_name)
+    logger.info(f"Database backup created at {backup_local_path}")
+    # If not in development mode, upload the backup to the archive
+    if os.environ.get('DEV', None) is None or os.environ.get('DEV', None) is False:
+        logger.info(
+            f"Uploading database backup {backup_name} to archive {archive_pk}")
+        ssh_client = archive_obj.init_ssh_client()
+        ssh_client.connect_to_scp()
+        ssh_client.scp_c.put(backup_local_path,
+                             posixjoin(archive_obj.root_folder, backup_name),
+                             preserve_times=True)
+        logger.info(f"Database backup {backup_name} uploaded successfully")
