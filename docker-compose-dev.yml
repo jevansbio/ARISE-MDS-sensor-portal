@@ -64,6 +64,9 @@ services:
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - ARISE_DSI_URL=${ARISE_DSI_URL}
+      - ARISE_AUTHENTICATION_SERVER_URL=${ARISE_AUTHENTICATION_SERVER_URL}
+      - OFFLINE_REFRESH_TOKEN=${OFFLINE_REFRESH_TOKEN}
     depends_on:
       sensor_portal_db:
         condition: service_healthy
@@ -100,6 +103,9 @@ services:
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - ARISE_DSI_URL=${ARISE_DSI_URL}
+      - ARISE_AUTHENTICATION_SERVER_URL=${ARISE_AUTHENTICATION_SERVER_URL}
+      - OFFLINE_REFRESH_TOKEN=${OFFLINE_REFRESH_TOKEN}
     depends_on:
       sensor_portal_db:
         condition: service_healthy
@@ -134,6 +140,9 @@ services:
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - ARISE_DSI_URL=${ARISE_DSI_URL}
+      - ARISE_AUTHENTICATION_SERVER_URL=${ARISE_AUTHENTICATION_SERVER_URL}
+      - OFFLINE_REFRESH_TOKEN=${OFFLINE_REFRESH_TOKEN}
     depends_on:
       sensor_portal_db:
         condition: service_healthy

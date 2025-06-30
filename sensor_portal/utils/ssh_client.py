@@ -122,7 +122,8 @@ class SSH_client:
             self.scp_c = SCPClient(
                 self.ssh_c.get_transport(),
                 progress=lambda file_name, size, sent: self.scp_progress_function(
-                    file_name, size, sent)
+                    file_name, size, sent),
+                socket_timeout=60 * 10,
             )
             return True
         except Exception as e:

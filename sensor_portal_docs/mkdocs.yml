@@ -30,6 +30,7 @@ nav:
       - Code Reference: "reference/"
     - For admin:
       - Overview: "admin/index.md"
+      - UVA management: "UVA/UVA.md"
       - Permissions: "admin/permissions.md"
       - Admin only models details: 
         - Project Job: admin/detail/projectjob.md

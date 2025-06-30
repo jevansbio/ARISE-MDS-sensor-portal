@@ -184,6 +184,7 @@ def check_device_status():
             logger.info(f"Device {device.device_ID} has no files.")
             bad_devices_pks.append(device.pk)
             bad_devices_values.append({
+                'pk': device.pk,
                 'device_ID': device.device_ID,
                 'name': device.name,
                 'file_hours': None
@@ -223,9 +224,14 @@ def check_device_status():
             continue
         # get PKs
         user_bad_device_pks = users_bad_devices.values_list('pk', flat=True)
+
         device_list = [
             f'{x.get("device_ID")} - {x.get("name")} - {round(x.get("file_hours"),2)}' for x in bad_devices_values if x.get('pk') in user_bad_device_pks]
         device_list_string = " \n".join(device_list)
+
+        if len(device_list_string) == 0:
+            return
+
         logger.info(f"Got bad device info for {user.username}")
 
         # send them an email

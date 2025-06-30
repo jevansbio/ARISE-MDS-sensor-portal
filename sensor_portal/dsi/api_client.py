@@ -1,10 +1,13 @@
 import datetime
+import logging
 import os
 from typing import Optional
 
 import openapi_client
 from authentication.arise_dsi_api_authentication import \
     AriseDsiApiAuthentication
+
+logger = logging.getLogger(__name__)
 
 
 class ARISEDSIClient:
@@ -19,12 +22,12 @@ class ARISEDSIClient:
         self.offline_refresh_token = os.environ.get("OFFLINE_REFRESH_TOKEN")
 
     def initialise_authentication(self) -> None:
-        if self.authentication_server_url:
-            print("No ARISE_AUTHENTICATION_SERVER_URL var set")
+        if self.authentication_server_url is None:
+            logger.error("No ARISE_AUTHENTICATION_SERVER_URL var set")
             return
 
         if self.offline_refresh_token is None:
-            print("No OFFLINE_REFRESH_TOKEN var set")
+            logger.error("No OFFLINE_REFRESH_TOKEN var set")
             return
 
         arise_dsi_api_authentication = None
@@ -45,6 +48,6 @@ class ARISEDSIClient:
         )
 
     def update_access_token(self, access_token: str) -> None:
-        print(f"Update ARISE DSI API access token: {access_token}.")
+        logger.info(f"Update ARISE DSI API access token: {access_token}.")
         if self.openapi_client_configuration:
             self.openapi_client_configuration.access_token = access_token

@@ -4,7 +4,7 @@ from glob import glob
 
 from archiving.models import Archive, TarFile
 from celery import shared_task
-from data_models.models import DataFile
+from data_models.models import DataFile, DataType
 from django.conf import settings
 from django.db.models import F, Q, Value
 from django.db.models.functions import Concat
@@ -18,6 +18,19 @@ logger = logging.getLogger(__name__)
 
 
 @app.task()
+def check_all_paths():
+    """
+    Task to check all paths in the file system against DataFile records.
+    This will log any discrepancies and attempt to fix them.
+    """
+    root_folder = settings.FILE_STORAGE_ROOT
+    all_data_types = DataType.objects.all().values_list('name', flat=True)
+    logger.info(f"Checking paths in {root_folder}")
+    for data_type in all_data_types:
+        check_paths(os.path.join(root_folder, data_type))
+
+
+@app.task()
 def check_paths(root_folder):
 
     if not os.path.exists(root_folder):
@@ -28,6 +41,11 @@ def check_paths(root_folder):
     for dirpath, _, filenames in os.walk(root_folder):
         logger.info(dirpath)
         for filename in filenames:
+            original_filename = filename
+            filename = filename.replace("_THUMB", "")
+            filename = filename.replace("_ANIM", "")
+            filename = filename.replace("_CONCAT", "")
+
             logger.info(f"Found file: {filename}")
             try:
                 data_file = DataFile.objects.get(
@@ -35,6 +53,16 @@ def check_paths(root_folder):
 
                 logger.info(
                     f"Matched DataFile {data_file.file_name} - {filename}")
+                if "_THUMB" not in original_filename and "_ANIM" not in original_filename and "_CONCAT" not in original_filename:
+                    if data_file.full_path() != os.path.join(dirpath, filename):
+                        logger.info(
+                            f"Updating DataFile {data_file.file_name} path from {data_file.full_path()} to {os.path.join(dirpath, filename)}")
+                        data_file.local_path = settings.FILE_STORAGE_ROOT
+                        data_file.path = os.path.relpath(
+                            dirpath, settings.FILE_STORAGE_ROOT)
+                        data_file.set_file_url()
+                        data_file.save()
+
             except DataFile.DoesNotExist:
                 logger.error(
                     f"No matching local DataFile found for: {filename}")
