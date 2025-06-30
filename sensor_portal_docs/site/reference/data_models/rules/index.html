@@ -1,0 +1,3932 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>rules - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "rules";
+        var mkdocs_page_input_path = "reference\\data_models\\rules.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">data_models</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">rules</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../dsi/">dsi</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_client/">api_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_functions/">api_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >uva_jobs</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../uva_jobs/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../UVA/UVA/">UVA management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">data_models</a></li>
+      <li class="breadcrumb-item active">rules</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="data_models.rules"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanAnnotateDataFileDeployment" class="doc doc-heading">
+            <code>CanAnnotateDataFileDeployment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can annotate a data file deployment.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanAnnotateDataFileDeployment(R):
+    """
+    Rule for determining if a user can annotate a data file deployment.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is an annotator of the data file deployment.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user in instance.deployment.annotators.all()
+
+    def query(self, user):
+        """
+        Construct a query for data file deployments user can annotate.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__annotators=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanAnnotateDataFileDeployment.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is an annotator of the data file deployment.</p>
+<h5 id="data_models.rules.CanAnnotateDataFileDeployment.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanAnnotateDataFileDeployment.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is an annotator of the data file deployment.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user in instance.deployment.annotators.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanAnnotateDataFileDeployment.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for data file deployments user can annotate.</p>
+<h5 id="data_models.rules.CanAnnotateDataFileDeployment.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanAnnotateDataFileDeployment.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for data file deployments user can annotate.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__annotators=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanAnnotateDeviceContainingDataFile" class="doc doc-heading">
+            <code>CanAnnotateDeviceContainingDataFile</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can annotate a device containing a data file.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanAnnotateDeviceContainingDataFile(R):
+    """
+    Rule for determining if a user can annotate a device containing a data file.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is an annotator of the device containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user.pk in instance.deployment.device.annotators.all().values_list("pk", flat=True)
+
+    def query(self, user):
+        """
+        Construct a query for devices containing data files user can annotate.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__device__annotators=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanAnnotateDeviceContainingDataFile.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is an annotator of the device containing the data file.</p>
+<h5 id="data_models.rules.CanAnnotateDeviceContainingDataFile.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanAnnotateDeviceContainingDataFile.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is an annotator of the device containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user.pk in instance.deployment.device.annotators.all().values_list("pk", flat=True)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanAnnotateDeviceContainingDataFile.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for devices containing data files user can annotate.</p>
+<h5 id="data_models.rules.CanAnnotateDeviceContainingDataFile.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanAnnotateDeviceContainingDataFile.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for devices containing data files user can annotate.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__device__annotators=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanAnnotateProjectContainingDataFile" class="doc doc-heading">
+            <code>CanAnnotateProjectContainingDataFile</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can annotate a project containing a specific data file.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanAnnotateProjectContainingDataFile(R):
+    """
+    Rule for determining if a user can annotate a project containing a specific data file.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is an annotator for the project containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user.pk in instance.deployment.project.all().values_list("annotators__pk", flat=True)
+
+    def query(self, user):
+        """
+        Construct a query for projects containing data files user can annotate.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__project__annotators=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanAnnotateProjectContainingDataFile.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is an annotator for the project containing the data file.</p>
+<h5 id="data_models.rules.CanAnnotateProjectContainingDataFile.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanAnnotateProjectContainingDataFile.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is an annotator for the project containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user.pk in instance.deployment.project.all().values_list("annotators__pk", flat=True)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanAnnotateProjectContainingDataFile.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for projects containing data files user can annotate.</p>
+<h5 id="data_models.rules.CanAnnotateProjectContainingDataFile.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanAnnotateProjectContainingDataFile.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for projects containing data files user can annotate.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__project__annotators=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageDataFileDeployment" class="doc doc-heading">
+            <code>CanManageDataFileDeployment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage a data file deployment.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageDataFileDeployment(R):
+    """
+    Rule for determining if a user can manage a data file deployment.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager of the data file deployment.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user in instance.deployment.managers.all()
+
+    def query(self, user):
+        """
+        Construct a query for data file deployments user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__managers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageDataFileDeployment.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a manager of the data file deployment.</p>
+<h5 id="data_models.rules.CanManageDataFileDeployment.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageDataFileDeployment.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a manager of the data file deployment.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user in instance.deployment.managers.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageDataFileDeployment.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for data file deployments user can manage.</p>
+<h5 id="data_models.rules.CanManageDataFileDeployment.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageDataFileDeployment.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for data file deployments user can manage.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__managers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageDeployedDevice" class="doc doc-heading">
+            <code>CanManageDeployedDevice</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage a deployed device.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageDeployedDevice(R):
+    """
+    Rule for determining if a user can manage a deployed device.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can manage the deployed device.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user in instance.device.managers.all() or user.pk == instance.device.owner
+
+    def query(self, user):
+        """
+        Construct a query for deployed devices user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(device__managers=user) | Q(device__owner=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageDeployedDevice.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can manage the deployed device.</p>
+<h5 id="data_models.rules.CanManageDeployedDevice.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageDeployedDevice.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can manage the deployed device.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user in instance.device.managers.all() or user.pk == instance.device.owner</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageDeployedDevice.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for deployed devices user can manage.</p>
+<h5 id="data_models.rules.CanManageDeployedDevice.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageDeployedDevice.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for deployed devices user can manage.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(device__managers=user) | Q(device__owner=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageDeviceContainingDataFile" class="doc doc-heading">
+            <code>CanManageDeviceContainingDataFile</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage a device containing a data file.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageDeviceContainingDataFile(R):
+    """
+    Rule for determining if a user can manage a device containing a data file.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is the owner or a manager of the device containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user == instance.deployment.device.owner
+            or user in instance.deployment.device.managers.all().values_list("pk", flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for devices containing data files user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__device__managers=user) | Q(
+            deployment__device__owner=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageDeviceContainingDataFile.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is the owner or a manager of the device containing the data file.</p>
+<h5 id="data_models.rules.CanManageDeviceContainingDataFile.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageDeviceContainingDataFile.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is the owner or a manager of the device containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user == instance.deployment.device.owner
+        or user in instance.deployment.device.managers.all().values_list("pk", flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageDeviceContainingDataFile.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for devices containing data files user can manage.</p>
+<h5 id="data_models.rules.CanManageDeviceContainingDataFile.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageDeviceContainingDataFile.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for devices containing data files user can manage.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__device__managers=user) | Q(
+        deployment__device__owner=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageProjectContainingDataFile" class="doc doc-heading">
+            <code>CanManageProjectContainingDataFile</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage a project containing a specific data file.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageProjectContainingDataFile(R):
+    """
+    Rule for determining if a user can manage a project containing a specific data file.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager or owner of the project containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.deployment.project.all().values_list("managers__pk", flat=True)
+            or user.pk in instance.deployment.project.all().values_list("owner__pk", flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for projects containing data files user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__project__managers=user) | Q(
+            deployment__project__owner=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDataFile.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a manager or owner of the project containing the data file.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDataFile.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageProjectContainingDataFile.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a manager or owner of the project containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.deployment.project.all().values_list("managers__pk", flat=True)
+        or user.pk in instance.deployment.project.all().values_list("owner__pk", flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDataFile.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for projects containing data files user can manage.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDataFile.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageProjectContainingDataFile.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for projects containing data files user can manage.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__project__managers=user) | Q(
+        deployment__project__owner=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageProjectContainingDeployment" class="doc doc-heading">
+            <code>CanManageProjectContainingDeployment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage or own a project containing a deployment.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageProjectContainingDeployment(R):
+    """
+    Rule for determining if a user can manage or own a project containing a deployment.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager or owner of the deployment's project.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.project.all().values_list('managers__pk', flat=True)
+            or user.pk in instance.project.all().values_list('owner__pk', flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for deployments user can manage or own.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(project__managers=user) | Q(project__owner=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDeployment.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a manager or owner of the deployment's project.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDeployment.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageProjectContainingDeployment.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a manager or owner of the deployment's project.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.project.all().values_list('managers__pk', flat=True)
+        or user.pk in instance.project.all().values_list('owner__pk', flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDeployment.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for deployments user can manage or own.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDeployment.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageProjectContainingDeployment.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for deployments user can manage or own.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(project__managers=user) | Q(project__owner=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanManageProjectContainingDevice" class="doc doc-heading">
+            <code>CanManageProjectContainingDevice</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can manage a project containing a specific device.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanManageProjectContainingDevice(R):
+    """
+    Rule for determining if a user can manage a project containing a specific device.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager or owner of the project containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.deployments.project.all().values_list("managers__pk", flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for projects containing data files user can manage.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployments__project__managers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDevice.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a manager or owner of the project containing the data file.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a manager or owner of the project containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.deployments.project.all().values_list("managers__pk", flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanManageProjectContainingDevice.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for projects containing data files user can manage.</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanManageProjectContainingDevice.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for projects containing data files user can manage.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployments__project__managers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewDataFileDeployment" class="doc doc-heading">
+            <code>CanViewDataFileDeployment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a data file deployment.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewDataFileDeployment(R):
+    """
+    Rule for determining if a user can view a data file deployment.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the data file deployment.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user in instance.deployment.viewers.all()
+
+    def query(self, user):
+        """
+        Construct a query for data file deployments user can view.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__viewers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDataFileDeployment.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the data file deployment.</p>
+<h5 id="data_models.rules.CanViewDataFileDeployment.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewDataFileDeployment.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the data file deployment.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user in instance.deployment.viewers.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDataFileDeployment.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for data file deployments user can view.</p>
+<h5 id="data_models.rules.CanViewDataFileDeployment.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewDataFileDeployment.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for data file deployments user can view.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__viewers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewDeployedDevice" class="doc doc-heading">
+            <code>CanViewDeployedDevice</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a deployed device.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewDeployedDevice(R):
+    """
+    Rule for determining if a user can view a deployed device.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the deployed device.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user in instance.device.viewers.all() or user in instance.device.annotators.all()
+
+    def query(self, user):
+        """
+        Construct a query for deployed devices user can view.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(device__viewers=user) | Q(device__annotators=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeployedDevice.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the deployed device.</p>
+<h5 id="data_models.rules.CanViewDeployedDevice.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewDeployedDevice.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the deployed device.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user in instance.device.viewers.all() or user in instance.device.annotators.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeployedDevice.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for deployed devices user can view.</p>
+<h5 id="data_models.rules.CanViewDeployedDevice.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewDeployedDevice.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for deployed devices user can view.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(device__viewers=user) | Q(device__annotators=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewDeploymentInProject" class="doc doc-heading">
+            <code>CanViewDeploymentInProject</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a deployment within a project.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewDeploymentInProject(R):
+    """
+    Rule for determining if a user can view a deployment within a project.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the deployment via project roles.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.project.viewers.values_list('pk', flat=True)
+            or user.pk in instance.project.annotators.values_list('pk', flat=True)
+            or user.pk in instance.project.managers.values_list('pk', flat=True)
+            or user.pk == instance.project.owner.pk
+        )
+
+    def query(self, user):
+        """
+        Construct a query for deployments the user can view via project roles.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = (
+            Q(project__viewers=user)
+            | Q(project__annotators=user)
+            | Q(project__managers=user)
+            | Q(project__owner=user)
+        )
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeploymentInProject.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the deployment via project roles.</p>
+<h5 id="data_models.rules.CanViewDeploymentInProject.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewDeploymentInProject.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the deployment via project roles.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.project.viewers.values_list('pk', flat=True)
+        or user.pk in instance.project.annotators.values_list('pk', flat=True)
+        or user.pk in instance.project.managers.values_list('pk', flat=True)
+        or user.pk == instance.project.owner.pk
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeploymentInProject.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for deployments the user can view via project roles.</p>
+<h5 id="data_models.rules.CanViewDeploymentInProject.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewDeploymentInProject.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for deployments the user can view via project roles.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = (
+        Q(project__viewers=user)
+        | Q(project__annotators=user)
+        | Q(project__managers=user)
+        | Q(project__owner=user)
+    )
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewDeviceContainingDataFile" class="doc doc-heading">
+            <code>CanViewDeviceContainingDataFile</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a device containing a specific data file.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewDeviceContainingDataFile(R):
+    """
+    Rule for determining if a user can view a device containing a specific data file.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the device containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user.pk in instance.deployment.device.viewers.all().values_list("pk", flat=True)
+
+    def query(self, user):
+        """
+        Construct a query for devices containing data files user can view.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__device__viewers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeviceContainingDataFile.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the device containing the data file.</p>
+<h5 id="data_models.rules.CanViewDeviceContainingDataFile.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewDeviceContainingDataFile.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the device containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user.pk in instance.deployment.device.viewers.all().values_list("pk", flat=True)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeviceContainingDataFile.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for devices containing data files user can view.</p>
+<h5 id="data_models.rules.CanViewDeviceContainingDataFile.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewDeviceContainingDataFile.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for devices containing data files user can view.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__device__viewers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewDeviceInProject" class="doc doc-heading">
+            <code>CanViewDeviceInProject</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a device within a project.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewDeviceInProject(R):
+    """
+    Rule for determining if a user can view a device within a project.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the device via project roles.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.values_list(
+                'deployments__project__viewers__pk', flat=True)
+            or user.pk in instance.values_list('deployments__project__annotators__pk', flat=True)
+            or user.pk in instance.values_list('deployments__project__managers__pk', flat=True)
+            or user.pk in instance.values_list('deployments__project__owner__pk', flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for devices the user can view via project roles.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = (
+            Q(deployments__project__viewers=user)
+            | Q(deployments__project__annotators=user)
+            | Q(deployments__project__managers=user)
+            | Q(deployments__project__owner=user)
+        )
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeviceInProject.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the device via project roles.</p>
+<h5 id="data_models.rules.CanViewDeviceInProject.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewDeviceInProject.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the device via project roles.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.values_list(
+            'deployments__project__viewers__pk', flat=True)
+        or user.pk in instance.values_list('deployments__project__annotators__pk', flat=True)
+        or user.pk in instance.values_list('deployments__project__managers__pk', flat=True)
+        or user.pk in instance.values_list('deployments__project__owner__pk', flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewDeviceInProject.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for devices the user can view via project roles.</p>
+<h5 id="data_models.rules.CanViewDeviceInProject.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewDeviceInProject.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for devices the user can view via project roles.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = (
+        Q(deployments__project__viewers=user)
+        | Q(deployments__project__annotators=user)
+        | Q(deployments__project__managers=user)
+        | Q(deployments__project__owner=user)
+    )
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewProjectContainingDataFile" class="doc doc-heading">
+            <code>CanViewProjectContainingDataFile</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a project containing a specific data file.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewProjectContainingDataFile(R):
+    """
+    Rule for determining if a user can view a project containing a specific data file.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the project containing the data file.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user.pk in instance.deployment.project.all().values_list("viewers__pk", flat=True)
+
+    def query(self, user):
+        """
+        Construct a query for projects containing data files user can view.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(deployment__project__viewers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewProjectContainingDataFile.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the project containing the data file.</p>
+<h5 id="data_models.rules.CanViewProjectContainingDataFile.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewProjectContainingDataFile.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the project containing the data file.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user.pk in instance.deployment.project.all().values_list("viewers__pk", flat=True)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewProjectContainingDataFile.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for projects containing data files user can view.</p>
+<h5 id="data_models.rules.CanViewProjectContainingDataFile.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewProjectContainingDataFile.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for projects containing data files user can view.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(deployment__project__viewers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewProjectContainingDeployment" class="doc doc-heading">
+            <code>CanViewProjectContainingDeployment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a project containing a deployment.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewProjectContainingDeployment(R):
+    """
+    Rule for determining if a user can view a project containing a deployment.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the deployment's project.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user.pk in instance.project.all().values_list("viewers__pk", flat=True)
+
+    def query(self, user):
+        """
+        Construct a query for deployments in projects the user can view or annotate.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(project__viewers=user) | Q(project__annotators=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewProjectContainingDeployment.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the deployment's project.</p>
+<h5 id="data_models.rules.CanViewProjectContainingDeployment.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewProjectContainingDeployment.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the deployment's project.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user.pk in instance.project.all().values_list("viewers__pk", flat=True)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewProjectContainingDeployment.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for deployments in projects the user can view or annotate.</p>
+<h5 id="data_models.rules.CanViewProjectContainingDeployment.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewProjectContainingDeployment.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for deployments in projects the user can view or annotate.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(project__viewers=user) | Q(project__annotators=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.CanViewProjectContainingDevice" class="doc doc-heading">
+            <code>CanViewProjectContainingDevice</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a user can view a project containing a device.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class CanViewProjectContainingDevice(R):
+    """
+    Rule for determining if a user can view a project containing a device.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user can view the project via device deployments.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            user.pk in instance.values_list(
+                "deployments__project__viewers__pk", flat=True)
+            or user.pk in instance.values_list("deployments__project__annotator__pk", flat=True)
+            or user.pk in instance.values_list("deployments__project__managers__pk", flat=True)
+            or user.pk in instance.values_list("deployments__project__owner__pk", flat=True)
+        )
+
+    def query(self, user):
+        """
+        Construct a query for devices in projects the user can access.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = (
+            Q(deployments__project__viewers=user)
+            | Q(deployments__project__annotators=user)
+            | Q(deployments__project__managers=user)
+            | Q(deployments__project__owner=user)
+        )
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewProjectContainingDevice.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user can view the project via device deployments.</p>
+<h5 id="data_models.rules.CanViewProjectContainingDevice.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.CanViewProjectContainingDevice.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user can view the project via device deployments.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return (
+        user.pk in instance.values_list(
+            "deployments__project__viewers__pk", flat=True)
+        or user.pk in instance.values_list("deployments__project__annotator__pk", flat=True)
+        or user.pk in instance.values_list("deployments__project__managers__pk", flat=True)
+        or user.pk in instance.values_list("deployments__project__owner__pk", flat=True)
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.CanViewProjectContainingDevice.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for devices in projects the user can access.</p>
+<h5 id="data_models.rules.CanViewProjectContainingDevice.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.CanViewProjectContainingDevice.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for devices in projects the user can access.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = (
+        Q(deployments__project__viewers=user)
+        | Q(deployments__project__annotators=user)
+        | Q(deployments__project__managers=user)
+        | Q(deployments__project__owner=user)
+    )
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.DataFileHasNoHuman" class="doc doc-heading">
+            <code>DataFileHasNoHuman</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for determining if a data file does not contain human-related data.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataFileHasNoHuman(R):
+    """
+    Rule for determining if a data file does not contain human-related data.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the data file does not contain human data.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return not instance.has_human
+
+    def query(self, user):
+        """
+        Construct a query for data files without human data.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(has_human=False)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.DataFileHasNoHuman.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the data file does not contain human data.</p>
+<h5 id="data_models.rules.DataFileHasNoHuman.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.DataFileHasNoHuman.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the data file does not contain human data.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return not instance.has_human</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.DataFileHasNoHuman.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for data files without human data.</p>
+<h5 id="data_models.rules.DataFileHasNoHuman.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.DataFileHasNoHuman.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for data files without human data.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(has_human=False)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.IsAnnotator" class="doc doc-heading">
+            <code>IsAnnotator</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for checking if a user is an annotator for a given instance.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class IsAnnotator(R):
+    """
+    Rule for checking if a user is an annotator for a given instance.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is an annotator for the instance.
+
+        Parameters
+        ----------
+        user : User
+            The user to check.
+        instance : Model, optional
+            The instance to check against.
+
+        Returns
+        -------
+        bool
+            True if user is an annotator, False otherwise.
+        """
+        return user in instance.annotators.all()
+
+    def query(self, user):
+        """
+        Construct a query to filter instances where user is an annotator.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+            Query for filtering instances.
+        """
+        accumulated_q = Q(annotators=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.IsAnnotator.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is an annotator for the instance.</p>
+<h5 id="data_models.rules.IsAnnotator.check--parameters">Parameters</h5>
+<p>user : User
+    The user to check.
+instance : Model, optional
+    The instance to check against.</p>
+<h5 id="data_models.rules.IsAnnotator.check--returns">Returns</h5>
+<p>bool
+    True if user is an annotator, False otherwise.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is an annotator for the instance.
+
+    Parameters
+    ----------
+    user : User
+        The user to check.
+    instance : Model, optional
+        The instance to check against.
+
+    Returns
+    -------
+    bool
+        True if user is an annotator, False otherwise.
+    """
+    return user in instance.annotators.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.IsAnnotator.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query to filter instances where user is an annotator.</p>
+<h5 id="data_models.rules.IsAnnotator.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.IsAnnotator.query--returns">Returns</h5>
+<p>Q
+    Query for filtering instances.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query to filter instances where user is an annotator.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+        Query for filtering instances.
+    """
+    accumulated_q = Q(annotators=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.IsManager" class="doc doc-heading">
+            <code>IsManager</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for checking if a user is a manager of a given instance.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class IsManager(R):
+    """
+    Rule for checking if a user is a manager of a given instance.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a manager of the instance.
+
+        Parameters
+        ----------
+        user : User
+            The user to check.
+        instance : Model, optional
+            The instance to check against.
+
+        Returns
+        -------
+        bool
+            True if user is a manager, False otherwise.
+        """
+        return user in instance.managers.all()
+
+    def query(self, user):
+        """
+        Construct a query to filter instances managed by the user.
+
+        Parameters
+        ----------
+        user : User
+            The user to filter by.
+
+        Returns
+        -------
+        Q
+            Query for filtering managed instances.
+        """
+        accumulated_q = Q(managers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.IsManager.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a manager of the instance.</p>
+<h5 id="data_models.rules.IsManager.check--parameters">Parameters</h5>
+<p>user : User
+    The user to check.
+instance : Model, optional
+    The instance to check against.</p>
+<h5 id="data_models.rules.IsManager.check--returns">Returns</h5>
+<p>bool
+    True if user is a manager, False otherwise.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a manager of the instance.
+
+    Parameters
+    ----------
+    user : User
+        The user to check.
+    instance : Model, optional
+        The instance to check against.
+
+    Returns
+    -------
+    bool
+        True if user is a manager, False otherwise.
+    """
+    return user in instance.managers.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.IsManager.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query to filter instances managed by the user.</p>
+<h5 id="data_models.rules.IsManager.query--parameters">Parameters</h5>
+<p>user : User
+    The user to filter by.</p>
+<h5 id="data_models.rules.IsManager.query--returns">Returns</h5>
+<p>Q
+    Query for filtering managed instances.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query to filter instances managed by the user.
+
+    Parameters
+    ----------
+    user : User
+        The user to filter by.
+
+    Returns
+    -------
+    Q
+        Query for filtering managed instances.
+    """
+    accumulated_q = Q(managers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.rules.IsViewer" class="doc doc-heading">
+            <code>IsViewer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="bridgekeeper.rules.R">R</span></code></p>
+
+
+        <p>Rule for checking if a user is a viewer of a given instance.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\rules.py</code></summary>
+                <pre class="highlight"><code class="language-python">class IsViewer(R):
+    """
+    Rule for checking if a user is a viewer of a given instance.
+    """
+
+    def check(self, user, instance=None):
+        """
+        Check if the user is a viewer for the instance.
+
+        Parameters
+        ----------
+        user : User
+        instance : Model, optional
+
+        Returns
+        -------
+        bool
+        """
+        return user in instance.viewers.all()
+
+    def query(self, user):
+        """
+        Construct a query for viewer access.
+
+        Parameters
+        ----------
+        user : User
+
+        Returns
+        -------
+        Q
+        """
+        accumulated_q = Q(viewers=user)
+        return final_query(accumulated_q)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.IsViewer.check" class="doc doc-heading">
+            <code class="highlight language-python">check(user, instance=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the user is a viewer for the instance.</p>
+<h5 id="data_models.rules.IsViewer.check--parameters">Parameters</h5>
+<p>user : User
+instance : Model, optional</p>
+<h5 id="data_models.rules.IsViewer.check--returns">Returns</h5>
+<p>bool</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check(self, user, instance=None):
+    """
+    Check if the user is a viewer for the instance.
+
+    Parameters
+    ----------
+    user : User
+    instance : Model, optional
+
+    Returns
+    -------
+    bool
+    """
+    return user in instance.viewers.all()</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.rules.IsViewer.query" class="doc doc-heading">
+            <code class="highlight language-python">query(user)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Construct a query for viewer access.</p>
+<h5 id="data_models.rules.IsViewer.query--parameters">Parameters</h5>
+<p>user : User</p>
+<h5 id="data_models.rules.IsViewer.query--returns">Returns</h5>
+<p>Q</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\rules.py</code></summary>
+              <pre class="highlight"><code class="language-python">def query(self, user):
+    """
+    Construct a query for viewer access.
+
+    Parameters
+    ----------
+    user : User
+
+    Returns
+    -------
+    Q
+    """
+    accumulated_q = Q(viewers=user)
+    return final_query(accumulated_q)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../plotting_functions/" class="btn btn-neutral float-left" title="plotting_functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../serializers/" class="btn btn-neutral float-right" title="serializers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../plotting_functions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../serializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

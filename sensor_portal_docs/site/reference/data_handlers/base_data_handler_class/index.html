@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>base_data_handler_class - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "base_data_handler_class";
+        var mkdocs_page_input_path = "reference\\data_handlers\\base_data_handler_class.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">data_handlers</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">base_data_handler_class</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../dsi/">dsi</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_client/">api_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_functions/">api_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >uva_jobs</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../uva_jobs/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../UVA/UVA/">UVA management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">data_handlers</a></li>
+      <li class="breadcrumb-item active">base_data_handler_class</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="data_handlers.base_data_handler_class"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_handlers.base_data_handler_class.DataTypeHandler" class="doc doc-heading">
+            <code>DataTypeHandler</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>Base class for handling different data types and device models.
+Provides interfaces for file format checking, file handling, and post-download tasks.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataTypeHandler():
+    """
+    Base class for handling different data types and device models.
+    Provides interfaces for file format checking, file handling, and post-download tasks.
+    """
+
+    data_types = ["default"]
+    device_models = ["default"]
+    safe_formats = [""]
+    full_name = "No name provided"
+    description = "No description provided"
+    validity_description = "No validity description provided"
+    handling_description = "No handling description provided"
+    post_handling_description = "No post handling description provided"
+
+    def format_check(self, file, device_label=None):
+        """
+        Check if the file's extension is in the list of safe formats.
+
+        Args:
+            file: File-like object with a 'name' attribute.
+            device_label (optional): Device label, not used by default.
+
+        Returns:
+            bool: True if file format is safe, False otherwise.
+        """
+        return os.path.splitext(file.name)[1].lower() in self.safe_formats
+
+    def all_file_format_check(self, files, device_label=None):
+        """
+        Check if any file in a list matches a safe file format.
+
+        Args:
+            files (list): List of file-like objects.
+            device_label (optional): Device label, not used by default.
+
+        Returns:
+            bool: True if any file matches a safe format, False otherwise.
+        """
+        for file in files:
+            if self.format_check(file, device_label):
+                return True
+        return False
+
+    def get_valid_files(self, files, device_label=None):
+        """
+        Return a list of files that match the safe formats.
+
+        Args:
+            files (list): List of file-like objects.
+            device_label (optional): Device label, not used by default.
+
+        Returns:
+            list: List of valid files.
+        """
+        return [x for x in files if self.format_check(x, device_label)]
+
+    def handle_file(self,
+                    file,
+                    recording_dt: datetime = None,
+                    extra_data: dict = None,
+                    data_type: str = None) -&gt; Tuple[datetime, dict, str, str]:
+        """
+        Handle a file after download, performing any post-processing or validation.
+
+        Args:
+            file: File-like object with a 'name' attribute.
+            recording_dt (datetime, optional): Recording datetime.
+            extra_data (dict, optional): Additional data.
+            data_type (str, optional): The type of data.
+
+        Returns:
+            tuple: (recording_dt, extra_data, data_type, post_download_task)
+        """
+        if extra_data is None:
+            extra_data = {}
+
+        file_format = os.path.splitext(file.name)[1]
+
+        return recording_dt, extra_data, data_type, self.get_post_download_task(file_format)
+
+    def get_post_download_task(self, file_extension: str, first_time: bool = True):
+        """
+        Get a post-download task for the given file extension.
+
+        Args:
+            file_extension (str): The file's extension.
+            first_time (bool, optional): Whether this is the first time handling the file.
+
+        Returns:
+            Any: Task to perform after download. Defaults to None.
+        """
+        return None</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandler.all_file_format_check" class="doc doc-heading">
+            <code class="highlight language-python">all_file_format_check(files, device_label=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if any file in a list matches a safe file format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>files</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>List of file-like objects.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_label</code></b>
+                  (<code><span title="optional">optional</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Device label, not used by default.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bool</code></b>              –
+              <div class="doc-md-description">
+                <p>True if any file matches a safe format, False otherwise.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def all_file_format_check(self, files, device_label=None):
+    """
+    Check if any file in a list matches a safe file format.
+
+    Args:
+        files (list): List of file-like objects.
+        device_label (optional): Device label, not used by default.
+
+    Returns:
+        bool: True if any file matches a safe format, False otherwise.
+    """
+    for file in files:
+        if self.format_check(file, device_label):
+            return True
+    return False</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandler.format_check" class="doc doc-heading">
+            <code class="highlight language-python">format_check(file, device_label=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the file's extension is in the list of safe formats.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file</code></b>
+              –
+              <div class="doc-md-description">
+                <p>File-like object with a 'name' attribute.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_label</code></b>
+                  (<code><span title="optional">optional</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Device label, not used by default.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bool</code></b>              –
+              <div class="doc-md-description">
+                <p>True if file format is safe, False otherwise.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def format_check(self, file, device_label=None):
+    """
+    Check if the file's extension is in the list of safe formats.
+
+    Args:
+        file: File-like object with a 'name' attribute.
+        device_label (optional): Device label, not used by default.
+
+    Returns:
+        bool: True if file format is safe, False otherwise.
+    """
+    return os.path.splitext(file.name)[1].lower() in self.safe_formats</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandler.get_post_download_task" class="doc doc-heading">
+            <code class="highlight language-python">get_post_download_task(file_extension, first_time=True)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get a post-download task for the given file extension.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_extension</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The file's extension.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>first_time</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Whether this is the first time handling the file.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Any</code></b>              –
+              <div class="doc-md-description">
+                <p>Task to perform after download. Defaults to None.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_post_download_task(self, file_extension: str, first_time: bool = True):
+    """
+    Get a post-download task for the given file extension.
+
+    Args:
+        file_extension (str): The file's extension.
+        first_time (bool, optional): Whether this is the first time handling the file.
+
+    Returns:
+        Any: Task to perform after download. Defaults to None.
+    """
+    return None</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandler.get_valid_files" class="doc doc-heading">
+            <code class="highlight language-python">get_valid_files(files, device_label=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a list of files that match the safe formats.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>files</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>List of file-like objects.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_label</code></b>
+                  (<code><span title="optional">optional</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Device label, not used by default.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>list</code></b>              –
+              <div class="doc-md-description">
+                <p>List of valid files.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_valid_files(self, files, device_label=None):
+    """
+    Return a list of files that match the safe formats.
+
+    Args:
+        files (list): List of file-like objects.
+        device_label (optional): Device label, not used by default.
+
+    Returns:
+        list: List of valid files.
+    """
+    return [x for x in files if self.format_check(x, device_label)]</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandler.handle_file" class="doc doc-heading">
+            <code class="highlight language-python">handle_file(file, recording_dt=None, extra_data=None, data_type=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Handle a file after download, performing any post-processing or validation.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file</code></b>
+              –
+              <div class="doc-md-description">
+                <p>File-like object with a 'name' attribute.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>recording_dt</code></b>
+                  (<code><span title="datetime.datetime">datetime</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Recording datetime.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>extra_data</code></b>
+                  (<code><span title="dict">dict</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Additional data.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The type of data.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>tuple</code></b>(                  <code><span title="typing.Tuple">Tuple</span>[<span title="datetime.datetime">datetime</span>, <span title="dict">dict</span>, <span title="str">str</span>, <span title="str">str</span>]</code>
+)              –
+              <div class="doc-md-description">
+                <p>(recording_dt, extra_data, data_type, post_download_task)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def handle_file(self,
+                file,
+                recording_dt: datetime = None,
+                extra_data: dict = None,
+                data_type: str = None) -&gt; Tuple[datetime, dict, str, str]:
+    """
+    Handle a file after download, performing any post-processing or validation.
+
+    Args:
+        file: File-like object with a 'name' attribute.
+        recording_dt (datetime, optional): Recording datetime.
+        extra_data (dict, optional): Additional data.
+        data_type (str, optional): The type of data.
+
+    Returns:
+        tuple: (recording_dt, extra_data, data_type, post_download_task)
+    """
+    if extra_data is None:
+        extra_data = {}
+
+    file_format = os.path.splitext(file.name)[1]
+
+    return recording_dt, extra_data, data_type, self.get_post_download_task(file_format)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection" class="doc doc-heading">
+            <code>DataTypeHandlerCollection</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>Collection class for managing multiple DataTypeHandler subclasses.
+Handles dynamic importing and retrieval of handlers based on data type and device model.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataTypeHandlerCollection():
+    """
+    Collection class for managing multiple DataTypeHandler subclasses.
+    Handles dynamic importing and retrieval of handlers based on data type and device model.
+    """
+
+    data_type_handlers = {}
+    data_handler_list = []
+
+    def __init__(self, root_path="") -&gt; None:
+        """
+        Initialize the collection by importing all handler modules and instantiating their classes.
+
+        Args:
+            root_path (str, optional): Root path to the handlers directory.
+        """
+        handler_dir = os.path.join(
+            root_path, "data_handlers", "handlers")
+        handler_files = [os.path.splitext(x)[0] for x in os.listdir(
+            handler_dir) if os.path.splitext(x)[1] == '.py']
+
+        for handler_file in handler_files:
+            importlib.import_module(
+                f"data_handlers.handlers.{handler_file}")
+
+        all_handlers = DataTypeHandler.__subclasses__()
+        for idx, handler in enumerate(all_handlers):
+            handler_instance = handler()
+            handler_instance.id = idx
+            self.data_handler_list.append(handler_instance)
+            for data_type in handler.data_types:
+                if not self.data_type_handlers.get(data_type):
+                    self.data_type_handlers[data_type] = {}
+                for model in handler.device_models:
+                    self.data_type_handlers[data_type][model.lower(
+                    )] = handler_instance
+
+    def set_default_model(self, data_type, device_model):
+        """
+        Ensure the device model exists for the given data type, defaulting to 'default' if not found.
+
+        Args:
+            data_type (str): The data type.
+            device_model (str): The device model.
+
+        Returns:
+            str or None: The resolved device model, or None if not available.
+        """
+
+        if data_type not in self.data_type_handlers.keys():
+            return None
+
+        device_model = device_model.lower()
+
+        if device_model not in self.data_type_handlers[data_type].keys()\
+                or self.data_type_handlers.get(data_type) is None:
+            device_model = "default"
+        return device_model
+
+    def get_valid_files(self, data_type, device_model, files, device_label=None):
+        """
+        Get files valid for a specified data type and device model.
+
+        Args:
+            data_type (str): The data type.
+            device_model (str): The device model.
+            files (list): List of file-like objects.
+            device_label (optional): Device label, not used by default.
+
+        Returns:
+            list: List of valid files.
+        """
+        device_model = self.set_default_model(data_type, device_model)
+
+        if device_model is None:
+            return []
+
+        return self.data_type_handlers[data_type][device_model].get_valid_files(files, device_label)
+
+    def check_valid_files(self, data_type, device_model, files, device_label=None):
+        """
+        Check if any files are valid for a given data type and device model.
+
+        Args:
+            data_type (str): The data type.
+            device_model (str): The device model.
+            files (list): List of file-like objects.
+            device_label (optional): Device label, not used by default.
+
+        Returns:
+            bool: True if any valid files exist, False otherwise.
+        """
+        device_model = self.set_default_model(data_type, device_model)
+
+        if device_model is None:
+            return False
+
+        return self.data_type_handlers[data_type][device_model].all_file_format_check(files, device_label)
+
+    def check_handlers(self, data_type, device_model):
+        """
+        Check if a handler exists for the given data type and device model.
+
+        Args:
+            data_type (str): The data type.
+            device_model (str): The device model.
+
+        Returns:
+            DataTypeHandler or False: The handler instance if found, otherwise False.
+        """
+        if self.data_type_handlers.get(data_type) is None:
+            return False
+
+        device_model = self.set_default_model(data_type, device_model)
+
+        return self.data_type_handlers[data_type].get(device_model)
+
+    def get_handler(self, data_type, device_model) -&gt; DataTypeHandler:
+        """
+        Retrieve the DataTypeHandler instance for the given data type and device model.
+
+        Args:
+            data_type (str): The data type.
+            device_model (str): The device model.
+
+        Returns:
+            DataTypeHandler or None: The handler instance, or None if not found.
+        """
+        device_model = self.set_default_model(data_type, device_model)
+        if device_model is None:
+            return None
+        logger.info(f"Got data handler {data_type} {device_model}")
+        return self.data_type_handlers[data_type].get(device_model)
+
+    def get_file_handler(self, data_type, device_model) -&gt; Callable:
+        """
+        Retrieve the file handling function for the given data type and device model.
+
+        Args:
+            data_type (str): The data type.
+            device_model (str): The device model.
+
+        Returns:
+            Callable or None: The file handler function, or None if not found.
+        """
+        device_model = self.set_default_model(data_type, device_model)
+
+        if device_model is None:
+            return None
+        logger.info(f"Got data handler {data_type} {device_model}")
+
+        return self.data_type_handlers[data_type][device_model].handle_file</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.__init__" class="doc doc-heading">
+            <code class="highlight language-python">__init__(root_path='')</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize the collection by importing all handler modules and instantiating their classes.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>root_path</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code>&#39;&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Root path to the handlers directory.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def __init__(self, root_path="") -&gt; None:
+    """
+    Initialize the collection by importing all handler modules and instantiating their classes.
+
+    Args:
+        root_path (str, optional): Root path to the handlers directory.
+    """
+    handler_dir = os.path.join(
+        root_path, "data_handlers", "handlers")
+    handler_files = [os.path.splitext(x)[0] for x in os.listdir(
+        handler_dir) if os.path.splitext(x)[1] == '.py']
+
+    for handler_file in handler_files:
+        importlib.import_module(
+            f"data_handlers.handlers.{handler_file}")
+
+    all_handlers = DataTypeHandler.__subclasses__()
+    for idx, handler in enumerate(all_handlers):
+        handler_instance = handler()
+        handler_instance.id = idx
+        self.data_handler_list.append(handler_instance)
+        for data_type in handler.data_types:
+            if not self.data_type_handlers.get(data_type):
+                self.data_type_handlers[data_type] = {}
+            for model in handler.device_models:
+                self.data_type_handlers[data_type][model.lower(
+                )] = handler_instance</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.check_handlers" class="doc doc-heading">
+            <code class="highlight language-python">check_handlers(data_type, device_model)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if a handler exists for the given data type and device model.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_model</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The device model.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>DataTypeHandler or False: The handler instance if found, otherwise False.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check_handlers(self, data_type, device_model):
+    """
+    Check if a handler exists for the given data type and device model.
+
+    Args:
+        data_type (str): The data type.
+        device_model (str): The device model.
+
+    Returns:
+        DataTypeHandler or False: The handler instance if found, otherwise False.
+    """
+    if self.data_type_handlers.get(data_type) is None:
+        return False
+
+    device_model = self.set_default_model(data_type, device_model)
+
+    return self.data_type_handlers[data_type].get(device_model)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.check_valid_files" class="doc doc-heading">
+            <code class="highlight language-python">check_valid_files(data_type, device_model, files, device_label=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if any files are valid for a given data type and device model.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_model</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The device model.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>files</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>List of file-like objects.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_label</code></b>
+                  (<code><span title="optional">optional</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Device label, not used by default.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bool</code></b>              –
+              <div class="doc-md-description">
+                <p>True if any valid files exist, False otherwise.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def check_valid_files(self, data_type, device_model, files, device_label=None):
+    """
+    Check if any files are valid for a given data type and device model.
+
+    Args:
+        data_type (str): The data type.
+        device_model (str): The device model.
+        files (list): List of file-like objects.
+        device_label (optional): Device label, not used by default.
+
+    Returns:
+        bool: True if any valid files exist, False otherwise.
+    """
+    device_model = self.set_default_model(data_type, device_model)
+
+    if device_model is None:
+        return False
+
+    return self.data_type_handlers[data_type][device_model].all_file_format_check(files, device_label)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.get_file_handler" class="doc doc-heading">
+            <code class="highlight language-python">get_file_handler(data_type, device_model)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve the file handling function for the given data type and device model.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_model</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The device model.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Callable">Callable</span></code>
+              –
+              <div class="doc-md-description">
+                <p>Callable or None: The file handler function, or None if not found.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_file_handler(self, data_type, device_model) -&gt; Callable:
+    """
+    Retrieve the file handling function for the given data type and device model.
+
+    Args:
+        data_type (str): The data type.
+        device_model (str): The device model.
+
+    Returns:
+        Callable or None: The file handler function, or None if not found.
+    """
+    device_model = self.set_default_model(data_type, device_model)
+
+    if device_model is None:
+        return None
+    logger.info(f"Got data handler {data_type} {device_model}")
+
+    return self.data_type_handlers[data_type][device_model].handle_file</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.get_handler" class="doc doc-heading">
+            <code class="highlight language-python">get_handler(data_type, device_model)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve the DataTypeHandler instance for the given data type and device model.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_model</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The device model.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><a class="autorefs autorefs-internal" title="DataTypeHandler (data_handlers.base_data_handler_class.DataTypeHandler)" href="#data_handlers.base_data_handler_class.DataTypeHandler">DataTypeHandler</a></code>
+              –
+              <div class="doc-md-description">
+                <p>DataTypeHandler or None: The handler instance, or None if not found.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_handler(self, data_type, device_model) -&gt; DataTypeHandler:
+    """
+    Retrieve the DataTypeHandler instance for the given data type and device model.
+
+    Args:
+        data_type (str): The data type.
+        device_model (str): The device model.
+
+    Returns:
+        DataTypeHandler or None: The handler instance, or None if not found.
+    """
+    device_model = self.set_default_model(data_type, device_model)
+    if device_model is None:
+        return None
+    logger.info(f"Got data handler {data_type} {device_model}")
+    return self.data_type_handlers[data_type].get(device_model)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.get_valid_files" class="doc doc-heading">
+            <code class="highlight language-python">get_valid_files(data_type, device_model, files, device_label=None)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get files valid for a specified data type and device model.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_model</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The device model.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>files</code></b>
+                  (<code><span title="list">list</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>List of file-like objects.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_label</code></b>
+                  (<code><span title="optional">optional</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Device label, not used by default.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>list</code></b>              –
+              <div class="doc-md-description">
+                <p>List of valid files.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_valid_files(self, data_type, device_model, files, device_label=None):
+    """
+    Get files valid for a specified data type and device model.
+
+    Args:
+        data_type (str): The data type.
+        device_model (str): The device model.
+        files (list): List of file-like objects.
+        device_label (optional): Device label, not used by default.
+
+    Returns:
+        list: List of valid files.
+    """
+    device_model = self.set_default_model(data_type, device_model)
+
+    if device_model is None:
+        return []
+
+    return self.data_type_handlers[data_type][device_model].get_valid_files(files, device_label)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_handlers.base_data_handler_class.DataTypeHandlerCollection.set_default_model" class="doc doc-heading">
+            <code class="highlight language-python">set_default_model(data_type, device_model)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Ensure the device model exists for the given data type, defaulting to 'default' if not found.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>device_model</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The device model.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>str or None: The resolved device model, or None if not available.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\base_data_handler_class.py</code></summary>
+              <pre class="highlight"><code class="language-python">def set_default_model(self, data_type, device_model):
+    """
+    Ensure the device model exists for the given data type, defaulting to 'default' if not found.
+
+    Args:
+        data_type (str): The data type.
+        device_model (str): The device model.
+
+    Returns:
+        str or None: The resolved device model, or None if not available.
+    """
+
+    if data_type not in self.data_type_handlers.keys():
+        return None
+
+    device_model = device_model.lower()
+
+    if device_model not in self.data_type_handlers[data_type].keys()\
+            or self.data_type_handlers.get(data_type) is None:
+        device_model = "default"
+    return device_model</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_handlers.base_data_handler_class.check_thumbnails_task" class="doc doc-heading">
+            <code class="highlight language-python">check_thumbnails_task()</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Celery task to generate missing thumbnails for any DataFiles with a suitable filetype.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task(name="check_thumbnails")
+def check_thumbnails_task() -&gt; None:
+    """
+    Celery task to generate missing thumbnails for any DataFiles with a suitable filetype.
+    """
+    from data_models.models import DataFile
+    safe_formats = [".JPG", ".JPEG", ".PNG"]
+    missing_thumbs = DataFile.objects.filter(local_storage=True,
+                                             file_format__in=safe_formats,
+                                             thumb_url__isnull=True)
+    generate_thumbnails(list(missing_thumbs).values_list("pk", flat=True))</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_handlers.base_data_handler_class.generate_thumbnails" class="doc doc-heading">
+            <code class="highlight language-python">generate_thumbnails(file_pks)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Celery task to generate thumbnails for a list of DataFile primary keys.</p>
+<p>This task triggers the thumbnail generation function for each file,
+updates the deployment's thumbnail URL for affected deployments, and
+performs a bulk update to save the new thumbnail URLs.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_pks</code></b>
+                  (<code><span title="typing.List">List</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>List of primary keys for DataFile objects.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_handlers\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task(name="data_handler_generate_thumbnails")
+def generate_thumbnails(file_pks: List[int]) -&gt; None:
+    """
+    Celery task to generate thumbnails for a list of DataFile primary keys.
+
+    This task triggers the thumbnail generation function for each file,
+    updates the deployment's thumbnail URL for affected deployments, and
+    performs a bulk update to save the new thumbnail URLs.
+
+    Args:
+        file_pks (List[int]): List of primary keys for DataFile objects.
+    """
+    from data_models.models import DataFile, Deployment
+
+    from .functions import generate_thumbnail
+    from .post_upload_task_handler import post_upload_task_handler
+    post_upload_task_handler(file_pks, generate_thumbnail)
+
+    deployment_pk = DataFile.objects.filter(pk__in=file_pks).values_list(
+        'deployment__pk', flat=True).distinct()
+    deployment_objs = Deployment.objects.filter(pk__in=deployment_pk)
+    for deployment_obj in deployment_objs:
+        deployment_obj.set_thumb_url()
+
+    Deployment.objects.bulk_update(deployment_objs, ["thumb_url"])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="data_handlers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../functions/" class="btn btn-neutral float-right" title="functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../functions/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

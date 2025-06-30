@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>serializers - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "serializers";
+        var mkdocs_page_input_path = "reference\\data_models\\serializers.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">data_models</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../rules/">rules</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">serializers</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../dsi/">dsi</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_client/">api_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_functions/">api_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >uva_jobs</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../uva_jobs/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../UVA/UVA/">UVA management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">data_models</a></li>
+      <li class="breadcrumb-item active">serializers</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="data_models.serializers"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DataFileCheckSerializer" class="doc doc-heading">
+            <code>DataFileCheckSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for checking if files exist in the system.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataFileCheckSerializer(serializers.Serializer):
+    """
+    Serializer for checking if files exist in the system.
+    """
+
+    file_names = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )
+    original_names = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DataFileSerializer" class="doc doc-heading">
+            <code>DataFileSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="CreatedModifiedMixIn (utils.serializers.CreatedModifiedMixIn)" href="../../utils/serializers/#utils.serializers.CreatedModifiedMixIn">CreatedModifiedMixIn</a></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for DataFile model, including deployment, file type, and user-specific flags.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataFileSerializer(CreatedModifiedMixIn, serializers.ModelSerializer):
+    """
+    Serializer for DataFile model, including deployment, file type, and user-specific flags.
+    """
+
+    deployment = serializers.SlugRelatedField(
+        slug_field='deployment_device_ID', queryset=Deployment.objects.all(), required=False)
+    deployment_ID = serializers.PrimaryKeyRelatedField(source="deployment", queryset=Deployment.objects.all(),
+                                                       required=False)
+    file_type = serializers.StringRelatedField()
+    recording_dt = serializers.DateTimeField(default_timezone=djtimezone.utc)
+
+    def to_representation(self, instance):
+        """
+        Add 'favourite' and 'can_annotate' to serialized DataFile based on request user.
+        """
+        initial_rep = super(DataFileSerializer,
+                            self).to_representation(instance)
+        if self.context.get('request'):
+            request_user = self.context['request'].user
+            initial_rep["favourite"] = instance.favourite_of.all().filter(
+                pk=request_user.pk).exists()
+            initial_rep.pop('path')
+            initial_rep["can_annotate"] = perms['data_models.annotate_datafile'].check(
+                request_user, instance)
+
+        return initial_rep
+
+    class Meta:
+        model = DataFile
+        exclude = ["do_not_remove", "local_path", "favourite_of",
+                   "tar_file"]
+
+    def validate(self, data):
+        """
+        Validate DataFile, ensuring recording date and deployment are consistent.
+        """
+        data = super().validate(data)
+
+        result, message = validators.data_file_in_deployment(
+            data.get('recording_dt', self.instance.recording_dt), data.get('deployment', self.instance.deployment))
+        if not result:
+            raise serializers.ValidationError(message)
+        return data</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DataFileSerializer.to_representation" class="doc doc-heading">
+            <code class="highlight language-python">to_representation(instance)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Add 'favourite' and 'can_annotate' to serialized DataFile based on request user.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def to_representation(self, instance):
+    """
+    Add 'favourite' and 'can_annotate' to serialized DataFile based on request user.
+    """
+    initial_rep = super(DataFileSerializer,
+                        self).to_representation(instance)
+    if self.context.get('request'):
+        request_user = self.context['request'].user
+        initial_rep["favourite"] = instance.favourite_of.all().filter(
+            pk=request_user.pk).exists()
+        initial_rep.pop('path')
+        initial_rep["can_annotate"] = perms['data_models.annotate_datafile'].check(
+            request_user, instance)
+
+    return initial_rep</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DataFileSerializer.validate" class="doc doc-heading">
+            <code class="highlight language-python">validate(data)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate DataFile, ensuring recording date and deployment are consistent.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def validate(self, data):
+    """
+    Validate DataFile, ensuring recording date and deployment are consistent.
+    """
+    data = super().validate(data)
+
+    result, message = validators.data_file_in_deployment(
+        data.get('recording_dt', self.instance.recording_dt), data.get('deployment', self.instance.deployment))
+    if not result:
+        raise serializers.ValidationError(message)
+    return data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DataFileUploadSerializer" class="doc doc-heading">
+            <code>DataFileUploadSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for uploading data files with associated metadata and validation.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataFileUploadSerializer(serializers.Serializer):
+    """
+    Serializer for uploading data files with associated metadata and validation.
+    """
+
+    device = serializers.CharField(required=False)
+    device_ID = serializers.IntegerField(required=False)
+    deployment = serializers.CharField(required=False)
+    deployment_ID = serializers.IntegerField(required=False)
+
+    files = serializers.ListField(child=serializers.FileField(
+        allow_empty_file=False, max_length=None), required=True)
+    file_names = serializers.ListField(child=serializers.CharField(
+    ), required=False)
+    extra_data = serializers.ListField(
+        child=serializers.JSONField(binary=True), required=False)
+    recording_dt = serializers.ListField(
+        child=serializers.DateTimeField(), required=False)
+    autoupdate = serializers.BooleanField(default=False)
+    rename = serializers.BooleanField(default=True)
+    check_filename = serializers.BooleanField(default=True)
+    data_types = serializers.ListField(child=serializers.SlugRelatedField(slug_field='name',
+                                                                          queryset=DataType.objects.all()),
+                                       required=False)
+    is_active = serializers.BooleanField(
+        source="deployment.is_active", read_only=True)
+
+    def create(self, validated_data):
+        """
+        Return validated upload data unchanged.
+        """
+        return validated_data
+
+    def validate(self, data):
+        """
+        Validate upload data for existence, deployment/device, and recording_dt.
+        """
+        data = super().validate(data)
+        deployment = data.get('deployment')
+        deployment_ID = data.get('deployment_ID')
+        device = data.get('device')
+        device_ID = data.get('device_ID')
+
+        if deployment is None and deployment_ID is None and device is None and device_ID is None:
+            raise serializers.ValidationError(
+                "A deployment or a device must be supplied")
+
+        if deployment or deployment_ID:
+            try:
+                deployment_object = Deployment.objects.get(Q(Q(deployment_device_ID=deployment) |
+                                                             Q(pk=deployment_ID)))
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError({"deployment":
+                                                   f"Deployment {deployment} does not exist",
+                                                   "deployment_ID": f"Deployment ID {deployment_ID} does not exist"})
+            data['deployment_object'] = deployment_object
+            data['device_object'] = deployment_object.device
+        elif device or device_ID:
+            try:
+                device_object = Device.objects.get(
+                    Q(Q(device_ID=device) | Q(pk=device_ID)))
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError({"device":
+                                                   f"Device {device} does not exist",
+                                                   "device_ID": f"Device ID {device_ID} does not exist"})
+            data['device_object'] = device_object
+
+        files = data.get("files")
+        recording_dt = data.get('recording_dt')
+        if files:
+            if recording_dt is not None:
+                if len(recording_dt) &gt; 1 and len(recording_dt) != len(data.get('files')):
+                    raise serializers.ValidationError(
+                        {"recording_dt": "More than one recording_dt was supplied, but the number does not match the number of files"})
+
+        return data
+
+    def update(self, validated_data):
+        """
+        Not used.
+        """
+        pass</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DataFileUploadSerializer.create" class="doc doc-heading">
+            <code class="highlight language-python">create(validated_data)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return validated upload data unchanged.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def create(self, validated_data):
+    """
+    Return validated upload data unchanged.
+    """
+    return validated_data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DataFileUploadSerializer.update" class="doc doc-heading">
+            <code class="highlight language-python">update(validated_data)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Not used.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def update(self, validated_data):
+    """
+    Not used.
+    """
+    pass</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DataFileUploadSerializer.validate" class="doc doc-heading">
+            <code class="highlight language-python">validate(data)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate upload data for existence, deployment/device, and recording_dt.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def validate(self, data):
+    """
+    Validate upload data for existence, deployment/device, and recording_dt.
+    """
+    data = super().validate(data)
+    deployment = data.get('deployment')
+    deployment_ID = data.get('deployment_ID')
+    device = data.get('device')
+    device_ID = data.get('device_ID')
+
+    if deployment is None and deployment_ID is None and device is None and device_ID is None:
+        raise serializers.ValidationError(
+            "A deployment or a device must be supplied")
+
+    if deployment or deployment_ID:
+        try:
+            deployment_object = Deployment.objects.get(Q(Q(deployment_device_ID=deployment) |
+                                                         Q(pk=deployment_ID)))
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError({"deployment":
+                                               f"Deployment {deployment} does not exist",
+                                               "deployment_ID": f"Deployment ID {deployment_ID} does not exist"})
+        data['deployment_object'] = deployment_object
+        data['device_object'] = deployment_object.device
+    elif device or device_ID:
+        try:
+            device_object = Device.objects.get(
+                Q(Q(device_ID=device) | Q(pk=device_ID)))
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError({"device":
+                                               f"Device {device} does not exist",
+                                               "device_ID": f"Device ID {device_ID} does not exist"})
+        data['device_object'] = device_object
+
+    files = data.get("files")
+    recording_dt = data.get('recording_dt')
+    if files:
+        if recording_dt is not None:
+            if len(recording_dt) &gt; 1 and len(recording_dt) != len(data.get('files')):
+                raise serializers.ValidationError(
+                    {"recording_dt": "More than one recording_dt was supplied, but the number does not match the number of files"})
+
+    return data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DataTypeSerializer" class="doc doc-heading">
+            <code>DataTypeSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for DataType model (all fields).</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DataTypeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for DataType model (all fields).
+    """
+    class Meta:
+        model = DataType
+        fields = '__all__'</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DeploymentFieldsMixIn" class="doc doc-heading">
+            <code>DeploymentFieldsMixIn</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="InstanceGetMixIn (utils.serializers.InstanceGetMixIn)" href="../../utils/serializers/#utils.serializers.InstanceGetMixIn">InstanceGetMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="OwnerMixIn (utils.serializers.OwnerMixIn)" href="../../utils/serializers/#utils.serializers.OwnerMixIn">OwnerMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ManagerMixIn (utils.serializers.ManagerMixIn)" href="../../utils/serializers/#utils.serializers.ManagerMixIn">ManagerMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="CreatedModifiedMixIn (utils.serializers.CreatedModifiedMixIn)" href="../../utils/serializers/#utils.serializers.CreatedModifiedMixIn">CreatedModifiedMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="CheckFormMixIn (utils.serializers.CheckFormMixIn)" href="../../utils/serializers/#utils.serializers.CheckFormMixIn">CheckFormMixIn</a></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Mixin serializer for deployment-related fields and logic.</p>
+<p>Provides device, project, site, and timezone relationships, as well as
+custom validation for deployments, permission checks, and GeoJSON output.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeploymentFieldsMixIn(InstanceGetMixIn, OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckFormMixIn, serializers.ModelSerializer):
+    """
+    Mixin serializer for deployment-related fields and logic.
+
+    Provides device, project, site, and timezone relationships, as well as
+    custom validation for deployments, permission checks, and GeoJSON output.
+    """
+
+    device_type = serializers.SlugRelatedField(
+        slug_field='name', queryset=DataType.objects.all(), required=False, allow_null=True)
+    device_type_ID = serializers.PrimaryKeyRelatedField(source="device_type", queryset=DataType.objects.all(),
+                                                        required=False, allow_null=True)
+    device = serializers.SlugRelatedField(
+        slug_field='device_ID', queryset=Device.objects.all(), required=False)
+    device_ID = serializers.PrimaryKeyRelatedField(source="device", queryset=Device.objects.all(),
+                                                   required=False)
+    project = serializers.SlugRelatedField(many=True,
+                                           slug_field='project_ID',
+                                           queryset=Project.objects.all().exclude(name=settings.GLOBAL_PROJECT_ID),
+                                           allow_null=True,
+                                           required=False)
+    project_ID = serializers.PrimaryKeyRelatedField(source="project",
+                                                    many=True,
+                                                    queryset=Project.objects.all().exclude(name=settings.GLOBAL_PROJECT_ID),
+                                                    required=False,
+                                                    allow_null=True)
+    site = SlugRelatedGetOrCreateField(slug_field='name',
+                                       queryset=Site.objects.all(),
+                                       required=False, allow_null=True)
+    site_ID = serializers.PrimaryKeyRelatedField(source="site", queryset=Site.objects.all(),
+                                                 required=False, allow_null=True)
+
+    time_zone = TimeZoneSerializerField(
+        use_pytz=True, default=settings.TIME_ZONE)
+
+    deployment_start = serializers.DateTimeField(
+        default=djtimezone.now(), default_timezone=djtimezone.utc)
+    deployment_end = serializers.DateTimeField(
+        default_timezone=djtimezone.utc, required=False, allow_null=True)
+
+    def to_representation(self, instance):
+        """
+        Customize serialized output for deployments, including GeoJSON and permissions.
+        """
+        initial_rep = super(DeploymentFieldsMixIn,
+                            self).to_representation(instance)
+
+        if initial_rep.get('properties') is not None:
+            geojson_rep = initial_rep
+            initial_rep = initial_rep.get('properties')
+        else:
+            geojson_rep = None
+
+        device_model = instance.device.model
+        device_type = instance.device_type
+        initial_rep["colour"] = device_model.colour if device_model.colour != "" else device_type.colour
+        initial_rep["symbol"] = device_model.symbol if device_model.symbol != "" else device_type.symbol
+
+        projects_no_global = [(x, y) for x, y in zip(
+            initial_rep["project"], initial_rep["project_ID"]) if x != settings.GLOBAL_PROJECT_ID]
+
+        initial_rep["project"], initial_rep["project_ID"] = zip(
+            *projects_no_global) if projects_no_global else ([], [])
+
+        if geojson_rep is not None:
+            geojson_rep['properties'] = initial_rep
+
+        return initial_rep
+
+    class Meta:
+        model = Deployment
+        exclude = ['last_image']
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize DeploymentFieldsMixIn, set management permission and flags.
+        """
+        self.clear_project = False
+        self.management_perm = 'data_models.change_deployment'
+        super(DeploymentFieldsMixIn, self).__init__(*args, **kwargs)
+
+    def create(self, *args, **kwargs):
+        """
+        Create and persist a deployment instance.
+        """
+        instance = super(DeploymentFieldsMixIn, self).create(*args, **kwargs)
+        instance.save()
+        return instance
+
+    def update(self, *args, **kwargs):
+        """
+        Update and persist a deployment instance.
+        """
+        instance = super(DeploymentFieldsMixIn, self).update(*args, **kwargs)
+        instance.save()
+        return instance
+
+    def validate(self, data):
+        """
+        Validate deployment data for required relationships and constraints.
+        Raises ValidationError on failure.
+        """
+        if self.form_submission &amp; (data.get('project') is None):
+            data['project'] = []
+
+        data = super().validate(data)
+
+        if not self.partial:
+            result, message, data = check_two_keys(
+                'device',
+                'device_ID',
+                data,
+                Device,
+                self.form_submission
+            )
+            if not result:
+                raise serializers.ValidationError(message)
+
+            result, message, data = check_two_keys(
+                'site',
+                'site_ID',
+                data,
+                Site,
+                self.form_submission
+            )
+            if not result:
+                raise serializers.ValidationError(message)
+
+        result, message = validators.deployment_check_type(self.instance_get('device_type', data),
+                                                           self.instance_get('device', data))
+        if not result:
+            raise serializers.ValidationError(message)
+
+        result, message = validators.deployment_start_time_after_end_time(self.instance_get('deployment_start', data),
+                                                                          self.instance_get('deployment_end', data))
+        if not result:
+            raise serializers.ValidationError(message)
+
+        result, message = validators.deployment_check_overlap(self.instance_get('deployment_start', data),
+                                                              self.instance_get(
+            'deployment_end', data),
+            self.instance_get(
+            'device', data),
+            self.instance_get('id', data))
+        if not result:
+            raise serializers.ValidationError(message)
+
+        return data</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeploymentFieldsMixIn.__init__" class="doc doc-heading">
+            <code class="highlight language-python">__init__(*args, **kwargs)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize DeploymentFieldsMixIn, set management permission and flags.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def __init__(self, *args, **kwargs):
+    """
+    Initialize DeploymentFieldsMixIn, set management permission and flags.
+    """
+    self.clear_project = False
+    self.management_perm = 'data_models.change_deployment'
+    super(DeploymentFieldsMixIn, self).__init__(*args, **kwargs)</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeploymentFieldsMixIn.create" class="doc doc-heading">
+            <code class="highlight language-python">create(*args, **kwargs)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create and persist a deployment instance.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def create(self, *args, **kwargs):
+    """
+    Create and persist a deployment instance.
+    """
+    instance = super(DeploymentFieldsMixIn, self).create(*args, **kwargs)
+    instance.save()
+    return instance</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeploymentFieldsMixIn.to_representation" class="doc doc-heading">
+            <code class="highlight language-python">to_representation(instance)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Customize serialized output for deployments, including GeoJSON and permissions.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def to_representation(self, instance):
+    """
+    Customize serialized output for deployments, including GeoJSON and permissions.
+    """
+    initial_rep = super(DeploymentFieldsMixIn,
+                        self).to_representation(instance)
+
+    if initial_rep.get('properties') is not None:
+        geojson_rep = initial_rep
+        initial_rep = initial_rep.get('properties')
+    else:
+        geojson_rep = None
+
+    device_model = instance.device.model
+    device_type = instance.device_type
+    initial_rep["colour"] = device_model.colour if device_model.colour != "" else device_type.colour
+    initial_rep["symbol"] = device_model.symbol if device_model.symbol != "" else device_type.symbol
+
+    projects_no_global = [(x, y) for x, y in zip(
+        initial_rep["project"], initial_rep["project_ID"]) if x != settings.GLOBAL_PROJECT_ID]
+
+    initial_rep["project"], initial_rep["project_ID"] = zip(
+        *projects_no_global) if projects_no_global else ([], [])
+
+    if geojson_rep is not None:
+        geojson_rep['properties'] = initial_rep
+
+    return initial_rep</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeploymentFieldsMixIn.update" class="doc doc-heading">
+            <code class="highlight language-python">update(*args, **kwargs)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Update and persist a deployment instance.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def update(self, *args, **kwargs):
+    """
+    Update and persist a deployment instance.
+    """
+    instance = super(DeploymentFieldsMixIn, self).update(*args, **kwargs)
+    instance.save()
+    return instance</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeploymentFieldsMixIn.validate" class="doc doc-heading">
+            <code class="highlight language-python">validate(data)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate deployment data for required relationships and constraints.
+Raises ValidationError on failure.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def validate(self, data):
+    """
+    Validate deployment data for required relationships and constraints.
+    Raises ValidationError on failure.
+    """
+    if self.form_submission &amp; (data.get('project') is None):
+        data['project'] = []
+
+    data = super().validate(data)
+
+    if not self.partial:
+        result, message, data = check_two_keys(
+            'device',
+            'device_ID',
+            data,
+            Device,
+            self.form_submission
+        )
+        if not result:
+            raise serializers.ValidationError(message)
+
+        result, message, data = check_two_keys(
+            'site',
+            'site_ID',
+            data,
+            Site,
+            self.form_submission
+        )
+        if not result:
+            raise serializers.ValidationError(message)
+
+    result, message = validators.deployment_check_type(self.instance_get('device_type', data),
+                                                       self.instance_get('device', data))
+    if not result:
+        raise serializers.ValidationError(message)
+
+    result, message = validators.deployment_start_time_after_end_time(self.instance_get('deployment_start', data),
+                                                                      self.instance_get('deployment_end', data))
+    if not result:
+        raise serializers.ValidationError(message)
+
+    result, message = validators.deployment_check_overlap(self.instance_get('deployment_start', data),
+                                                          self.instance_get(
+        'deployment_end', data),
+        self.instance_get(
+        'device', data),
+        self.instance_get('id', data))
+    if not result:
+        raise serializers.ValidationError(message)
+
+    return data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DeploymentSerializer" class="doc doc-heading">
+            <code>DeploymentSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="DeploymentFieldsMixIn (data_models.serializers.DeploymentFieldsMixIn)" href="#data_models.serializers.DeploymentFieldsMixIn">DeploymentFieldsMixIn</a></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for Deployment model for regular (non-GeoJSON) API endpoints.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeploymentSerializer(DeploymentFieldsMixIn, serializers.ModelSerializer):
+    """
+    Serializer for Deployment model for regular (non-GeoJSON) API endpoints.
+    """
+
+    class Meta:
+        model = Deployment
+        exclude = DeploymentFieldsMixIn.Meta.exclude + ['point']</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DeploymentSerializer_GeoJSON" class="doc doc-heading">
+            <code>DeploymentSerializer_GeoJSON</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="DeploymentFieldsMixIn (data_models.serializers.DeploymentFieldsMixIn)" href="#data_models.serializers.DeploymentFieldsMixIn">DeploymentFieldsMixIn</a></code>, <code><span title="rest_framework_gis.serializers.GeoFeatureModelSerializer">GeoFeatureModelSerializer</span></code></p>
+
+
+        <p>Serializer for Deployment model in GeoJSON format.
+Uses the 'point' field as the geographic representation.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeploymentSerializer_GeoJSON(DeploymentFieldsMixIn, geoserializers.GeoFeatureModelSerializer):
+    """
+    Serializer for Deployment model in GeoJSON format.
+    Uses the 'point' field as the geographic representation.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.Meta.geo_field = "point"
+        super(DeploymentSerializer_GeoJSON, self).__init__(*args, **kwargs)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DeviceModelSerializer" class="doc doc-heading">
+            <code>DeviceModelSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="CreatedModifiedMixIn (utils.serializers.CreatedModifiedMixIn)" href="../../utils/serializers/#utils.serializers.CreatedModifiedMixIn">CreatedModifiedMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="OwnerMixIn (utils.serializers.OwnerMixIn)" href="../../utils/serializers/#utils.serializers.OwnerMixIn">OwnerMixIn</a></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for DeviceModel with type fields, handler info, and ownership/timestamps.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeviceModelSerializer(CreatedModifiedMixIn, OwnerMixIn, serializers.ModelSerializer):
+    """
+    Serializer for DeviceModel with type fields, handler info, and ownership/timestamps.
+    """
+
+    type = serializers.SlugRelatedField(
+        slug_field='name', queryset=DataType.objects.all(), required=False)
+    type_ID = serializers.PrimaryKeyRelatedField(source="type", queryset=DataType.objects.all(),
+                                                 required=False)
+
+    class Meta:
+        model = DeviceModel
+        exclude = []
+
+    def to_representation(self, instance):
+        """
+        Add data handler info to serialized DeviceModel if available.
+        """
+        initial_rep = super(DeviceModelSerializer,
+                            self).to_representation(instance)
+
+        handler = settings.DATA_HANDLERS.get_handler(
+            instance.type.name, instance.name)
+        if handler:
+            initial_rep["data_handler"] = handler.full_name
+            initial_rep["data_handler_id"] = handler.id
+        else:
+            initial_rep["data_handler"] = None
+            initial_rep["data_handler_id"] = None
+        return initial_rep</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeviceModelSerializer.to_representation" class="doc doc-heading">
+            <code class="highlight language-python">to_representation(instance)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Add data handler info to serialized DeviceModel if available.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def to_representation(self, instance):
+    """
+    Add data handler info to serialized DeviceModel if available.
+    """
+    initial_rep = super(DeviceModelSerializer,
+                        self).to_representation(instance)
+
+    handler = settings.DATA_HANDLERS.get_handler(
+        instance.type.name, instance.name)
+    if handler:
+        initial_rep["data_handler"] = handler.full_name
+        initial_rep["data_handler_id"] = handler.id
+    else:
+        initial_rep["data_handler"] = None
+        initial_rep["data_handler_id"] = None
+    return initial_rep</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.DeviceSerializer" class="doc doc-heading">
+            <code>DeviceSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="OwnerMixIn (utils.serializers.OwnerMixIn)" href="../../utils/serializers/#utils.serializers.OwnerMixIn">OwnerMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ManagerMixIn (utils.serializers.ManagerMixIn)" href="../../utils/serializers/#utils.serializers.ManagerMixIn">ManagerMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="CreatedModifiedMixIn (utils.serializers.CreatedModifiedMixIn)" href="../../utils/serializers/#utils.serializers.CreatedModifiedMixIn">CreatedModifiedMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="CheckFormMixIn (utils.serializers.CheckFormMixIn)" href="../../utils/serializers/#utils.serializers.CheckFormMixIn">CheckFormMixIn</a></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for Device model with type/model, user fields, and permission-based filtering.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class DeviceSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, CheckFormMixIn, serializers.ModelSerializer):
+    """
+    Serializer for Device model with type/model, user fields, and permission-based filtering.
+    """
+
+    type = serializers.SlugRelatedField(
+        slug_field='name', queryset=DataType.objects.all(), required=False)
+    type_ID = serializers.PrimaryKeyRelatedField(source="type", queryset=DataType.objects.all(),
+                                                 required=False)
+    model = serializers.SlugRelatedField(
+        slug_field='name', queryset=DeviceModel.objects.all(), required=False)
+    model_ID = serializers.PrimaryKeyRelatedField(source="model", queryset=DeviceModel.objects.all(),
+                                                  required=False)
+
+    username = serializers.CharField(required=False)
+    password = serializers.CharField(required=False, write_only=True)
+    is_active = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Device
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        self.management_perm = 'data_models.change_device'
+        super(DeviceSerializer, self).__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        """
+        Remove sensitive fields, filter by permissions, and add handler/color/symbol info.
+        """
+        initial_rep = super(DeviceSerializer, self).to_representation(instance)
+        fields_to_pop = ["username"]
+        fields_to_always_pop = ["password"]
+        [initial_rep.pop(field, '') for field in fields_to_always_pop]
+        if self.context.get('request'):
+            user_is_manager = self.context['request'].user.has_perm(
+                self.management_perm, obj=instance)
+        else:
+            user_is_manager = False
+        if not user_is_manager:
+            [initial_rep.pop(field, '') for field in fields_to_pop]
+
+        device_model = instance.model
+        device_type = instance.type
+        initial_rep["colour"] = device_model.colour if device_model.colour != "" else device_type.colour
+        initial_rep["symbol"] = device_model.symbol if device_model.symbol != "" else device_type.symbol
+
+        handler = settings.DATA_HANDLERS.get_handler(
+            instance.type.name, instance.model.name)
+        if handler:
+            initial_rep["data_handler"] = handler.full_name
+            initial_rep["data_handler_id"] = handler.id
+        else:
+            initial_rep["data_handler"] = None
+            initial_rep["data_handler_id"] = None
+
+        return initial_rep
+
+    def validate(self, data):
+        """
+        Validate device data, ensuring a model is attached and fields are consistent.
+        """
+        data = super().validate(data)
+
+        if not self.partial:
+            result, message, data = check_two_keys(
+                'model',
+                'model_ID',
+                data,
+                Device,
+                self.form_submission
+            )
+            if not result:
+                raise serializers.ValidationError(message)
+
+        return data</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeviceSerializer.to_representation" class="doc doc-heading">
+            <code class="highlight language-python">to_representation(instance)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Remove sensitive fields, filter by permissions, and add handler/color/symbol info.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def to_representation(self, instance):
+    """
+    Remove sensitive fields, filter by permissions, and add handler/color/symbol info.
+    """
+    initial_rep = super(DeviceSerializer, self).to_representation(instance)
+    fields_to_pop = ["username"]
+    fields_to_always_pop = ["password"]
+    [initial_rep.pop(field, '') for field in fields_to_always_pop]
+    if self.context.get('request'):
+        user_is_manager = self.context['request'].user.has_perm(
+            self.management_perm, obj=instance)
+    else:
+        user_is_manager = False
+    if not user_is_manager:
+        [initial_rep.pop(field, '') for field in fields_to_pop]
+
+    device_model = instance.model
+    device_type = instance.type
+    initial_rep["colour"] = device_model.colour if device_model.colour != "" else device_type.colour
+    initial_rep["symbol"] = device_model.symbol if device_model.symbol != "" else device_type.symbol
+
+    handler = settings.DATA_HANDLERS.get_handler(
+        instance.type.name, instance.model.name)
+    if handler:
+        initial_rep["data_handler"] = handler.full_name
+        initial_rep["data_handler_id"] = handler.id
+    else:
+        initial_rep["data_handler"] = None
+        initial_rep["data_handler_id"] = None
+
+    return initial_rep</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="data_models.serializers.DeviceSerializer.validate" class="doc doc-heading">
+            <code class="highlight language-python">validate(data)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate device data, ensuring a model is attached and fields are consistent.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\serializers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def validate(self, data):
+    """
+    Validate device data, ensuring a model is attached and fields are consistent.
+    """
+    data = super().validate(data)
+
+    if not self.partial:
+        result, message, data = check_two_keys(
+            'model',
+            'model_ID',
+            data,
+            Device,
+            self.form_submission
+        )
+        if not result:
+            raise serializers.ValidationError(message)
+
+    return data</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.GenericJobSerializer" class="doc doc-heading">
+            <code>GenericJobSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.Serializer">Serializer</span></code></p>
+
+
+        <p>Serializer for displaying generic jobs.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>id</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Numeric job ID.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>name</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Name of the job.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>task_name</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Celery task name.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_type</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Expected data type.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>admin_only</code></b>
+                  (<code><span title="bool">bool</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>If superuser is required.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>max_items</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Max items for the job.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>default_args</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Default arguments as JSON.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class GenericJobSerializer(serializers.Serializer):
+    """
+    Serializer for displaying generic jobs.
+
+    Attributes:
+        id (int): Numeric job ID.
+        name (str): Name of the job.
+        task_name (str): Celery task name.
+        data_type (str): Expected data type.
+        admin_only (bool): If superuser is required.
+        max_items (int): Max items for the job.
+        default_args (dict): Default arguments as JSON.
+    """
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    task_name = serializers.CharField()
+    data_type = serializers.CharField()
+    admin_only = serializers.BooleanField()
+    max_items = serializers.IntegerField()
+    default_args = serializers.JSONField()</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.ProjectSerializer" class="doc doc-heading">
+            <code>ProjectSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="OwnerMixIn (utils.serializers.OwnerMixIn)" href="../../utils/serializers/#utils.serializers.OwnerMixIn">OwnerMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="ManagerMixIn (utils.serializers.ManagerMixIn)" href="../../utils/serializers/#utils.serializers.ManagerMixIn">ManagerMixIn</a></code>, <code><a class="autorefs autorefs-internal" title="CreatedModifiedMixIn (utils.serializers.CreatedModifiedMixIn)" href="../../utils/serializers/#utils.serializers.CreatedModifiedMixIn">CreatedModifiedMixIn</a></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for Project model with ownership, management, and timestamps.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class ProjectSerializer(OwnerMixIn, ManagerMixIn, CreatedModifiedMixIn, serializers.ModelSerializer):
+    """
+    Serializer for Project model with ownership, management, and timestamps.
+    """
+
+    is_active = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Project
+        exclude = ["data_storages", "automated_tasks", "archive"]
+
+    def __init__(self, *args, **kwargs):
+        self.management_perm = 'data_models.change_project'
+        super(ProjectSerializer, self).__init__(*args, **kwargs)</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="data_models.serializers.SiteSerializer" class="doc doc-heading">
+            <code>SiteSerializer</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+
+
+        <p>Serializer for Site model (all fields).</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>data_models\serializers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class SiteSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Site model (all fields).
+    """
+    class Meta:
+        model = Site
+        fields = '__all__'</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../rules/" class="btn btn-neutral float-left" title="rules"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../signals/" class="btn btn-neutral float-right" title="signals">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../rules/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../signals/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

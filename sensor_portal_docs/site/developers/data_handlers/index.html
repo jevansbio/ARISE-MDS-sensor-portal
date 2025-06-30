@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Data handlers - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Data handlers";
+        var mkdocs_page_input_path = "developers\\data_handlers.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Data handlers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#attributes">Attributes</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#methods-to-override">Methods to override.</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#handle_filefile-recording_dtnone-extra_datanone-data_typenone">handle_file(file, recording_dt=None, extra_data=None, data_type=None)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get_post_download_taskfile_extension-first_timetrue">get_post_download_task(file_extension, first_time=True)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get_valid_filesfiles-device_labelnone">get_valid_files(files, device_label=None)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-custom-data-handler">Creating a custom data handler</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example-reference-defaultimagehandler">Example Reference: DefaultImageHandler</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-post_upload_task_handler-as-a-wrapper">Using post_upload_task_handler as a Wrapper</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#purpose">Purpose</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#signature">Signature</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-use">How to Use</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Code Reference</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/data_models/">data_models</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/plotting_functions/">plotting_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_models/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/dsi/">dsi</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/dsi/api_client/">api_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/dsi/api_functions/">api_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/dsi/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >uva_jobs</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../reference/uva_jobs/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../UVA/UVA/">UVA management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+      <li class="breadcrumb-item active">Data handlers</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="data-handlers">Data handlers</h1>
+<p>A data handler is a generic class for handling data from different sensor models in different ways. These are read on startup and used by the file import functionality.</p>
+<h3 id="attributes">Attributes</h3>
+<ul>
+<li>data_types: A list of <code>DataType__name</code>s that the handler supports e.g. <code>["wildlifecamera"]</code></li>
+<li>device_models: A list of <code>DeviceType__name</code>s that the handler supports e.g <code>["default","BadgerCamera9000"]</code></li>
+<li>safe_formats: A list of save file formats that the handler will deal with e.g. <code>[".jpg"]</code></li>
+<li>full_name: Name of the data handler.</li>
+<li>description: HTML general description of the handler.</li>
+<li>validity_description: HTML description of the validity checks the handler makes.</li>
+<li>handling_description:  HTML description of how the files are handled.</li>
+<li>post_handling_description: HTML description of post-upload tasks run on the file.</li>
+</ul>
+<h2 id="methods-to-override">Methods to override.</h2>
+<h4 id="handle_filefile-recording_dtnone-extra_datanone-data_typenone">handle_file(file, recording_dt=None, extra_data=None, data_type=None)</h4>
+<p>Handle a file after download, performing any post-processing or validation. The method is expected to return:</p>
+<ul>
+<li>
+<p>DateTime of when the file was recorded <code>recording_dt</code>.</p>
+</li>
+<li>
+<p>Dict of <code>extra_data</code> including any extra information that might be important that does not fit into the pre-defined database columns.</p>
+</li>
+<li>
+<p>String of <code>data_type__name</code>, in case the handler overrides the default datatype of the deployment, e.g. a camera that takes both motion detected and timelapse images.</p>
+</li>
+<li>
+<p>String of a post-download celery task that will be carried out when the import is complete. This is typically returned by the <code>get_post_download_task</code> method.</p>
+</li>
+</ul>
+<h4 id="get_post_download_taskfile_extension-first_timetrue">get_post_download_task(file_extension, first_time=True)</h4>
+<p>Returns the name of a post download celery task.</p>
+<h4 id="get_valid_filesfiles-device_labelnone">get_valid_files(files, device_label=None)</h4>
+<p>Return a list of files filtered by custom validity checks.</p>
+<h2 id="creating-a-custom-data-handler">Creating a custom data handler</h2>
+<ol>
+<li><strong>Create a new handler class</strong> in your handlers directory.</li>
+</ol>
+<pre><code class="language-python">from datetime import datetime
+from typing import Tuple
+
+from data_handlers.base_data_handler_class import DataTypeHandler
+
+class CustomFileHandler(DataTypeHandler):
+    data_types = [&quot;mydatatype&quot;]
+    device_models = [&quot;mydevice&quot;]
+    safe_formats = [&quot;.txt&quot;, &quot;.csv&quot;]
+    full_name = &quot;My Custom File Handler&quot;
+    description = &quot;Handles custom text or CSV files.&quot;
+    validity_description = &quot;Files must be .txt or .csv.&quot;
+    handling_description = &quot;Parses text files to extract structured data.&quot;
+    post_handling_description = &quot;Triggers downstream processing tasks if needed.&quot;
+
+    def handle_file(self, file, recording_dt: datetime = None, extra_data: dict = None, data_type: str = None) -&gt; Tuple[datetime, dict, str, str]:
+        # Call base handler
+        recording_dt, extra_data, data_type, task = super().handle_file(file, recording_dt, extra_data, data_type)
+
+        # Add custom file parsing logic here
+        with open(file.path, 'r') as f:
+            content = f.read()
+            extra_data['line_count'] = content.count('\n')
+
+        return recording_dt, extra_data, data_type, task
+
+    def get_post_download_task(self, file_extension: str, first_time: bool = True):
+        # Return a task name for post-download processing
+        return &quot;data_handler_run_analysis&quot;
+</code></pre>
+<ol>
+<li><strong>Register the handler</strong></li>
+</ol>
+<p>Ensure your handler module is located in the <code>data_handlers/handlers/</code> directory.<br />
+The <code>DataTypeHandlerCollection</code> class automatically discovers and instantiates all subclasses of <code>DataTypeHandler</code>.</p>
+<ol>
+<li><strong>Use in processing</strong></li>
+</ol>
+<p>The <code>DataTypeHandlerCollection</code> will route files to your custom handler based on <code>data_type</code> and <code>device_model</code>.</p>
+<p>Example:</p>
+<pre><code class="language-python">handler_collection = DataTypeHandlerCollection()
+handler = handler_collection.get_handler(&quot;mydatatype&quot;, &quot;mydevice&quot;)
+valid_files = handler.get_valid_files(uploaded_files)
+</code></pre>
+<h3 id="example-reference-defaultimagehandler">Example Reference: <code>DefaultImageHandler</code></h3>
+<p>The <code>DefaultImageHandler</code> class demonstrates subclassing to handle <code>.jpg</code>, <code>.jpeg</code>, and <code>.png</code> image files.<br />
+It overrides:</p>
+<ul>
+<li><code>handle_file</code> to extract EXIF metadata</li>
+<li><code>get_post_download_task</code> to specify the task <code>"data_handler_generate_thumbnails"</code></li>
+</ul>
+<p>You can follow a similar structure to implement your own custom logic.</p>
+<h2 id="using-post_upload_task_handler-as-a-wrapper">Using <code>post_upload_task_handler</code> as a Wrapper</h2>
+<p>The <code>post_upload_task_handler</code> is a utility function designed to apply a custom task function to a list of <code>DataFile</code> instances after upload. It ensures each file is safely locked during processing and restored to its original state afterward.</p>
+<h3 id="purpose">Purpose</h3>
+<ul>
+<li>To perform post-upload operations (e.g. metadata extraction, file transformation) on a list of files.</li>
+<li>To isolate errors so one file’s failure doesn’t affect the rest.</li>
+<li>To safely toggle the <code>do_not_remove</code> flag on each file during processing.</li>
+</ul>
+<h3 id="signature">Signature</h3>
+<pre><code class="language-python">post_upload_task_handler(
+    file_pks: List[int],
+    task_function: Callable[[DataFile], Tuple[DataFile | None, List[str] | None]]
+) -&gt; None
+</code></pre>
+<h3 id="how-to-use">How to Use</h3>
+<ol>
+<li><strong>Define your task function:</strong></li>
+</ol>
+<pre><code class="language-python">def my_custom_task(data_file: DataFile) -&gt; Tuple[DataFile, List[str]]:
+    # perform some logic on the data_file
+    data_file.custom_field = &quot;Updated&quot;
+    return data_file, [&quot;custom_field&quot;]
+</code></pre>
+<ol>
+<li><strong>Call post_upload_task_handler with file PKs and your function::</strong></li>
+</ol>
+<pre><code class="language-python">file_pks = [1, 2, 3]
+post_upload_task_handler(file_pks, my_custom_task)
+
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../generic_jobs/" class="btn btn-neutral float-right" title="Generic jobs">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../generic_jobs/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

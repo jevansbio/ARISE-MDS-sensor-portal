@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>plotting_functions - ARISE MDS sensor portal help</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "plotting_functions";
+        var mkdocs_page_input_path = "reference\\data_models\\plotting_functions.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ARISE MDS sensor portal help
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../about/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data structure</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/project/">Project</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/device/">Device</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/deployment/">Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../structure/datafile/">Datafile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Model detail</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/site/">Site</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datatype/">DataType</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/project/">Project</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/devicemodel/">DeviceModel</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/device/">Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/deployment/">Deployment</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datafile/">DataFile</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/taxon/">Taxon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/observation/">Observation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../structure/detail/datapackage/">DataPackage</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/arise_mds_api_examples/">Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../api/upload_data_workflow/">Upload example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For developers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/data_handlers/">Data handlers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developers/generic_jobs/">Generic jobs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Code Reference</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../ai_integration/">ai_integration</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../ai_integration/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../archiving/">archiving</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/bagit_functions/">bagit_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tar_functions/">tar_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../archiving/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../camtrap_dp_export/">camtrap_dp_export</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../camtrap_dp_export/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_handlers/">data_handlers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/base_data_handler_class/">base_data_handler_class</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/functions/">functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/post_upload_task_handler/">post_upload_task_handler</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_handlers/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">data_models</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../file_handling_functions/">file_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../general_functions/">general_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../job_handling_functions/">job_handling_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">plotting_functions</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../data_packages/">data_packages</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/create_zip_functions/">create_zip_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../data_packages/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../dsi/">dsi</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_client/">api_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_functions/">api_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../observation_editor/">observation_editor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/GBIF_functions/">GBIF_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/metadata_functions/">metadata_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../observation_editor/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user_management/">user_management</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/signals/">signals</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../user_management/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/api_renderer/">api_renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/email/">email</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/filtersets/">filtersets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/general/">general</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/paginators/">paginators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/perm_functions/">perm_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/querysets/">querysets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/rules/">rules</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/ssh_client/">ssh_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/task_functions/">task_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/test_functions/">test_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/validators/">validators</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/views/">views</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../utils/viewsets/">viewsets</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >uva_jobs</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../uva_jobs/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">For admin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../UVA/UVA/">UVA management</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Admin only models details</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/projectjob/">Project Job</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/data_storage_input/">Data Storage input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/archive/">Archive</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../admin/detail/tarfile/">TAR file</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ARISE MDS sensor portal help</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">For developers</li>
+          <li class="breadcrumb-item">Code Reference</li>
+          <li class="breadcrumb-item"><a href="../">data_models</a></li>
+      <li class="breadcrumb-item active">plotting_functions</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="data_models.plotting_functions"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_models.plotting_functions.create_metric_dicts" class="doc doc-heading">
+            <code class="highlight language-python">create_metric_dicts(file_dict, x_key, x_label, plot_type)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a dictionary of metrics for plotting.</p>
+<p>This function processes a dictionary of file metrics and generates a structured dictionary
+for plotting purposes, including x-values, y-values, labels, and plot types.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_dict</code></b>
+                  (<code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.List">List</span>[<span title="typing.Any">Any</span>]]</code>)
+              –
+              <div class="doc-md-description">
+                <p>A dictionary containing file metrics. Keys represent metric names,
+and values are lists of metric data.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x_key</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The key in <code>file_dict</code> representing the x-axis values.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x_label</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The label for the x-axis.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>plot_type</code></b>
+                  (<code><span title="typing.List">List</span>[<span title="str">str</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>A list of plot types (e.g., "bar", "scatter") to be associated with the metrics.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>Dict[str, Dict[str, Any]]: A dictionary where each key is a metric name, and the value is another dictionary</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>containing details about the metric (e.g., x_label, y_label, x_values, y_values, plot_type).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\plotting_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def create_metric_dicts(file_dict: Dict[str, List[Any]],
+                        x_key: str,
+                        x_label: str,
+                        plot_type: List[str]) -&gt; Dict[str, Dict[str, Any]]:
+    """
+    Create a dictionary of metrics for plotting.
+
+    This function processes a dictionary of file metrics and generates a structured dictionary
+    for plotting purposes, including x-values, y-values, labels, and plot types.
+
+    Args:
+        file_dict (Dict[str, List[Any]]): A dictionary containing file metrics. Keys represent metric names,
+            and values are lists of metric data.
+        x_key (str): The key in `file_dict` representing the x-axis values.
+        x_label (str): The label for the x-axis.
+        plot_type (List[str]): A list of plot types (e.g., "bar", "scatter") to be associated with the metrics.
+
+    Returns:
+        Dict[str, Dict[str, Any]]: A dictionary where each key is a metric name, and the value is another dictionary
+        containing details about the metric (e.g., x_label, y_label, x_values, y_values, plot_type).
+    """
+    x_values = [str(x) if isinstance(x, (datetime, pd.Timestamp))
+                else x for x in file_dict[x_key]]
+
+    metrics = [x for x in file_dict.keys() if x != x_key]
+
+    all_metrics_dict: Dict[str, Dict[str, Any]] = {}
+
+    for metric in metrics:
+        split_metric = metric.split('__')
+        if len(split_metric) &gt; 1:
+            metric_name, y_label = split_metric
+            if y_label == "":
+                continue
+        else:
+            metric_name = metric
+            y_label = metric
+
+        y_values = file_dict[metric]
+        metric_dict = {
+            "name": metric_name,
+            "x_label": x_label,
+            "y_label": y_label,
+            "x_values": x_values,
+            "y_values": y_values,
+            "plot_type": plot_type,
+        }
+        all_metrics_dict[metric_name] = metric_dict
+
+    return all_metrics_dict</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_models.plotting_functions.get_all_file_metric_dicts" class="doc doc-heading">
+            <code class="highlight language-python">get_all_file_metric_dicts(data_files, get_report_metrics=True)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generate a dictionary containing metrics for all files.</p>
+<p>This function aggregates metrics from the database and optionally from report files.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_files</code></b>
+                  (<code><span title="django.db.models.query.QuerySet">QuerySet</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A Django QuerySet containing file data.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>get_report_metrics</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Whether to include metrics from report files. Defaults to True.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>Dict[str, Dict[str, Any]]: A dictionary containing metrics for all files. Each key represents a metric name,</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>and the value is a dictionary with details about the metric (e.g., x_values, y_values, labels, plot types).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\plotting_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_all_file_metric_dicts(data_files: QuerySet, get_report_metrics: bool = True) -&gt; Dict[str, Dict[str, Any]]:
+    """
+    Generate a dictionary containing metrics for all files.
+
+    This function aggregates metrics from the database and optionally from report files.
+
+    Args:
+        data_files (QuerySet): A Django QuerySet containing file data.
+        get_report_metrics (bool): Whether to include metrics from report files. Defaults to True.
+
+    Returns:
+        Dict[str, Dict[str, Any]]: A dictionary containing metrics for all files. Each key represents a metric name,
+        and the value is a dictionary with details about the metric (e.g., x_values, y_values, labels, plot types).
+    """
+    all_file_metric_dict = {}
+
+    # Database metrics
+    db_file_dict = get_database_file_metrics(data_files)
+    if db_file_dict is not None:
+        db_file_metric_dict = create_metric_dicts(
+            db_file_dict, 'recording_dt__date', 'Date', ["bar", "scatter"]
+        )
+        all_file_metric_dict.update(db_file_metric_dict)
+
+    if get_report_metrics:
+        # Report file metrics
+        report_file_metric_dict = report_file_metrics(data_files)
+        all_file_metric_dict.update(report_file_metric_dict)
+
+    return all_file_metric_dict</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_models.plotting_functions.get_database_file_metrics" class="doc doc-heading">
+            <code class="highlight language-python">get_database_file_metrics(data_files)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Aggregates metrics from a database query of data files, grouping by recording date.
+Args:
+    data_files (QuerySet): A Django QuerySet containing data file records. 
+        Each record is expected to have fields <code>recording_dt__date</code>, <code>id</code>, and <code>file_size</code>.
+Returns:
+    Optional[Dict[str, List[Union[date, int]]]]: A dictionary containing aggregated metrics 
+    if data exists, or <code>None</code> if no data is available. The dictionary keys are:
+        - 'recording_dt__date': List of unique recording dates.
+        - 'files_per_day__number_of_files': List of the number of files recorded per day.
+        - 'file_volume_per_day__bytes': List of the total file size (in bytes) recorded per day.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\plotting_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def get_database_file_metrics(data_files: QuerySet) -&gt; Optional[Dict[str, List[Union[date, int]]]]:
+    """
+    Aggregates metrics from a database query of data files, grouping by recording date.
+    Args:
+        data_files (QuerySet): A Django QuerySet containing data file records. 
+            Each record is expected to have fields `recording_dt__date`, `id`, and `file_size`.
+    Returns:
+        Optional[Dict[str, List[Union[date, int]]]]: A dictionary containing aggregated metrics 
+        if data exists, or `None` if no data is available. The dictionary keys are:
+            - 'recording_dt__date': List of unique recording dates.
+            - 'files_per_day__number_of_files': List of the number of files recorded per day.
+            - 'file_volume_per_day__bytes': List of the total file size (in bytes) recorded per day.
+    """
+    # do aggregation of files per day
+
+    file_dict = data_files.values('recording_dt__date').order_by('recording_dt__date').annotate(
+        files_per_day__number_of_files=Count('id'),
+        file_volume_per_day__bytes=Sum('file_size')).values(
+            'recording_dt__date',
+            'files_per_day__number_of_files',
+            'file_volume_per_day__bytes')
+
+    file_dict = list(file_dict)
+
+    if len(file_dict) == 0:
+        return None
+
+    file_dict = {k: [current_dict[k]
+                     for current_dict in file_dict] for k in file_dict[0]}
+
+    return file_dict</code></pre>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="data_models.plotting_functions.report_file_metrics" class="doc doc-heading">
+            <code class="highlight language-python">report_file_metrics(data_files)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Extract metrics from report files and prepare them for plotting.</p>
+<p>This function filters report files from the provided QuerySet, reads their contents,
+processes the data, and generates a dictionary of metrics suitable for plotting.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data_files</code></b>
+                  (<code><span title="django.db.models.query.QuerySet">QuerySet</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A Django QuerySet containing file data. Each record is expected
+to have fields <code>file_type__name</code>, <code>local_storage</code>, <code>file_format</code>, <code>local_path</code>, <code>path</code>,
+<code>file_name</code>, and <code>file_format</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>Dict[str, Dict[str, Any]]: A dictionary where each key is a metric name, and the value is another dictionary</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>containing details about the metric (e.g., x_label, y_label, x_values, y_values, plot_type).</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>Returns an empty dictionary if no valid report files are found or if no datetime columns exist in the data.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>data_models\plotting_functions.py</code></summary>
+              <pre class="highlight"><code class="language-python">def report_file_metrics(data_files: QuerySet) -&gt; Dict[str, Dict[str, Any]]:
+    """
+    Extract metrics from report files and prepare them for plotting.
+
+    This function filters report files from the provided QuerySet, reads their contents,
+    processes the data, and generates a dictionary of metrics suitable for plotting.
+
+    Args:
+        data_files (QuerySet): A Django QuerySet containing file data. Each record is expected
+            to have fields `file_type__name`, `local_storage`, `file_format`, `local_path`, `path`,
+            `file_name`, and `file_format`.
+
+    Returns:
+        Dict[str, Dict[str, Any]]: A dictionary where each key is a metric name, and the value is another dictionary
+        containing details about the metric (e.g., x_label, y_label, x_values, y_values, plot_type).
+        Returns an empty dictionary if no valid report files are found or if no datetime columns exist in the data.
+    """
+    data_files = data_files.filter(
+        file_type__name="report", local_storage=True, file_format=".csv"
+    )
+
+    if not data_files.exists():
+        return {}
+
+    file_path_dicts = list(data_files.values(
+        "local_path", "path", "file_name", "file_format"
+    ))
+
+    # Read the CSV files into DataFrames
+    all_df_list: List[pd.DataFrame] = []
+    for file_path_dict in file_path_dicts:
+        file_path = os.path.join(
+            file_path_dict["local_path"],
+            file_path_dict["path"],
+            file_path_dict["file_name"] + file_path_dict["file_format"]
+        )
+        df = pd.read_csv(file_path)
+        df.columns = df.columns.str.lower()
+        all_df_list.append(df)
+
+    full_df = pd.concat(all_df_list)
+
+    # Attempt to convert columns to datetime if applicable
+    full_df = full_df.apply(
+        lambda col: pd.to_datetime(col, errors='ignore')
+        if col.dtypes == object and 'date' in col.name else col,
+        axis=0
+    )
+
+    full_df = full_df.convert_dtypes()
+
+    date_time_cols = full_df.select_dtypes(include=[np.datetime64])
+
+    # Assume the first datetime column is the correct one
+    date_time_keys = list(date_time_cols.columns.values)
+
+    if len(date_time_keys) == 0:
+        return {}
+
+    date_time_key = date_time_keys[0]
+    if len(date_time_keys) &gt; 1:
+        full_df.drop(columns=date_time_keys[1:], inplace=True)
+
+    full_df = full_df.sort_values(by=date_time_key)
+
+    full_df_numeric = full_df.select_dtypes(include=[np.datetime64, np.number])
+
+    file_dict = full_df_numeric.to_dict(orient="list")
+
+    metric_dict = create_metric_dicts(
+        file_dict, date_time_key, "Date", ["scatter"]
+    )
+    return metric_dict</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../models/" class="btn btn-neutral float-left" title="models"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rules/" class="btn btn-neutral float-right" title="rules">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../models/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../rules/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
