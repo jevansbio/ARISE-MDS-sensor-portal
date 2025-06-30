@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 from posixpath import join as posixjoin
 from typing import Any, Callable, List, Optional
 
@@ -8,7 +9,7 @@ from data_models.job_handling_functions import register_job
 from data_models.models import DataFile, TarFile
 from django.conf import settings
 from django.utils import timezone as djtimezone
-from utils.general import divide_chunks
+from utils.general import call_with_output, divide_chunks
 from utils.task_functions import TooManyTasks, check_simultaneous_tasks
 
 from sensor_portal.celery import app
@@ -342,19 +343,33 @@ def backup_database_task(archive_pk: int) -> None:
         archive_pk (int): Primary key of the Archive object to which the backup will be uploaded.
     """
 
-    from django.core import management
     logger.info(f"Starting database backup for archive {archive_pk}")
     archive_obj = Archive.objects.get(pk=archive_pk)
     backup_name = 'new_db_backup.psql.gz'
     backup_local_path = os.path.join(
         settings.FILE_STORAGE_ROOT, backup_name)
 
+    db_info = settings.DATABASES.get("default")
+
     try:
         os.remove(backup_local_path)
     except FileNotFoundError:
         pass
-    management.call_command('dbbackup', '-c', '-z',
-                            '--noinput', output_filename=backup_name)
+
+    # django database backup command not working on production. Hacky solution to use pg_dump directly
+    command =\
+        f"pg_dump --dbname=postgresql://{db_info.get('USER')}:'{db_info.get('PASSWORD')}'@{db_info.get('HOST')}:{db_info.get('PORT')}/{db_info.get('NAME')} --clean | gzip > {backup_local_path}"
+
+    try:
+        output = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, shell=True
+        ).decode()
+        logger.info(f"Database backup command output: {output}")
+    except subprocess.CalledProcessError as e:
+        logger.error("Error backing up database")
+        logger.error(e)
+        return
+
     logger.info(f"Database backup created at {backup_local_path}")
     # If not in development mode, upload the backup to the archive
     if os.environ.get('DEV', None) is None or os.environ.get('DEV', None) is False:
