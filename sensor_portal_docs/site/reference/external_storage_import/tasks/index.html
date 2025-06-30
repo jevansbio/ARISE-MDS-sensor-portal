@@ -465,7 +465,7 @@ def check_external_storage_input_task(storage_pk: int, remove_bad: bool = False)
     """
     from .models import DataStorageInput
     storage = DataStorageInput.objects.get(pk=storage_pk)
-    storage.check_input()</code></pre>
+    storage.check_input(remove_bad)</code></pre>
             </details>
     </div>
 
