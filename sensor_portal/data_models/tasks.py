@@ -232,8 +232,6 @@ def check_device_status():
         if len(device_list_string) == 0:
             return
 
-            logger.info(f"No bad devices for {user.username}")
-            continue
         logger.info(f"Got bad device info for {user.username}")
 
         # send them an email
