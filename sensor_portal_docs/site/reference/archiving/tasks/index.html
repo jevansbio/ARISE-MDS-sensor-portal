@@ -198,6 +198,16 @@
                 </li>
     </ul>
                 </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../dsi/">dsi</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_client/">api_client</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/api_functions/">api_functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../dsi/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../external_storage_import/">external_storage_import</a>
     <ul>
                 <li class="toctree-l3"><a class="reference internal" href="../../external_storage_import/filtersets/">filtersets</a>
@@ -286,12 +296,20 @@
                 </li>
     </ul>
                 </li>
+                <li class="toctree-l2"><a class="reference internal" >uva_jobs</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../uva_jobs/tasks/">tasks</a>
+                </li>
+    </ul>
+                </li>
     </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">For admin</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../../admin/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../UVA/UVA/">UVA management</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../admin/permissions/">Permissions</a>
                   </li>
@@ -358,6 +376,61 @@
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="archiving.tasks.backup_database_task" class="doc doc-heading">
+            <code class="highlight language-python">backup_database_task(archive_pk)</code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Task to backup the database, uploading it to an archive.
+Args:
+    archive_pk (int): Primary key of the Archive object to which the backup will be uploaded.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>archiving\tasks.py</code></summary>
+              <pre class="highlight"><code class="language-python">@app.task(name="backup_database")
+def backup_database_task(archive_pk: int) -&gt; None:
+    """
+    Task to backup the database, uploading it to an archive.
+    Args:
+        archive_pk (int): Primary key of the Archive object to which the backup will be uploaded.
+    """
+
+    from django.core import management
+    logger.info(f"Starting database backup for archive {archive_pk}")
+    archive_obj = Archive.objects.get(pk=archive_pk)
+    backup_name = 'new_db_backup.psql.gz'
+    backup_local_path = os.path.join(
+        settings.FILE_STORAGE_ROOT, backup_name)
+
+    try:
+        os.remove(backup_local_path)
+    except FileNotFoundError:
+        pass
+    management.call_command('dbbackup', '-c', '-z',
+                            '--noinput', output_filename=backup_name)
+    logger.info(f"Database backup created at {backup_local_path}")
+    # If not in development mode, upload the backup to the archive
+    if os.environ.get('DEV', None) is None or os.environ.get('DEV', None) is False:
+        logger.info(
+            f"Uploading database backup {backup_name} to archive {archive_pk}")
+        ssh_client = archive_obj.init_ssh_client()
+        ssh_client.connect_to_scp()
+        ssh_client.scp_c.put(backup_local_path,
+                             posixjoin(archive_obj.root_folder, backup_name),
+                             preserve_times=True)
+        logger.info(f"Database backup {backup_name} uploaded successfully")</code></pre>
+            </details>
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 
@@ -934,6 +1007,7 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -&gt; None:
     Args:
         all_file_pks (List[List[int]]): Nested lists of file PKs.
     """
+    logger.info("Post-processing files after retrieval from archive")
     # Flatten the list of lists of PKs into a single list
     all_file_pks_flat = [item for items in all_file_pks for item in items]
     # Query all DataFile objects just downloaded
@@ -944,6 +1018,7 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -&gt; None:
 
     # For each unique device model, process files by format
     for device_model in device_models:
+        logger.info(f"Processing files for device model {device_model}")
         sensor_model_file_objs = file_objs.filter(
             deployment__device__model=device_model)
         # Look up the handler for this model
@@ -955,6 +1030,8 @@ def post_get_file_from_archive_task(all_file_pks: List[List[int]]) -&gt; None:
 
         # For each file format, create and dispatch a post-download task if available
         for device_file_format in device_file_formats:
+            logger.info(
+                f"Processing files for device model {device_model} with format {device_file_format}")
             device_model_format_file_objs = sensor_model_file_objs.filter(
                 file_format=device_file_format)
             device_model_format_file_file_names = list(
