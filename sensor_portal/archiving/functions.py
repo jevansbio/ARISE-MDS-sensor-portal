@@ -134,4 +134,4 @@ def check_archive_upload(archive: Archive) -> None:
             logger.info(f"{tar_obj.name} uploading failed")
         tar_obj.save()
 
-        archive_ssh.close_connection()
+    archive_ssh.close_connection()
