@@ -2,25 +2,25 @@
 
 ## Basic access 
 
-1. SSH into the server (you must be on a university network to do this)
+##### SSH into the server (you must be on a university network to do this)
 
-2. Switch to podman user:
+##### Switch to podman user:
 
 ``` bash
 sudo -su podman
 ```
 
-3. View running containers:
+##### View running containers:
 ```bash
 podman ps -a
 ```
 
-4. Stop all containers:
+##### Stop all containers:
 ```bash
 podman-compose down
 ```
 
-5. Start all containers:
+##### Start all containers:
 ```bash
 podman-compose up -d
 ```
@@ -57,14 +57,14 @@ podman logs -f --tail 100 arise-mds-sensor-portal_sensor_portal_worker_1 2>&1 | 
 
 ## Check running jobs
 
-1. See all celery jobs and arguments:
+##### See all celery jobs and arguments:
 
 ```bash
 podman exec arise-mds-sensor-portal_sensor_portal_django_1 celery inspect active 
 
 ```
 
-2. See just the essential details:
+##### See just the essential details:
 
 Just running celery inspect active can flood your terminal with all the arguments being used in the jobs (which might be many many files). We can filter the output using grep so as to just see the task names.
 
@@ -76,29 +76,29 @@ podman exec arise-mds-sensor-portal_sensor_portal_django_1 celery inspect active
 
 ## Update containers
 
-1. Switch to source code directory:
+##### Switch to source code directory:
 
 ```bash
 cd /home/podman/ARISE-MDS-sensor-portal/
 ```
 
-2. Get latest version of the source code:
+##### Get latest version of the source code:
 ```bash
 git pull
 ```
-3. Rebuild container images:
+##### Rebuild container images:
 
 This may take a little time
 ```bash
 podman-compose build
 ```
 
-4. Stop existing containers.
+##### Stop existing containers.
 ```bash
 podman-compose down
 ```
 
-5. Start containers using the new images
+##### Start containers using the new images
 ```bash
 podman-compose up -d
 ```
@@ -107,34 +107,34 @@ podman-compose up -d
 
 The ultralytics celery container is optional, but is neccesary to carry out AI inference. It runs on the same network as the other containers, but has its own docker-compose file.
 
-1. Switch to ultralytics-celery directory
+##### Switch to ultralytics-celery directory
 
 ```
 cd /home/podman/ultralytics_celery
 ```
 
-2. Get latest version of the source code:
+##### Get latest version of the source code:
 ```bash
 git pull
 ```
-3. Rebuild container images:
+##### Rebuild container images:
 
 This may take a little time
 ```bash
 podman-compose build
 ```
 
-4. Stop existing containers.
+##### Stop existing containers.
 ```bash
 podman-compose down
 ```
 
-5. Start containers using the new images
+##### Start containers using the new images
 ```bash
 podman-compose up -d
 ```
 
-6. Check the ultralytics celery queue is on the same network as the rest of the containers
+##### Check the ultralytics celery queue is on the same network as the rest of the containers
 
 ```bash
 podman exec arise-mds-sensor-portal_sensor_portal_django_1 celery inspect active 
@@ -143,7 +143,7 @@ podman exec arise-mds-sensor-portal_sensor_portal_django_1 celery inspect active
 
 ## Execute python code inside the containers
 
-1. Enter the container
+##### Enter the container
 
 ```bash
 podman exec -it arise-mds-sensor-portal_sensor_portal_django_1 python manage.py shell
@@ -151,18 +151,19 @@ podman exec -it arise-mds-sensor-portal_sensor_portal_django_1 python manage.py 
 
 The `-it` flag indicates we want to run this session interactively.
 
-2. Run your python code
+##### Run your python code
 ```python
 print("Hello world, I am inside the container")
 ```
 
 ### Carry out a database query
-1. import models
+
+#### import models
 ```python
 from data_models.models import DataFile
 ```
 
-2. Carry out a simple query
+##### Carry out a simple query
 ```python
 my_query = DataFile.objects.filter(local_storage=True)
 print(my_query)
@@ -171,19 +172,19 @@ print(my_query)
 See Django documentation for more details.
 
 ### Start a job
-1. import tasks
+##### import tasks
 ```python
 from data_models.tasks import check_device_status
 ```
 
-2. Run it asynchronously 
+##### Run it asynchronously 
 ```python
 check_device_status.apply_async()
 ```
 
 You will receive an async result, meaning that this task is now running on the celery workers.
 
-3. Run a task with arguments
+##### Run a task with arguments
 
 Often we want to run these jobs with arguments. A common pattern in this system is to pass the primary keys `pk` of objects that the job is to run on.
 
