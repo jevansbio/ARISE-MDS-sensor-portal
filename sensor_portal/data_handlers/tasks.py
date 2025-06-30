@@ -13,7 +13,7 @@ def check_thumbnails_task() -> None:
     missing_thumbs = DataFile.objects.filter(local_storage=True,
                                              file_format__in=safe_formats,
                                              thumb_url__isnull=True)
-    generate_thumbnails(list(missing_thumbs).values_list("pk", flat=True))
+    generate_thumbnails(list(missing_thumbs.values_list("pk", flat=True)))
 
 
 @app.task(name="data_handler_generate_thumbnails")
