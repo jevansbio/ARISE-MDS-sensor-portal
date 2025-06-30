@@ -64,6 +64,7 @@ class Archive(BaseModel):
     def check_upload(self) -> None:
         """Check and update archive uploads."""
         from .functions import check_archive_upload
+        logger.info(f"Check archive upload {self.name}")
         check_archive_upload(self)
 
 
