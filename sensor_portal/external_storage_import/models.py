@@ -260,12 +260,12 @@ class DataStorageInput(BaseModel):
                     f"{self.name} - {device.device_ID} - {problem_file}")
                 if remove_bad:
                     mtime = ssh_client.ftp_sftp.stat(
-                        join(device.username, filename)).st_mtime
+                        join(device.username, problem_file)).st_mtime
                     last_modified = datetime.fromtimestamp(mtime)
                     if (datetime.now() - last_modified) <= timedelta(days=7):
                         ssh_client.ftp_sftp.remove(
-                            join(device.username, file_obj.original_name))
+                            join(device.username, problem_file))
                         logger.info(
-                            f"{self.name} - {device.device_ID} - {file_obj.original_name} removed")
+                            f"{self.name} - {device.device_ID} - {problem_file} removed")
 
         ssh_client.close_connection_to_ftp()
