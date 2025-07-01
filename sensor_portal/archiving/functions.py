@@ -83,11 +83,13 @@ def check_archive_upload(archive: Archive) -> None:
     connect_ftp_success = archive_ssh.connect_to_ftp()
     connect_scp_success = archive_ssh.connect_to_scp()
     if not connect_scp_success or not connect_ftp_success:
+        logger.error("No archive connection")
         return
 
     for tar_obj in tars_to_upload:
-
+        logger.info(f"{tar_obj.name} try to upload")
         if tar_obj.uploading or tar_obj.archived:
+            logger.info(f"{tar_obj.name} already handled")
             continue
         logger.info(f"{tar_obj.name} uploading")
         tar_obj.uploading = True
@@ -107,6 +109,7 @@ def check_archive_upload(archive: Archive) -> None:
             settings.FILE_STORAGE_ROOT, tar_obj.path, tar_full_name)
         success = False
         try:
+            logger.info(f"{tar_obj.name} - start upload")
             archive_ssh.mkdir_p(upload_path)
 
             archive_ssh.scp_c.put(full_tar_local_path,
